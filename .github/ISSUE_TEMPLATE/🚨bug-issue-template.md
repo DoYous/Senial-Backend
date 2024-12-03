@@ -2,7 +2,7 @@
 name: "\U0001F6A8Bug Issue Template"
 about: 버그 발생 시 활용
 title: "[bugfix/backend-number/BUG] Title"
-labels: bug
+labels: ''
 assignees: ''
 
 ---
