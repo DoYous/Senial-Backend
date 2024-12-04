@@ -32,5 +32,17 @@ public class Favorites {
         this.user = user;
         this.hobby = hobby;
     }
+    /*초기용 user*/
+    public void initializeUser(User user){
+        this.user = user;
+    }
+    /*초기용 hobby*/
+    public void initializeHobby(Hobby hobby){
+        this.hobby = hobby;
+    }
 
+    /*업데이트용 hobby*/
+    public void updateHobby(Hobby hobby){
+        this.hobby = hobby;
+    }
 }
