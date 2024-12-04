@@ -8,10 +8,7 @@ import com.senials.hobbyreview.dto.HobbyReviewDTO;
 import com.senials.hobbyreview.service.HobbyReviewService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +72,23 @@ public class HobbyController {
         responseMap.put("hobby", hobbyDTOList);
 
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
+    }
+
+    //맞춤형 취미 추천 결과 조회
+    @GetMapping("/suggest-hobby-result")
+    public ResponseEntity<ResponseMessage> getSuggestHobby(@RequestParam int hobbyAbility,
+                                                           @RequestParam int hobbyBudget,
+                                                           @RequestParam int hobbyLevel,
+                                                           @RequestParam int hobbyTendency) {
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+
+        HobbyDTO hobbyDTO = hobbyService.suggestHobby(hobbyAbility, hobbyBudget,hobbyTendency, hobbyLevel);
+
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("hobby", hobbyDTO);
+
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(201, "생성 성공", responseMap));
     }
 
 }
