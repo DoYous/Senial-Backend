@@ -65,4 +65,23 @@ public class PartyMemberService {
         partyBoard.registerPartyMember(newMember);
 
     }
+
+
+    /* 모임 탈퇴 */
+    @Transactional
+    public void unregisterPartyMember (int userNumber, int partyBoardNumber) {
+
+        PartyBoard targetPartyBoard = partyBoardRepository.findById(partyBoardNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        User targetUser = userRepository.findById(userNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+
+        PartyMember targetPartyMember = partyMemberRepository.findByPartyBoardAndUser(targetPartyBoard, targetUser);
+
+
+        partyMemberRepository.delete(targetPartyMember);
+
+    }
 }

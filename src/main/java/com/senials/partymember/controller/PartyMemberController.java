@@ -6,10 +6,7 @@ import com.senials.user.dto.UserDTOForPublic;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -57,5 +54,19 @@ public class PartyMemberController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 가입 성공", null));
+    }
+
+    /* 모임 탈퇴 */
+    @DeleteMapping("/partyboards/{partyBoardNumber}/partymembers")
+    public ResponseEntity<ResponseMessage> unregisterPartyMember (
+            @PathVariable Integer partyBoardNumber
+    ) {
+        /* 세션 유저 */
+        int userNumber = 2;
+        partyMemberService.unregisterPartyMember(userNumber, partyBoardNumber);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 탈퇴 성공", null));
     }
 }
