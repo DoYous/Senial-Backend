@@ -69,4 +69,17 @@ public class PartyReviewController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 후기 수정 성공", null));
     }
 
+    /* 모임 후기 삭제 */
+    @DeleteMapping("/partyboards/{partyBoardNumber}/partyreviews/{partyReviewNumber}")
+    public ResponseEntity<ResponseMessage> removePartyReview (
+            @PathVariable Integer partyReviewNumber
+    ) {
+
+        partyReviewService.removePartyReview(partyReviewNumber);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 후기 삭제 성공", null));
+    }
+
 }

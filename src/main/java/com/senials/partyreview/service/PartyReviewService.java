@@ -92,4 +92,12 @@ public class PartyReviewService {
         partyReview.updatePartyReviewRate(partyReviewDTO.getPartyReviewRate());
         partyReview.updatePartyReviewDetail(partyReviewDTO.getPartyReviewDetail());
     }
+
+    /* 모임 후기 삭제 */
+    @Transactional
+    public void removePartyReview (int partyReviewNumber) {
+
+        partyReviewRepository.deleteById(partyReviewNumber);
+
+    }
 }
