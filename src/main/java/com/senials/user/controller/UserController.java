@@ -1,6 +1,7 @@
 package com.senials.user.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.partyboard.dto.PartyBoardDTOForCard;
 import com.senials.user.dto.UserCommonDTO;
 import com.senials.user.dto.UserDTO;
 import com.senials.user.service.UserService;
@@ -102,5 +103,29 @@ public class UserController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(new ResponseMessage(200, "사용자 프로필 수정 성공", null));
+    }
+
+
+
+    //사용자 별 참여한 모임 출력
+    // 사용자별 참여 모임 목록 조회
+    @GetMapping("/{userNumber}/parties")
+    public ResponseEntity<ResponseMessage> getUserJoinedPartyBoards(@PathVariable int userNumber) {
+        // Service 호출
+        List<PartyBoardDTOForCard> joinedParties = userService.getJoinedPartyBoardsByUserNumber(userNumber);
+
+        if (joinedParties.isEmpty()) {
+            return ResponseEntity.status(404)
+                    .body(new ResponseMessage(404, "사용자가 참여한 모임이 없습니다.", null));
+        }
+
+        // 응답 데이터 생성
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("userNumber", userNumber);
+        responseMap.put("joinedParties", joinedParties);
+
+        return ResponseEntity.ok(
+                new ResponseMessage(200, "사용자가 참여한 모임 조회 성공", responseMap)
+        );
     }
 }
