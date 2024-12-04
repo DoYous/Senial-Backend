@@ -109,6 +109,7 @@ public class HobbyController {
 
     }
 
+    //맞춤형 취미 추천 관련 모임 조회
     @GetMapping("/partyboards/search/{hobbyNumber}")
     public ResponseEntity<ResponseMessage> getPartyBoardByHobbyNumber(@PathVariable("hobbyNumber") int hobbyNumber) {
 
