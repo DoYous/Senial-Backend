@@ -70,4 +70,10 @@ public class Meet {
         this.meetMaxMember = meetMaxMember;
     }
 
+
+    /* Meet 생성 시 partyBoard 연결 용 */
+    public void initializePartyBoard(PartyBoard partyBoard) {
+        this.partyBoard = partyBoard;
+    }
+
 }

@@ -9,6 +9,7 @@ import com.senials.partyboard.entity.PartyBoard;
 import com.senials.partyboard.repository.PartyBoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,6 +47,22 @@ public class MeetService {
         List<MeetDTO> meetDTOList = meetList.stream().map(meetMapper::toMeetDTO).toList();
 
         return meetDTOList;
+    }
+
+
+    /* 모임 일정 추가 */
+    @Transactional
+    public void registerMeet(int partyBoardNumber, MeetDTO meetDTO) {
+
+        PartyBoard partyBoard = partyBoardRepository.findById(partyBoardNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        Meet meet = meetMapper.toMeet(meetDTO);
+
+        /* PartyBoard 엔티티 연결 */
+        meet.initializePartyBoard(partyBoard);
+
+        meetRepository.save(meet);
     }
 
   
