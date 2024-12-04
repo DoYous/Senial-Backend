@@ -2,6 +2,7 @@ package com.senials.meet.service;
 
 import com.senials.common.mapper.MeetMapper;
 import com.senials.common.mapper.MeetMapperImpl;
+import com.senials.meet.MeetDTO.MeetDTO;
 import com.senials.meet.dto.MeetDTO;
 import com.senials.meet.entity.Meet;
 import com.senials.meet.repository.MeetRepository;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MeetService {
@@ -21,6 +23,7 @@ public class MeetService {
 
     private final MeetRepository meetRepository;
 
+  
     @Autowired
     public MeetService(
             MeetMapperImpl meetMapperImpl
@@ -44,6 +47,23 @@ public class MeetService {
         List<MeetDTO> meetDTOList = meetList.stream().map(meetMapper::toMeetDTO).toList();
 
         return meetDTOList;
+    }
+
+  
+    public List<MeetDTO> getMeetsByUserNumber(int userNumber) {
+        List<Meet> meets = meetRepository.findAllByUserNumber(userNumber);
+        return meets.stream()
+                .map(meet -> new MeetDTO(
+                        meet.getMeetNumber(),
+                        meet.getMeetStartDate(),
+                        meet.getMeetEndDate(),
+                        meet.getMeetStartTime(),
+                        meet.getMeetFinishTime(),
+                        meet.getMeetEntryFee(),
+                        meet.getMeetLocation(),
+                        meet.getMeetMaxMember()
+                ))
+                .collect(Collectors.toList());
     }
 
 }
