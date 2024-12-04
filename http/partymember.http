@@ -5,3 +5,7 @@ GET https://examples.http-client.intellij.net/get
 
 ### 모임 멤버 전체 조회
 GET http://localhost:8080/partyboards/3/partymembers
+
+
+### 모임 참가
+POST http://localhost:8080/partyboards/5/partymembers
