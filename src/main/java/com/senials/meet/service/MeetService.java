@@ -96,4 +96,13 @@ public class MeetService {
         meet.updateAll(meetDTO);
     }
 
+
+    /* 모임 일정 삭제 */
+    @Transactional
+    public void removeMeet(int meetNumber) {
+
+        meetRepository.deleteById(meetNumber);
+
+    }
+
 }
