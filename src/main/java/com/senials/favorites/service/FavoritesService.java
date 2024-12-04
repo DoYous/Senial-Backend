@@ -8,6 +8,7 @@ import com.senials.hobbyboard.repository.HobbyRepository;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,6 +81,24 @@ public class FavoritesService {
         favorite.initializeHobby(hobby);
 
         favoritesRepository.save(favorite);
+    }
+    //관심사 수정
+    @Transactional
+    public void updateFavorite(int userNumber, List<Integer> hobbyNumberList) {
+
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        List<Favorites> favoritesList = userRepository.findById(userNumber)
+                .orElseThrow(IllegalArgumentException::new).getFavoritesList();
+
+        List<Hobby> hobbyList = hobbyNumberList.stream().map(hobbyNumber ->
+                hobbyRepository.findById(hobbyNumber).orElseThrow(IllegalArgumentException::new)
+        ).toList();
+
+        favoritesList.clear();
+
+        hobbyList.forEach(hobby -> favoritesList.add(new Favorites(0,user,hobby)));
     }
 
 }

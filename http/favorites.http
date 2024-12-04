@@ -14,7 +14,7 @@ PUT http://localhost:8080/users/1/favorites
 Content-Type: application/json
 
 [
-  1,2,3
+  1,3
 ]
 
 ### 관심사 삭제

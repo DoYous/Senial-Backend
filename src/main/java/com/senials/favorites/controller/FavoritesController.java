@@ -5,6 +5,7 @@ import com.senials.favorites.dto.AddFavoriteDTO;
 import com.senials.favorites.dto.FavoriteSelectDTO;
 import com.senials.favorites.service.FavoritesService;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +53,22 @@ public class FavoritesController {
 
         // 서비스 호출
         favoritesService.addFavorite(userNumber, addFavoriteDto.getHobbyNumber());
-        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "글 작성 성공", null));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "관심사 등록 성공", null));
     }
+
+    //관심사 수정
+    @PutMapping("/{userNumber}/favorites")
+    public ResponseEntity<ResponseMessage> updateFavorite(@PathVariable int userNumber,
+                                                 @RequestBody List<Integer> hobbyNumberList) {
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        for(int hobbyNumber : hobbyNumberList){
+            System.out.println(hobbyNumber);
+        }
+            favoritesService.updateFavorite(userNumber, hobbyNumberList);
+            return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "관심사가 수정되었습니다.",null));
+    }
+
 }
