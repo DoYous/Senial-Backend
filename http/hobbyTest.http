@@ -1,7 +1,7 @@
 ###취미 게시판 전체 보기
 GET http://localhost:8081/hobby-board
 
-###취미 게시판 상세 보기
+###취미 게시판 상세 보기, 관련된 후기 가져오기
 GET http://localhost:8081/hobby-detail/1
 
 ###취미 게시판 카테고리별 전체보기
