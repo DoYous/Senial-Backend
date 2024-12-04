@@ -1,5 +1,28 @@
 
 
+### 모임 검색
+GET http://localhost:8080/partyboards/search
+
+###
+GET http://localhost:8080/partyboards/search?cursor=2&sortMethod=oldest
+
+### 조회순으로 정렬 기준 처음으로 바꿨을 때
+GET http://localhost:8080/partyboards/search?sortMethod=mostViewed
+
+### 관심사 Only
+GET http://localhost:8080/partyboards/search?isLikedOnly=true
+
+###
+GET http://localhost:8080/partyboards/search?cursor=1&isLikedOnly=true
+
+### 마지막 출력 카드번호 6번, 관심사 해당 모임만 출력, 조회수순
+GET http://localhost:8080/partyboards/search?cursor=6&isLikedOnly=true&sortMethod=mostViewed
+
+
+### 모임 상세 조회
+GET http://localhost:8080/partyboards/20
+
+
 ### 모임 글 작성
 POST http://localhost:8080/partyboards
 Content-Type: application/json;charset=utf-8
