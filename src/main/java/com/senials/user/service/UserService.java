@@ -22,6 +22,15 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    //모든 사용자 조회
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(userMapper::toUserDTO)
+                .toList();
+
+    }
+
     // 특정 사용자 조회
     public UserCommonDTO getUserByNumber(int userNumber) {
         return userRepository.findById(userNumber)

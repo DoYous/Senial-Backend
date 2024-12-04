@@ -2,6 +2,7 @@ package com.senials.user.controller;
 
 import com.senials.common.ResponseMessage;
 import com.senials.user.dto.UserCommonDTO;
+import com.senials.user.dto.UserDTO;
 import com.senials.user.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,6 +23,21 @@ public class UserController {
 
         this.userService = userService;
 
+    }
+    // 모든 사용자 조회
+    @GetMapping
+    public ResponseEntity<ResponseMessage> getAllUsers() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        List<UserDTO> users = userService.getAllUsers();
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("users", users);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new ResponseMessage(200, "전체 사용자 조회 성공", responseMap));
     }
 
     // 특정 사용자 조회
