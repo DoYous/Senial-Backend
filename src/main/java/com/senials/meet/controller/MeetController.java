@@ -77,6 +77,20 @@ public class MeetController {
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 수정 완료", null));
     }
+
+
+    /* 모임 일정 삭제 */
+    @DeleteMapping("/partyboards/{partyBoardNumber}/meets/{meetNumber}")
+    public ResponseEntity<ResponseMessage> removeMeet (
+            @PathVariable Integer meetNumber
+    ) {
+        meetService.removeMeet(meetNumber);
+
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 삭제 완료", null));
+    }
         
     @GetMapping("/users/{userNumber}/meets")
     public ResponseEntity<List<MeetDTO>> getUserMeets(@PathVariable int userNumber) {

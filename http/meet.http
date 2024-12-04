@@ -35,3 +35,6 @@ Content-Type: application/json;charset=UTF-8
   "meetLocation": "testLocation변경1",
   "meetMaxMember": 123
 }
+
+### 모임 일정 삭제
+DELETE http://localhost:8080/partyboards/2/meets/7
