@@ -7,9 +7,12 @@ import com.senials.partyboard.repository.PartyBoardRepository;
 import com.senials.partyreview.dto.PartyReviewDTO;
 import com.senials.partyreview.entity.PartyReview;
 import com.senials.partyreview.repository.PartyReviewRepository;
+import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -53,4 +56,27 @@ public class PartyReviewService {
         return partyReviewDTOList;
     }
 
+    /* 모임 후기 작성 */
+    @Transactional
+    public void registerPartyReview (
+            int userNumber
+            , int partyBoardNumber
+            , PartyReviewDTO partyReviewDTO
+    ) {
+
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        PartyBoard partyBoard = partyBoardRepository.findById(partyBoardNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+
+        PartyReview partyReview = partyReviewMapper.toPartyReview(partyReviewDTO);
+        partyReview.initializeUser(user);
+        partyReview.initializePartyBoard(partyBoard);
+        partyReview.initializePartyReviewWriteDate(LocalDateTime.now());
+
+
+        partyReviewRepository.save(partyReview);
+    }
 }
