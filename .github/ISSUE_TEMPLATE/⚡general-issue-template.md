@@ -2,7 +2,7 @@
 name: "⚡General Issue Template"
 about: 기능 추가/삭제/수정 등 일반 이슈
 title: "[feature/backend-NUMBER/DOMAIN/DETAIL] TITLE"
-labels: ''
+labels: "⚡Feature"
 assignees: ''
 
 ---
