@@ -2,6 +2,7 @@ package com.senials.hobbyboard.controller;
 
 import com.senials.common.ResponseMessage;
 import com.senials.config.HttpHeadersFactory;
+import com.senials.favorites.entity.Favorites;
 import com.senials.hobbyboard.dto.HobbyDTO;
 import com.senials.hobbyboard.service.HobbyService;
 import com.senials.hobbyreview.dto.HobbyReviewDTO;
@@ -17,6 +18,8 @@ import java.util.Map;
 @RestController
 @RequestMapping
 public class HobbyController {
+
+    int userNumber=1;
 
     private HobbyService hobbyService;
     private final HttpHeadersFactory httpHeadersFactory;
@@ -89,6 +92,20 @@ public class HobbyController {
         responseMap.put("hobby", hobbyDTO);
 
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(201, "생성 성공", responseMap));
+    }
+
+    //맞춤형 취미 추천 나의 취미 관심사 등록
+    @PostMapping("/suggest-hobby-result")
+    public ResponseEntity<ResponseMessage> setSuggestHobby(@RequestParam int hobbyNumber){
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+
+        Favorites favorites=hobbyService.setFavoritesByHobby(hobbyNumber,userNumber);
+
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("favorites",favorites);
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(201, "생성 성공", responseMap));
+
     }
 
 }

@@ -1,13 +1,13 @@
 package com.senials.hobbyboard.service;
 
 import com.senials.common.mapper.HobbyMapper;
-import com.senials.common.mapper.HobbyReviewMapper;
+import com.senials.favorites.entity.Favorites;
+import com.senials.favorites.repository.FavoritesRepository;
 import com.senials.hobbyboard.dto.HobbyDTO;
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.hobbyboard.repository.HobbyRepository;
-import com.senials.hobbyreview.dto.HobbyReviewDTO;
-import com.senials.hobbyreview.entity.HobbyReview;
-import com.senials.hobbyreview.repository.HobbyReviewRepository;
+import com.senials.user.entity.User;
+import com.senials.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,14 +19,15 @@ public class HobbyService {
 
     private final HobbyMapper hobbyMapper;
     private final HobbyRepository hobbyRepository;
-    private final HobbyReviewMapper hobbyReviewMapper;
-    private final HobbyReviewRepository hobbyReviewRepository;
 
-    public HobbyService(HobbyRepository hobbyRepository, HobbyMapper hobbyMapper, HobbyReviewRepository hobbyReviewRepository, HobbyReviewMapper hobbyReviewMapper) {
+    private final UserRepository userRepository;
+    private final FavoritesRepository favoritesRepository;
+
+    public HobbyService(HobbyRepository hobbyRepository, HobbyMapper hobbyMapper, UserRepository userRepository, FavoritesRepository favoritesRepository) {
         this.hobbyRepository = hobbyRepository;
         this.hobbyMapper = hobbyMapper;
-        this.hobbyReviewRepository = hobbyReviewRepository;
-        this.hobbyReviewMapper = hobbyReviewMapper;
+        this.userRepository = userRepository;
+        this.favoritesRepository = favoritesRepository;
     }
 
     //전체 hobby 불러오기
@@ -87,6 +88,19 @@ public class HobbyService {
         HobbyDTO hobbyDTO = hobbyDTOList.get(randomIndex);
 
         return hobbyDTO;
+    }
+
+    //사용자와 취미를 받아와 해당 사용자에게 해당 취미를 관심사로 부여
+    public Favorites setFavoritesByHobby(int hobbyNumber, int userNumber){
+        User user= userRepository.findById(userNumber).orElseThrow(() -> new IllegalArgumentException("해당 유저 번호가 존재하지 않습니다: " + userNumber));
+        Hobby hobby=hobbyRepository.findById(hobbyNumber).orElseThrow(() -> new IllegalArgumentException("해당 취미 번호가 존재하지 않습니다: " + hobbyNumber));
+        Favorites favoritesEntity = new Favorites();
+        favoritesEntity.initializeHobby(hobby);
+        favoritesEntity.initializeUser(user);
+
+        Favorites favorites=favoritesRepository.save(favoritesEntity);
+
+        return favorites;
     }
 
 }
