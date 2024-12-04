@@ -6,9 +6,7 @@ import com.senials.meet.service.MeetService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -41,6 +39,20 @@ public class MeetController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 전체 조회 완료", responseMap));
+    }
+
+    /* 모임 일정 추가 */
+    @PostMapping("/partyboards/{partyBoardNumber}/meets")
+    public ResponseEntity<ResponseMessage> registerMeet(
+            @PathVariable Integer partyBoardNumber,
+            @RequestBody MeetDTO meetDTO
+    ) {
+        meetService.registerMeet(partyBoardNumber, meetDTO);
+
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 추가 완료", null));
     }
 
         
