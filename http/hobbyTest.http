@@ -6,3 +6,6 @@ GET http://localhost:8081/hobby-detail/1
 
 ###취미 게시판 카테고리별 전체보기
 GET http://localhost:8081/hobby-board/3
+
+###취미 게시판 후기 조회
+GET http://localhost:8081/1/hobby-review/13
