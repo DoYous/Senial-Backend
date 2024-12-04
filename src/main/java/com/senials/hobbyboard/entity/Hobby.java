@@ -1,5 +1,6 @@
 package com.senials.hobbyboard.entity;
 
+import com.senials.category.entity.Category;
 import com.senials.favorites.entity.Favorites;
 import com.senials.hobbyreview.entity.HobbyReview;
 import com.senials.partyboard.entity.PartyBoard;
@@ -53,6 +54,11 @@ public class Hobby {
 
     @OneToMany(mappedBy = "hobby", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Favorites> favorites;
+
+    // 카테고리와의 관계 설정
+    @ManyToOne
+    @JoinColumn(name = "category_number", insertable = false, updatable = false)
+    private Category category;
 
     /* AllArgsConstructor */
     public Hobby(int hobbyNumber, int categoryNumber, String hobbyName, String hobbyExplain, String hobbyImg, int hobbyAbility, int hobbyBudget, int hobbyLevel, int hobbyTendency, List<PartyBoard> partyBoards, List<HobbyReview> hobbyReviews, List<Favorites> favorites) {
