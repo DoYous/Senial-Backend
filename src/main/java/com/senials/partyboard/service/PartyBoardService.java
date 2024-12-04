@@ -13,6 +13,9 @@ import com.senials.partyboard.entity.PartyBoard;
 import com.senials.partyboard.repository.PartyBoardRepository;
 import com.senials.partyboard.repository.PartyBoardSpecification;
 import com.senials.partyboardimage.entity.PartyBoardImage;
+import com.senials.partymember.entity.PartyMember;
+import com.senials.partymember.repository.PartyMemberRepository;
+import com.senials.user.dto.UserDTOForPublic;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +54,7 @@ public class PartyBoardService {
             , PartyBoardRepository partyBoardRepository
             , UserRepository userRepository
             , HobbyRepository hobbyRepository,
-            FavoritesRepository favoritesRepository)
+            FavoritesRepository favoritesRepository, PartyMemberRepository partyMemberRepository)
     {
         this.partyBoardMapper = partyBoardMapperImpl;
         this.partyBoardRepository = partyBoardRepository;
