@@ -2,7 +2,6 @@ package com.senials.meet.controller;
 
 import com.senials.common.ResponseMessage;
 import com.senials.meet.dto.MeetDTO;
-import com.senials.meet.MeetDTO.MeetDTO;
 import com.senials.meet.service.MeetService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RestController
 public class MeetController {
 
     private final MeetService meetService;
@@ -41,7 +41,8 @@ public class MeetController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 전체 조회 완료", responseMap));
-        
+    }
+
         
     @GetMapping("/users/{userNumber}/meets")
     public ResponseEntity<List<MeetDTO>> getUserMeets(@PathVariable int userNumber) {
