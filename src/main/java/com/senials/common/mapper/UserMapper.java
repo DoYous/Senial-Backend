@@ -1,7 +1,7 @@
 package com.senials.common.mapper;
 
 import com.senials.example.dto.UserDTO;
-import com.senials.example.entity.User;
+import com.senials.user.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

@@ -1,10 +1,10 @@
 package com.senials.example.service;
 
 import com.senials.example.dto.UserDTO;
-import com.senials.example.entity.User;
 import com.senials.common.mapper.UserMapper;
 import com.senials.common.mapper.UserMapperImpl;
-import com.senials.example.repository.UserRepository;
+import com.senials.user.entity.User;
+import com.senials.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
