@@ -76,4 +76,19 @@ public class PartyBoardController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "글 수정 성공", null));
     }
 
+
+    /* 모임 글 삭제 */
+    @DeleteMapping("/partyboards/{partyBoardNumber}")
+    public ResponseEntity<ResponseMessage> removePartyBoard(
+            @PathVariable int partyBoardNumber
+    ) {
+
+        partyBoardService.removePartyBoard(partyBoardNumber);
+
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "글 삭제 성공", null));
+    }
+
 }
