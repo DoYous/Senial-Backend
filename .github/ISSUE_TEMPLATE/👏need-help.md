@@ -1,9 +1,9 @@
 ---
 name: "\U0001F44FNeed Help"
 about: 본인이 문제를 해결 할 수 없을 때 사용
-title: "[Feature/main] need help"
-labels: ''
-assignees: hyojunahn111
+title: "[help/backend-NUMBER/DOMAIN] TITLE"
+labels: "\U0001F91AHelp Wanted"
+assignees: ''
 
 ---
 
