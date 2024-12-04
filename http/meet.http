@@ -38,3 +38,7 @@ Content-Type: application/json;charset=UTF-8
 
 ### 모임 일정 삭제
 DELETE http://localhost:8080/partyboards/2/meets/7
+
+
+### 모임 일정 참여멤버 조회
+GET http://localhost:8080/partyboards/1/meets/1/meetmembers

@@ -2,6 +2,7 @@ package com.senials.common.mapper;
 
 
 import com.senials.user.dto.UserDTO;
+import com.senials.user.dto.UserDTOForPublic;
 import com.senials.user.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -11,5 +12,8 @@ public interface UserMapper {
 
     // User -> UserDTO
     UserDTO toUserDTO(User user);
+
+    /* User -> UserDTOForPublic */
+    UserDTOForPublic toUserDTOForPublic(User user);
 
 }
