@@ -20,3 +20,18 @@ Content-Type: application/json;charset=UTF-8
   "meetLocation": "testLocationTest",
   "meetMaxMember": 555
 }
+
+
+### 모임 일정 수정
+PUT http://localhost:8080/partyboards/2/meets/8
+Content-Type: application/json;charset=UTF-8
+
+{
+  "meetStartDate": "2024-12-31",
+  "meetEndDate": "2025-01-11",
+  "meetStartTime": "12:01",
+  "meetFinishTime": "14:01",
+  "meetEntryFee": 12345,
+  "meetLocation": "testLocation변경1",
+  "meetMaxMember": 123
+}
