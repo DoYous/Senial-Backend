@@ -1,0 +1,6 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### 모임 후기 전체 조회
+GET http://localhost:8080/partyboards/1/partyreviews

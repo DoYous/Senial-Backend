@@ -53,4 +53,16 @@ public class PartyReview {
         this.partyReviewWriteDate = partyReviewWriteDate;
     }
 
+
+    /* 모임 후기 작성 시 작성자, 모임, 작성일자 세팅 */
+    public void initializeUser(User user) {
+        this.user = user;
+    }
+    public void initializePartyBoard(PartyBoard partyBoard) {
+        this.partyBoard = partyBoard;
+    }
+    public void initializePartyReviewWriteDate(LocalDateTime partyReviewWriteDate) {
+        this.partyReviewWriteDate = partyReviewWriteDate;
+    }
+
 }
