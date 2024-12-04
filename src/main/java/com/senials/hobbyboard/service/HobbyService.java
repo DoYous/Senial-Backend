@@ -35,4 +35,13 @@ public class HobbyService {
         return hobbyDTO;
     }
 
+    //특정 hobby들 categoryNumber로 불러오기
+    public List<HobbyDTO>findByCategory(int categoryNumber){
+        List<Hobby> hobbyList=hobbyRepository.findByCategoryNumber(categoryNumber);
+
+        List<HobbyDTO> hobbyDTOList=hobbyList.stream().map(hobby -> hobbyMapper.toHobbyDTO(hobby)).toList();
+
+        return hobbyDTOList;
+    }
+
 }
