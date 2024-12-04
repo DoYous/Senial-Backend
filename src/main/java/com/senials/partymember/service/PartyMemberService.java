@@ -7,7 +7,10 @@ import com.senials.partyboard.repository.PartyBoardRepository;
 import com.senials.partymember.entity.PartyMember;
 import com.senials.partymember.repository.PartyMemberRepository;
 import com.senials.user.dto.UserDTOForPublic;
+import com.senials.user.entity.User;
+import com.senials.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,15 +20,17 @@ public class PartyMemberService {
     private final UserMapper userMapper;
     private final PartyBoardRepository partyBoardRepository;
     private final PartyMemberRepository partyMemberRepository;
+    private final UserRepository userRepository;
 
     public PartyMemberService(
             UserMapperImpl userMapperImpl
             , PartyBoardRepository partyBoardRepository
-            , PartyMemberRepository partyMemberRepository
-    ) {
+            , PartyMemberRepository partyMemberRepository,
+            UserRepository userRepository) {
         this.userMapper = userMapperImpl;
         this.partyBoardRepository = partyBoardRepository;
         this.partyMemberRepository = partyMemberRepository;
+        this.userRepository = userRepository;
     }
 
     /* 모임 멤버 전체 조회 */
@@ -43,5 +48,21 @@ public class PartyMemberService {
                 .toList();
 
         return userDTOForPublicList;
+    }
+
+
+    /* 모임 참가 */
+    @Transactional
+    public void registerPartyMember (int userNumber, int partyBoardNumber) {
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        PartyBoard partyBoard = partyBoardRepository.findById(partyBoardNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        PartyMember newMember = new PartyMember(0, partyBoard, user);
+
+        partyBoard.registerPartyMember(newMember);
+
     }
 }
