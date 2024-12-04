@@ -35,4 +35,12 @@ public class HobbyService {
         return hobbyDTO;
     }
 
+    public List<HobbyDTO>findByCategory(int categoryNumber){
+        List<Hobby> hobbyList=hobbyRepository.findByCategoryNumber(categoryNumber);
+
+        List<HobbyDTO> hobbyDTOList=hobbyList.stream().map(hobby -> hobbyMapper.toHobbyDTO(hobby)).toList();
+
+        return hobbyDTOList;
+    }
+
 }
