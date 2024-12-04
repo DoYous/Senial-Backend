@@ -79,4 +79,17 @@ public class PartyReviewService {
 
         partyReviewRepository.save(partyReview);
     }
+
+    /* 모임 후기 수정 */
+    @Transactional
+    public void modifyPartyReview(
+            int partyReviewNumber
+            , PartyReviewDTO partyReviewDTO
+    ) {
+        PartyReview partyReview = partyReviewRepository.findById(partyReviewNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        partyReview.updatePartyReviewRate(partyReviewDTO.getPartyReviewRate());
+        partyReview.updatePartyReviewDetail(partyReviewDTO.getPartyReviewDetail());
+    }
 }

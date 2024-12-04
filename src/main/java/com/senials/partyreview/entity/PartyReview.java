@@ -65,4 +65,13 @@ public class PartyReview {
         this.partyReviewWriteDate = partyReviewWriteDate;
     }
 
+
+    /* 모임 후기 수정용 */
+    public void updatePartyReviewRate(int partyReviewRate) {
+        this.partyReviewRate = partyReviewRate;
+    }
+    public void updatePartyReviewDetail(String partyReviewDetail) {
+        this.partyReviewDetail = partyReviewDetail;
+    }
+
 }

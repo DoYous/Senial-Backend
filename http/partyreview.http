@@ -13,3 +13,12 @@ Content-Type: application/json;application/json;charset=UTF-8
   "partyReviewRate" : 3,
   "partyReviewDetail" : "testPartyReviewDetail"
 }
+
+### 모임 후기 수정
+PUT http://localhost:8080/partyboards/1/partyreviews/14
+Content-Type: application/json;application/json;charset=UTF-8
+
+{
+  "partyReviewRate" : 4,
+  "partyReviewDetail" : "testPartyReviewDetailModified"
+}
