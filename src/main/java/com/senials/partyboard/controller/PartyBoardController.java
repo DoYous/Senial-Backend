@@ -1,6 +1,7 @@
 package com.senials.partyboard.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.partyboard.dto.PartyBoardDTOForDetail;
 import com.senials.partyboard.dto.PartyBoardDTOForModify;
 import com.senials.partyboard.dto.PartyBoardDTOForWrite;
 import com.senials.partyboard.service.PartyBoardService;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class PartyBoardController {
@@ -24,6 +28,55 @@ public class PartyBoardController {
     )
     {
         this.partyBoardService = partyBoardService;
+    }
+
+    // 모임 검색
+    // 쿼리스트링
+    // 1. sortMethod : 검색결과 정렬기준 (기본 - 최신순; lastest)
+    // 2. keyword : 검색어
+    // 3. cursor : 클라이언트가 마지막으로 받은 검색결과 partyBoardNumber (마지막 검색결과 다음 행부터 N개 게시글 Response)
+    // 4. size : 한 번에 요청할 데이터 개수 (기본 - 8)
+    // 5. likedOnly : 관심사로 등록한 취미와 일치하는 모임만 필터링
+    @GetMapping("/partyboards/search")
+    public ResponseEntity<ResponseMessage> searchPartyBoard(
+            @RequestParam(required = false, defaultValue = "lastest") String sortMethod
+            , @RequestParam(required = false) String keyword
+            , @RequestParam(required = false) Integer cursor
+            , @RequestParam(required = false, defaultValue = "8") Integer size
+            , @RequestParam(required = false, defaultValue = "false") boolean isLikedOnly
+    )
+    {
+        /* isLikedOnly 유저 세션 검사 필요 */
+
+        List<PartyBoardDTOForDetail> partyBoardDTOList = partyBoardService.searchPartyBoard(sortMethod, keyword, cursor, size, isLikedOnly);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("partyBoards", partyBoardDTOList);
+
+        if (!partyBoardDTOList.isEmpty()) {
+            responseMap.put("cursor", partyBoardDTOList.get(partyBoardDTOList.size() - 1).getPartyBoardNumber());
+        }
+
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
+    }
+
+    // 모임 상세 조회
+    @GetMapping("/partyboards/{partyBoardNumber}")
+    public ResponseEntity<ResponseMessage> getPartyBoardByNumber(@PathVariable Integer partyBoardNumber) {
+
+        PartyBoardDTOForDetail partyBoardDTO = partyBoardService.getPartyBoardByNumber(partyBoardNumber);
+
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        // ResponseBody 삽입
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("partyBoard", partyBoardDTO);
+
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 
 

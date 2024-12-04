@@ -1,15 +1,26 @@
 package com.senials.partyboard.service;
 
+import com.senials.common.mapper.PartyBoardMapper;
+import com.senials.common.mapper.PartyBoardMapperImpl;
+import com.senials.favorites.entity.Favorites;
+import com.senials.favorites.repository.FavoritesRepository;
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.hobbyboard.repository.HobbyRepository;
+import com.senials.partyboard.dto.PartyBoardDTOForDetail;
 import com.senials.partyboard.dto.PartyBoardDTOForModify;
 import com.senials.partyboard.dto.PartyBoardDTOForWrite;
 import com.senials.partyboard.entity.PartyBoard;
 import com.senials.partyboard.repository.PartyBoardRepository;
+import com.senials.partyboard.repository.PartyBoardSpecification;
 import com.senials.partyboardimage.entity.PartyBoardImage;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,23 +34,132 @@ public class PartyBoardService {
 
     private final String imageRootPath = "src/main/resources/static/img/party_board";
 
+    private final PartyBoardMapper partyBoardMapper;
+
     private final PartyBoardRepository partyBoardRepository;
 
     private final UserRepository userRepository;
 
     private final HobbyRepository hobbyRepository;
 
+    private final FavoritesRepository favoritesRepository;
+
 
     @Autowired
     public PartyBoardService(
-            PartyBoardRepository partyBoardRepository
+            PartyBoardMapperImpl partyBoardMapperImpl
+            , PartyBoardRepository partyBoardRepository
             , UserRepository userRepository
-            , HobbyRepository hobbyRepository
-    )
+            , HobbyRepository hobbyRepository,
+            FavoritesRepository favoritesRepository)
     {
+        this.partyBoardMapper = partyBoardMapperImpl;
         this.partyBoardRepository = partyBoardRepository;
         this.userRepository = userRepository;
         this.hobbyRepository = hobbyRepository;
+        this.favoritesRepository = favoritesRepository;
+    }
+
+
+    /* 모임 검색 및 정렬 */
+    public List<PartyBoardDTOForDetail> searchPartyBoard(String sortMethod, String keyword, Integer cursor, int size, boolean isLikedOnly) {
+
+        Sort.Order numberAsc = Sort.Order.asc("partyBoardNumber");
+        Sort.Order numberDesc = Sort.Order.desc("partyBoardNumber");
+
+        String sortColumn = null;
+        Pageable pageable = null;
+        boolean isAscending = false;
+        boolean isIntegerSort = true;
+
+        switch (sortMethod) {
+            /* 최신순 */
+            case "lastest":
+                sortColumn = "partyBoardOpenDate";
+                pageable = PageRequest.of(0, size
+                        , Sort.by(Sort.Order.desc(sortColumn), numberDesc));
+                isIntegerSort = false;
+                break;
+
+            /* 오래된 순*/
+            case "oldest":
+                sortColumn = "partyBoardOpenDate";
+                pageable = PageRequest.of(0, size
+                        , Sort.by(Sort.Order.asc(sortColumn), numberAsc));
+                isAscending = true;
+                isIntegerSort = false;
+                break;
+
+            /* 좋아요순 */
+            case "mostLiked":
+                sortColumn = "partyBoardLikeCnt";
+                pageable = PageRequest.of(0, size
+                        , Sort.by(Sort.Order.desc(sortColumn), numberDesc));
+                break;
+
+            /* 조회수순 */
+            case "mostViewed":
+                sortColumn = "partyBoardViewCnt";
+                pageable = PageRequest.of(0, size
+                        , Sort.by(Sort.Order.desc(sortColumn), numberDesc));
+                break;
+            default:
+        }
+
+
+        /* 관심사 기반 추천 확인 */
+        // 관심사 기반 추천 시 최소 빈 리스트 / 미추천 시 null
+        List<Hobby> hobbyList = null;
+        if(isLikedOnly) {
+            /* 유저 number 필요 */ int userNumber = 3;
+            User user = userRepository.findById(userNumber).orElseThrow(IllegalArgumentException::new);
+            List<Favorites> favoritesList = favoritesRepository.findAllByUser(user);
+
+            /* 관심사 존재하는지 체크 */
+            if(!favoritesList.isEmpty()) {
+                hobbyList = favoritesList.stream().map(Favorites::getHobby).toList();
+            } else {
+                hobbyList = new ArrayList<>();
+            }
+        }
+
+        /* 첫 페이지 로딩 OR 정렬 변경 직후 */
+        Page<PartyBoard> partyBoardList = null;
+        if(cursor == null) {
+            if(hobbyList == null) {
+                partyBoardList = partyBoardRepository.findAll(pageable);
+            } else {
+                partyBoardList = partyBoardRepository.findAllByHobbyIn(hobbyList, pageable);
+            }
+
+            /* 더보기 버튼으로 로드 */
+        } else {
+            Specification<PartyBoard> spec = null;
+
+            if(isIntegerSort) {
+                spec = PartyBoardSpecification.searchLoadInteger(sortColumn, keyword, cursor, isAscending, hobbyList);
+            } else {
+                spec = PartyBoardSpecification.searchLoadLocalDate(sortColumn, keyword, cursor, isAscending, hobbyList);
+            }
+
+            partyBoardList = partyBoardRepository.findAll(spec, pageable);
+
+        }
+
+        return partyBoardList.map(partyBoardMapper::toPartyBoardDTOForDetail).toList();
+    }
+
+
+    // 모임 상세 조회
+    public PartyBoardDTOForDetail getPartyBoardByNumber(int partyBoardNumber) {
+
+        PartyBoard partyBoard = partyBoardRepository.findByPartyBoardNumber(partyBoardNumber);
+
+        PartyBoardDTOForDetail partyBoardDTO = partyBoardMapper.toPartyBoardDTOForDetail(partyBoard);
+        partyBoardDTO.setUserNumber(partyBoard.getUser().getUserNumber());
+        partyBoardDTO.setImages(partyBoard.getImages().stream().map(partyBoardMapper::toPartyBoardImageDTO).toList());
+
+        return partyBoardDTO;
     }
 
 
