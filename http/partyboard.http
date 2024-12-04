@@ -1,0 +1,9 @@
+
+
+### 모임 글 작성
+POST http://localhost:8080/partyboards
+Content-Type: application/json;charset=utf-8
+
+{
+
+}

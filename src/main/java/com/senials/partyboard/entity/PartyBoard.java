@@ -46,7 +46,7 @@ public class PartyBoard {
     private LocalDate partyBoardOpenDate; // now()
 
     @Column(name = "party_board_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
-    private int partyBoardStatus; // 0-모집중, 1-모집완료
+    private int partyBoardStatus = 0; // 0-모집중, 1-모집완료
 
     @Column(name = "party_board_view_cnt", nullable = false, columnDefinition = "INT DEFAULT 0")
     private int partyBoardViewCnt = 0;
@@ -94,5 +94,12 @@ public class PartyBoard {
         this.partyBoardLikeCnt = partyBoardLikeCnt;
         this.partyBoardReportCnt = partyBoardReportCnt;
     }
+
+
+    /* 글 작성 시 대표 이미지 설정 */
+    public void initializeImages(List<PartyBoardImage> images) {
+        this.images = images;
+    }
+
 
 }
