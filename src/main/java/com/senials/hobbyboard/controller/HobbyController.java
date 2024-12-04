@@ -7,6 +7,7 @@ import com.senials.hobbyboard.dto.HobbyDTO;
 import com.senials.hobbyboard.service.HobbyService;
 import com.senials.hobbyreview.dto.HobbyReviewDTO;
 import com.senials.hobbyreview.service.HobbyReviewService;
+import com.senials.partyboard.dto.PartyBoardDTOForDetail;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -108,4 +109,16 @@ public class HobbyController {
 
     }
 
+    //맞춤형 취미 추천 관련 모임 조회
+    @GetMapping("/partyboards/search/{hobbyNumber}")
+    public ResponseEntity<ResponseMessage> getPartyBoardByHobbyNumber(@PathVariable("hobbyNumber") int hobbyNumber) {
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+
+        List<PartyBoardDTOForDetail> partyBoardDTOList = hobbyService.getPartyBoardByHobbyNumber(hobbyNumber);
+
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("party", partyBoardDTOList);
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(201, "생성 성공", responseMap));
+    }
 }
