@@ -100,5 +100,23 @@ public class FavoritesService {
 
         hobbyList.forEach(hobby -> favoritesList.add(new Favorites(0,user,hobby)));
     }
+    //관심사 삭제
+    public void removeFavorite(int userNumber, int hobbyNumber) {
+        Hobby hobby = hobbyRepository.findById(hobbyNumber)
+                .orElseThrow(IllegalArgumentException::new);
 
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        // 관심사 조회
+        Favorites favorite = favoritesRepository.findByUserAndHobby(user, hobby);
+
+        // 해당 관심사가 존재하지 않으면 예외 발생
+        if (favorite == null) {
+            throw new RuntimeException("등록된 관심사를 찾을 수 없습니다.");
+        }
+
+        // 관심사 삭제
+        favoritesRepository.delete(favorite);
+    }
 }

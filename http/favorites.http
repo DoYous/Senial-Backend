@@ -18,5 +18,5 @@ Content-Type: application/json
 ]
 
 ### 관심사 삭제
-DELETE http://localhost:8080/users/1/favorites/2
+DELETE http://localhost:8080/users/1/favorites/1
 
