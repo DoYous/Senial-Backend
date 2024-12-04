@@ -1,9 +1,13 @@
 package com.senials.hobbyboard.service;
 
 import com.senials.common.mapper.HobbyMapper;
+import com.senials.common.mapper.HobbyReviewMapper;
 import com.senials.hobbyboard.dto.HobbyDTO;
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.hobbyboard.repository.HobbyRepository;
+import com.senials.hobbyreview.dto.HobbyReviewDTO;
+import com.senials.hobbyreview.entity.HobbyReview;
+import com.senials.hobbyreview.repository.HobbyReviewRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +17,14 @@ public class HobbyService {
 
     private final HobbyMapper hobbyMapper;
     private final HobbyRepository hobbyRepository;
+    private final HobbyReviewMapper hobbyReviewMapper;
+    private final HobbyReviewRepository hobbyReviewRepository;
 
-    public HobbyService(HobbyRepository hobbyRepository, HobbyMapper hobbyMapper){
+    public HobbyService(HobbyRepository hobbyRepository, HobbyMapper hobbyMapper, HobbyReviewRepository hobbyReviewRepository, HobbyReviewMapper hobbyReviewMapper){
         this.hobbyRepository=hobbyRepository;
         this.hobbyMapper=hobbyMapper;
+        this.hobbyReviewRepository=hobbyReviewRepository;
+        this.hobbyReviewMapper=hobbyReviewMapper;
     }
     //전체 hobby 불러오기
     public List<HobbyDTO>findAll(){
@@ -43,5 +51,4 @@ public class HobbyService {
 
         return hobbyDTOList;
     }
-
 }

@@ -4,6 +4,8 @@ import com.senials.common.ResponseMessage;
 import com.senials.config.HttpHeadersFactory;
 import com.senials.hobbyboard.dto.HobbyDTO;
 import com.senials.hobbyboard.service.HobbyService;
+import com.senials.hobbyreview.dto.HobbyReviewDTO;
+import com.senials.hobbyreview.service.HobbyReviewService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +24,12 @@ public class HobbyController {
     private HobbyService hobbyService;
     private final HttpHeadersFactory httpHeadersFactory;
 
-    public HobbyController(HobbyService hobbyService, HttpHeadersFactory httpHeadersFactory){
+    private HobbyReviewService hobbyReviewService;
+
+    public HobbyController(HobbyService hobbyService,HobbyReviewService hobbyReviewService, HttpHeadersFactory httpHeadersFactory){
 
         this.hobbyService=hobbyService;
+        this.hobbyReviewService=hobbyReviewService;
         this.httpHeadersFactory = httpHeadersFactory;
     }
 
@@ -42,15 +47,17 @@ public class HobbyController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 
-    //취미 상세 조회
+    //취미 상세 조회, 해당 취미후기 리스트 조회
     @GetMapping("/hobby-detail/{hobbyNumber}")
     public ResponseEntity<ResponseMessage> findHobbyDetail(@PathVariable("hobbyNumber")int hobbyNumber){
 
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
 
         HobbyDTO hobbyDTO = hobbyService.findById(hobbyNumber);
+        List<HobbyReviewDTO> hobbyReviewDTOList=hobbyReviewService.getReviewsListByHobbyNumber(hobbyNumber);
 
         Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("hobbyReview",hobbyReviewDTOList);
         responseMap.put("hobby", hobbyDTO);
 
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
