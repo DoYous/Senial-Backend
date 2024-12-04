@@ -130,4 +130,28 @@ public class UserController {
                 new ResponseMessage(200, "사용자가 참여한 모임 조회 성공", responseMap)
         );
     }
+
+    //사용자 별 자신이 만든 모임 조회
+    @GetMapping("/{userNumber}/made")
+    public ResponseEntity<ResponseMessage> getUserMadeParties(@PathVariable int userNumber) {
+        // UserService에서 리스트로 결과를 가져옴
+        List<PartyBoardDTOForCard> madeParties = userService.getMadePartyBoardsByUserNumber(userNumber);
+
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        if (madeParties.isEmpty()) {
+            return ResponseEntity.status(404)
+                    .body(new ResponseMessage(404, "사용자가 만든 모임이 없습니다.", null));
+        }
+
+        // 성공
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("madeParties", madeParties);
+
+        return ResponseEntity.ok().headers(headers).body(
+                new ResponseMessage(200, "사용자가 만든 모임 조회 성공", responseMap)
+        );
+    }
 }

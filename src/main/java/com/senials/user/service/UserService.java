@@ -107,4 +107,40 @@ public class UserService {
                     );
                 }).collect(Collectors.toList());
     }
+    // 사용자가 만든 모임 목록 조회
+    public List<PartyBoardDTOForCard> getMadePartyBoardsByUserNumber(int userNumber) {
+        // User가 만든 PartyBoard 목록을 직접 조회
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        List<PartyBoard> partyBoards = user.getPartyBoards(); // User와 PartyBoard가 연결되어 있다고 가정
+
+        return partyBoards.stream().map(partyBoard -> {
+            // 별점 평균 계산
+            double averageRating = 0.0;
+            List<PartyReview> reviews = partyBoard.getReviews(); // PartyBoard에 PartyReview 관계가 있다고 가정
+
+            if (!reviews.isEmpty()) {
+                int totalRating = 0;
+                for (PartyReview review : reviews) {
+                    totalRating += review.getPartyReviewRate();
+                }
+                averageRating = (double) totalRating / reviews.size();
+            }
+
+            // 첫 번째 이미지 가져오기
+            String firstImage = partyBoard.getImages().isEmpty() ? null : partyBoard.getImages().get(0).getPartyBoardImg();
+
+            // DTO 생성
+            return new PartyBoardDTOForCard(
+                    partyBoard.getPartyBoardNumber(),
+                    partyBoard.getPartyBoardName(),
+                    partyBoard.getPartyBoardStatus(),
+                    partyBoard.getPartyMembers().size(), // 참여 인원 수
+                    averageRating,
+                    firstImage
+            );
+        }).collect(Collectors.toList());
+    }
+
 }
