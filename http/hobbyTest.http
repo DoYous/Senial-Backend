@@ -44,3 +44,6 @@ GET http://localhost:8081/suggest-hobby-result?hobbyAbility=3&hobbyBudget=2&hobb
 
 ###맞춤형 취미 추천 나의 취미 등록
 POST  http://localhost:8081/suggest-hobby-result?hobbyNumber=3
+
+###맞춤형 취미 추천 관련 모임 조회
+GET http://localhost:8081/partyboards/search/1

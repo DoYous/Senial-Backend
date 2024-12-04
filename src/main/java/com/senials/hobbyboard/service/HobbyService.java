@@ -1,11 +1,15 @@
 package com.senials.hobbyboard.service;
 
 import com.senials.common.mapper.HobbyMapper;
+import com.senials.common.mapper.PartyBoardMapper;
 import com.senials.favorites.entity.Favorites;
 import com.senials.favorites.repository.FavoritesRepository;
 import com.senials.hobbyboard.dto.HobbyDTO;
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.hobbyboard.repository.HobbyRepository;
+import com.senials.partyboard.dto.PartyBoardDTOForDetail;
+import com.senials.partyboard.entity.PartyBoard;
+import com.senials.partyboard.repository.PartyBoardRepository;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -22,12 +26,21 @@ public class HobbyService {
 
     private final UserRepository userRepository;
     private final FavoritesRepository favoritesRepository;
+    private final PartyBoardRepository partyBoardRepository;
+    private final PartyBoardMapper partyBoardMapper;
 
-    public HobbyService(HobbyRepository hobbyRepository, HobbyMapper hobbyMapper, UserRepository userRepository, FavoritesRepository favoritesRepository) {
+    public HobbyService(HobbyRepository hobbyRepository,
+                        HobbyMapper hobbyMapper,
+                        UserRepository userRepository,
+                        FavoritesRepository favoritesRepository,
+                        PartyBoardRepository partyBoardRepository,
+                        PartyBoardMapper partyBoardMapper) {
         this.hobbyRepository = hobbyRepository;
         this.hobbyMapper = hobbyMapper;
         this.userRepository = userRepository;
         this.favoritesRepository = favoritesRepository;
+        this.partyBoardRepository=partyBoardRepository;
+        this.partyBoardMapper=partyBoardMapper;
     }
 
     //전체 hobby 불러오기
@@ -101,6 +114,15 @@ public class HobbyService {
         Favorites favorites=favoritesRepository.save(favoritesEntity);
 
         return favorites;
+    }
+
+    //취미 번호를 통해 해당하는 모임리스트 조회
+    public List<PartyBoardDTOForDetail> getPartyBoardByHobbyNumber(int hobbyNumber) {
+        Hobby hobby=hobbyRepository.findById(hobbyNumber).orElseThrow(() -> new IllegalArgumentException("해당 취미 번호가 존재하지 않습니다: " + hobbyNumber));;
+        List<PartyBoard> partyBoardList=partyBoardRepository.findByHobby(hobby);
+        List<PartyBoardDTOForDetail> partyBoardDTOList=partyBoardList.stream().map(partyBoardMapper::toPartyBoardDTOForDetail).toList();
+
+        return partyBoardDTOList;
     }
 
 }
