@@ -61,4 +61,12 @@ public class HobbyReview {
         this.hobbyReviewWriteDate = hobbyReviewWriteDate;
     }
 
+    public void InitializeHobby(Hobby hobby) {
+        this.hobby = hobby;
+    }
+
+    public void InitializeUser(User user){
+        this.user=user;
+    }
+
 }
