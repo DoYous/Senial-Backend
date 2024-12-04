@@ -9,3 +9,6 @@ GET http://localhost:8080/partyboards/3/partymembers
 
 ### 모임 참가
 POST http://localhost:8080/partyboards/5/partymembers
+
+### 모임 탈퇴
+DELETE http://localhost:8080/partyboards/5/partymembers
