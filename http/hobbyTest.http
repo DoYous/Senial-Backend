@@ -8,7 +8,7 @@ GET http://localhost:8081/hobby-detail/1
 GET http://localhost:8081/hobby-board/3
 
 ###취미 게시판 후기 조회
-GET http://localhost:8081/1/hobby-review/13
+GET http://localhost:8081/1/hobby-review/17
 
 ###취미 게시판 후기 작성
 POST http://localhost:8081/1/hobby-review
@@ -16,9 +16,12 @@ Content-Type: application/json;charset=UTF-8
 
 {
   "hobbyReviewRate": 4,
-  "hobbyReviewDetail": "데이터 테스트",
+  "hobbyReviewDetail": "데이터 삭제 테스트",
   "hobbyReviewHealthStatus": 1,
   "hobbyReviewTendency": 1,
   "hobbyReviewLevel": 3,
   "hobbyReviewWriteDate": "2024-12-02"
 }
+
+###취미 게시판 후기 삭제
+DELETE http://localhost:8081/1/hobby-review/13
