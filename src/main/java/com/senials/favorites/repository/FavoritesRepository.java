@@ -11,6 +11,9 @@ import java.util.List;
 @Repository
 public interface FavoritesRepository extends JpaRepository<Favorites, Integer> {
 
+    List<Favorites> findAllByUser(User user);
+
+
     // 특정 사용자의 관심사를 조회
     List<Favorites> findByUser(User user);
 
@@ -19,4 +22,5 @@ public interface FavoritesRepository extends JpaRepository<Favorites, Integer> {
 
     // 사용자 번호(userNumber)와 취미 번호(hobbyNumber)로 Favorites 조회
     Favorites findByUserAndHobby(User user, Hobby hobby);
+
 }
