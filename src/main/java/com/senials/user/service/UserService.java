@@ -31,6 +31,16 @@ public class UserService {
                         user.getUserDetail(),
                         user.getUserProfileImg()
                 ))
-                .orElse(null);
+                .orElseThrow(IllegalArgumentException::new);
     }
+
+    //특정 사용자 탈퇴
+    public boolean deleteUser(int userNumber) {
+        if (userRepository.existsById(userNumber)) {
+            userRepository.deleteById(userNumber);
+            return true;
+        }
+        return false; // 사용자 존재하지 않음
+    }
+
 }
