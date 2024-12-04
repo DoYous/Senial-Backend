@@ -59,4 +59,27 @@ public class FavoritesService {
             );
         }).collect(Collectors.toList());
     }
+    //관심사 등록
+    public void addFavorite(int userNumber, int hobbyNumber) {
+
+        // 취미 조회
+        Hobby hobby = hobbyRepository.findById(hobbyNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        // 사용자가 이미 해당 취미를 즐겨찾기 했는지 확인
+        boolean exists = favoritesRepository.existsByUserAndHobby(user, hobby);
+        if (exists) {
+            throw new RuntimeException("이미 등록된 관심사입니다.");
+        }
+        // 관심사 추가
+        Favorites favorite = new Favorites();
+        favorite.initializeUser(user);
+        favorite.initializeHobby(hobby);
+
+        favoritesRepository.save(favorite);
+    }
+
 }

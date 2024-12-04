@@ -1,14 +1,13 @@
 package com.senials.favorites.controller;
 
+import com.senials.common.ResponseMessage;
+import com.senials.favorites.dto.AddFavoriteDTO;
 import com.senials.favorites.dto.FavoriteSelectDTO;
 import com.senials.favorites.service.FavoritesService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -44,4 +43,15 @@ public class FavoritesController {
         return ResponseEntity.ok().headers(headers).body(favoriteSelectList);
     }
 
+    //관심사 등록
+    @PostMapping("/{userNumber}/favorites")
+    public ResponseEntity<ResponseMessage> addFavorite(@PathVariable int userNumber, @RequestBody AddFavoriteDTO addFavoriteDto) {
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        // 서비스 호출
+        favoritesService.addFavorite(userNumber, addFavoriteDto.getHobbyNumber());
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "글 작성 성공", null));
+    }
 }
