@@ -59,4 +59,16 @@ public class HobbyReviewService {
 
         return hobbyReviewDTO;
     }
+
+    //취미 번호와 유저 번호를 통해 취미후기를 생성
+    public HobbyReview saveHobbyReview(HobbyReviewDTO hobbyReviewDTO, int userNumber, int hobbyNumber) {
+        User user= userRepository.findById(userNumber).orElseThrow(() -> new IllegalArgumentException("해당 유저 번호가 존재하지 않습니다: " + userNumber));;
+        Hobby hobby=hobbyRepository.findById(hobbyNumber).orElseThrow(() -> new IllegalArgumentException("해당 취미 번호가 존재하지 않습니다: " + hobbyNumber));
+        HobbyReview hobbyReviewEntity = hobbyReviewMapper.toHobbyReviewEntity(hobbyReviewDTO);
+        hobbyReviewEntity.InitializeUser(user);
+        hobbyReviewEntity.InitializeHobby(hobby);
+        HobbyReview hobbyReview=hobbyReviewRepository.save(hobbyReviewEntity);
+
+        return hobbyReview;
+    }
 }
