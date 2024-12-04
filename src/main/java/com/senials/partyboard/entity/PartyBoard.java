@@ -102,4 +102,21 @@ public class PartyBoard {
     }
 
 
+    /* 글 수정 용 */
+    public void updateHobby(Hobby hobby) {
+        this.hobby = hobby;
+    }
+
+    public void updatePartyBoardName(String partyBoardName) {
+        this.partyBoardName = partyBoardName;
+    }
+
+    public void updatePartyBoardDetail(String partyBoardDetail) {
+        this.partyBoardDetail = partyBoardDetail;
+    }
+
+    public void updatePartyBoardStatus(int partyBoardStatus) {
+        this.partyBoardStatus = partyBoardStatus;
+    }
+
 }

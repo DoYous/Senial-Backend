@@ -1,10 +1,10 @@
 package com.senials.partyboard.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.partyboard.dto.PartyBoardDTOForModify;
 import com.senials.partyboard.dto.PartyBoardDTOForWrite;
 import com.senials.partyboard.service.PartyBoardService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 public class PartyBoardController {
@@ -56,6 +53,27 @@ public class PartyBoardController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "글 작성 성공", null));
+    }
+
+    /* 모임 글 수정 */
+    @PutMapping("/partyboards/{partyBoardNumber}")
+    public ResponseEntity<ResponseMessage> modifyPartyBoard(
+            @PathVariable int partyBoardNumber,
+            @ModelAttribute PartyBoardDTOForModify partyBoardDTO
+    ) {
+        // PathVariable의 partyBoardNumber를 DTO에 삽입
+        partyBoardDTO.setPartyBoardNumber(partyBoardNumber);
+
+        // form 태그로 테스트할 때 공백이 리스트에 삽입되는 것 방지
+        // partyBoardDTO.getRemovedFileNumbers().removeAll(partyBoardDTO.getRemovedFileNumbers());
+        // partyBoardDTO.getAddedFiles().removeAll(partyBoardDTO.getAddedFiles());
+
+        partyBoardService.modifyPartyBoard(partyBoardDTO);
+
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "글 수정 성공", null));
     }
 
 }
