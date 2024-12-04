@@ -2,10 +2,14 @@ package com.senials.meet.controller;
 
 import com.senials.common.ResponseMessage;
 import com.senials.meet.dto.MeetDTO;
+import com.senials.meet.entity.Meet;
+import com.senials.meet.repository.MeetRepository;
 import com.senials.meet.service.MeetService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -17,10 +21,13 @@ import java.util.Map;
 public class MeetController {
 
     private final MeetService meetService;
+    private final MeetRepository meetRepository;
 
 
-    public MeetController(MeetService meetService) {
+    @Autowired
+    public MeetController(MeetService meetService, MeetRepository meetRepository) {
         this.meetService = meetService;
+        this.meetRepository = meetRepository;
     }
 
 
@@ -55,6 +62,21 @@ public class MeetController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 추가 완료", null));
     }
 
+
+    /* 모임 일정 수정 */
+    /* meetNumber 만으로 고유하기 때문에 partyBoardNumber는 필요없음 */
+    @PutMapping("/partyboards/{partyBoardNumber}/meets/{meetNumber}")
+    public ResponseEntity<ResponseMessage> modifyMeet (
+            @PathVariable Integer meetNumber
+            , @RequestBody MeetDTO meetDTO
+    ) {
+        meetService.modifyMeet(meetNumber, meetDTO);
+
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 수정 완료", null));
+    }
         
     @GetMapping("/users/{userNumber}/meets")
     public ResponseEntity<List<MeetDTO>> getUserMeets(@PathVariable int userNumber) {

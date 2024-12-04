@@ -83,4 +83,17 @@ public class MeetService {
                 .collect(Collectors.toList());
     }
 
+
+    /* 모임 일정 수정 */
+    @Transactional
+    public void modifyMeet(int meetNumber, MeetDTO meetDTO) {
+        /* 기존 일정 엔티티 로드 */
+        Meet meet = meetRepository.findById(meetNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+
+        /* 컬럼 변경 별도 검증 없이 모두 갱신*/
+        meet.updateAll(meetDTO);
+    }
+
 }

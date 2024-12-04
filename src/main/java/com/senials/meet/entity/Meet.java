@@ -1,5 +1,6 @@
 package com.senials.meet.entity;
 
+import com.senials.meet.dto.MeetDTO;
 import com.senials.meetmember.entity.MeetMember;
 import com.senials.partyboard.entity.PartyBoard;
 import jakarta.persistence.*;
@@ -76,4 +77,43 @@ public class Meet {
         this.partyBoard = partyBoard;
     }
 
+
+    /* 모임 수정 용*/
+    public void  updateAll(MeetDTO meetDTO) {
+        this.meetStartDate = meetDTO.getMeetStartDate();
+        this.meetEndDate = meetDTO.getMeetEndDate();
+        this.meetStartTime = meetDTO.getMeetStartTime();
+        this.meetFinishTime = meetDTO.getMeetFinishTime();
+        this.meetEntryFee = meetDTO.getMeetEntryFee();
+        this.meetLocation = meetDTO.getMeetLocation();
+        this.meetMaxMember = meetDTO.getMeetMaxMember();
+    }
+
+    public void updateStartDate(LocalDate startDate) {
+        this.meetStartDate = startDate;
+    }
+
+    public void updateEndDate(LocalDate endDate) {
+        this.meetEndDate = endDate;
+    }
+
+    public void updateStartTime(LocalTime startTime) {
+        this.meetStartTime = startTime;
+    }
+
+    public void updateFinishTime(LocalTime finishTime) {
+        this.meetFinishTime = finishTime;
+    }
+
+    public void updateEntryFee(int entryFee) {
+        this.meetEntryFee = entryFee;
+    }
+
+    public void updateLocation(String location) {
+        this.meetLocation = location;
+    }
+
+    public void updateMaxMember(int maxMember) {
+        this.meetMaxMember = maxMember;
+    }
 }
