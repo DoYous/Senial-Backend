@@ -2,7 +2,6 @@ package com.senials.meet.service;
 
 import com.senials.common.mapper.MeetMapper;
 import com.senials.common.mapper.MeetMapperImpl;
-import com.senials.meet.MeetDTO.MeetDTO;
 import com.senials.meet.dto.MeetDTO;
 import com.senials.meet.entity.Meet;
 import com.senials.meet.repository.MeetRepository;
@@ -55,6 +54,7 @@ public class MeetService {
         return meets.stream()
                 .map(meet -> new MeetDTO(
                         meet.getMeetNumber(),
+                        meet.getPartyBoard().getPartyBoardNumber(),
                         meet.getMeetStartDate(),
                         meet.getMeetEndDate(),
                         meet.getMeetStartTime(),
