@@ -162,4 +162,11 @@ public class PartyBoardService {
         }
     }
 
+    /* 모임 글 삭제 */
+    @Transactional
+    public void removePartyBoard(int partyBoardNumber) {
+
+        partyBoardRepository.deleteById(partyBoardNumber);
+    }
+
 }
