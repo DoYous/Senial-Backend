@@ -25,3 +25,16 @@ Content-Type: application/json;charset=UTF-8
 
 ###취미 게시판 후기 삭제
 DELETE http://localhost:8081/1/hobby-review/13
+
+###취미 게시판 후기 수정
+PUT http://localhost:8081/1/hobby-review/13
+Content-Type: application/json;charset=UTF-8
+
+{
+  "hobbyReviewRate": 2,
+  "hobbyReviewDetail": "이게무야",
+  "hobbyReviewHealthStatus": 3,
+  "hobbyReviewTendency": 2,
+  "hobbyReviewLevel": 1,
+  "hobbyReviewWriteDate": "2024-12-02"
+}

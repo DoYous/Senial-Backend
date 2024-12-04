@@ -80,4 +80,29 @@ public class HobbyReviewController {
         }
     }
 
+    //취미 후기 수정
+    @PutMapping("{hobbyNumber}/hobby-review/{hobbyReviewNumber}")
+    public ResponseEntity<ResponseMessage> updateHobbyReview(
+            @PathVariable("hobbyNumber") int hobbyNumber,
+            @PathVariable("hobbyReviewNumber") int hobbyReviewNumber,
+            @RequestBody HobbyReviewDTO hobbyReviewDTO) {
+        try {
+            hobbyReviewService.updateHobbyReview(hobbyReviewDTO,hobbyReviewNumber, userNumber, hobbyNumber);
+
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("message", "수정 성공");
+
+            return ResponseEntity.ok()
+                    .headers(httpHeadersFactory.createJsonHeaders())
+                    .body(new ResponseMessage(200, "수정 성공", responseMap));
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest()
+                    .headers(httpHeadersFactory.createJsonHeaders())
+                    .body(new ResponseMessage(400, "수정 실패", errorMap));
+        }
+    }
+
 }
