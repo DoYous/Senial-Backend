@@ -81,7 +81,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Favorites> favoritesList;
 
-
     /* AllArgsConstructor */
     @Builder
     public User(int userNumber, String userPwd, String userName, LocalDate userBirth, String userEmail, int userGender, int userReportCnt, int userStatus, String userNickname, String userDetail, String userProfileImg, LocalDate userSignupDate, String userUuid) {
@@ -100,4 +99,18 @@ public class User {
         this.userUuid = userUuid;
     }
 
+    /* 닉네임 수정용*/
+    public void updateUserNickname(String userNickname){
+        this.userNickname = userNickname;
+    }
+
+    /* 한줄 소개 수정용*/
+    public void updateUserDetail(String userDetail){
+        this.userDetail = userDetail;
+    }
+
+    /* 프로필 이미지 수정용 */
+    public void updateUserProfileImg(String userProfileImg){
+        this.userProfileImg = userProfileImg;
+    }
 }

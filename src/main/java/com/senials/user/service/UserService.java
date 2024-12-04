@@ -52,4 +52,18 @@ public class UserService {
         return false; // 사용자 존재하지 않음
     }
 
+    // 특정 사용자 수정
+    public boolean updateUserProfile(int userNumber, String userNickname, String userDetail) {
+        return userRepository.findById(userNumber).map(existingUser -> {
+            if (userNickname != null) {
+                existingUser.updateUserNickname(userNickname);
+            }
+            if (userDetail != null) {
+                existingUser.updateUserDetail(userDetail);
+            }
+            userRepository.save(existingUser);
+            return true;
+        }).orElseThrow(IllegalArgumentException::new);
+    }
+
 }

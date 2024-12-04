@@ -82,4 +82,25 @@ public class UserController {
                 .headers(headers)
                 .body(new ResponseMessage(200, "회원 탈퇴 성공", null));
     }
+
+    // 특정 사용자 수정 put
+    @PutMapping("/{userNumber}/modify")
+    public ResponseEntity<ResponseMessage> updateUserProfile(
+            @PathVariable int userNumber,
+            @RequestBody Map<String, String> updatedFields) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        boolean isUpdated = userService.updateUserProfile(userNumber, updatedFields.get("userNickname"), updatedFields.get("userDetail"));
+
+        if (!isUpdated) {
+            return ResponseEntity.status(404)
+                    .headers(headers)
+                    .body(new ResponseMessage(404, "사용자를 찾을 수 없습니다.", null));
+        }
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new ResponseMessage(200, "사용자 프로필 수정 성공", null));
+    }
 }
