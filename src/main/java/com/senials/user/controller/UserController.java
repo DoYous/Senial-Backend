@@ -113,6 +113,9 @@ public class UserController {
     public ResponseEntity<ResponseMessage> getUserJoinedPartyBoards(@PathVariable int userNumber) {
         // Service 호출
         List<PartyBoardDTOForCard> joinedParties = userService.getJoinedPartyBoardsByUserNumber(userNumber);
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
         if (joinedParties.isEmpty()) {
             return ResponseEntity.status(404)
@@ -121,10 +124,9 @@ public class UserController {
 
         // 응답 데이터 생성
         Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("userNumber", userNumber);
         responseMap.put("joinedParties", joinedParties);
 
-        return ResponseEntity.ok(
+        return ResponseEntity.ok().headers(headers).body(
                 new ResponseMessage(200, "사용자가 참여한 모임 조회 성공", responseMap)
         );
     }
