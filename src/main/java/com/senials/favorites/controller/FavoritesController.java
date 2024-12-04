@@ -70,5 +70,15 @@ public class FavoritesController {
             favoritesService.updateFavorite(userNumber, hobbyNumberList);
             return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "관심사가 수정되었습니다.",null));
     }
+    //관심사 삭제
+    @DeleteMapping("/{userNumber}/favorites/{hobbyNumber}")
+    public ResponseEntity<ResponseMessage> removeFavorite(@PathVariable int userNumber, @PathVariable int hobbyNumber) {
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
+            favoritesService.removeFavorite(userNumber, hobbyNumber);
+            return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "관심사가 삭제되었습니다.",null));
+
+    }
 }
