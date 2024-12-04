@@ -5,6 +5,7 @@ import com.senials.config.HttpHeadersFactory;
 import com.senials.hobbyboard.dto.HobbyDTO;
 import com.senials.hobbyboard.service.HobbyService;
 import com.senials.hobbyreview.dto.HobbyReviewDTO;
+import com.senials.hobbyreview.service.HobbyReviewService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,9 +24,12 @@ public class HobbyController {
     private HobbyService hobbyService;
     private final HttpHeadersFactory httpHeadersFactory;
 
-    public HobbyController(HobbyService hobbyService, HttpHeadersFactory httpHeadersFactory){
+    private HobbyReviewService hobbyReviewService;
+
+    public HobbyController(HobbyService hobbyService,HobbyReviewService hobbyReviewService, HttpHeadersFactory httpHeadersFactory){
 
         this.hobbyService=hobbyService;
+        this.hobbyReviewService=hobbyReviewService;
         this.httpHeadersFactory = httpHeadersFactory;
     }
 
@@ -50,7 +54,7 @@ public class HobbyController {
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
 
         HobbyDTO hobbyDTO = hobbyService.findById(hobbyNumber);
-        List<HobbyReviewDTO> hobbyReviewDTOList=hobbyService.getReviewsListByHobbyNumber(hobbyNumber);
+        List<HobbyReviewDTO> hobbyReviewDTOList=hobbyReviewService.getReviewsListByHobbyNumber(hobbyNumber);
 
         Map<String, Object> responseMap = new HashMap<String, Object>();
         responseMap.put("hobbyReview",hobbyReviewDTOList);

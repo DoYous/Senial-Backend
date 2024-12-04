@@ -51,20 +51,4 @@ public class HobbyService {
 
         return hobbyDTOList;
     }
-
-    //취미 번호가 같은 취미리뷰 리스트 불러오기
-    public List<HobbyReviewDTO> getReviewsListByHobbyNumber(int hobbyNumber) {
-        Hobby hobby = hobbyRepository.findById(hobbyNumber)
-                .orElseThrow(() -> new IllegalArgumentException("해당 취미 번호가 존재하지 않습니다: " + hobbyNumber));
-        List<HobbyReview> hobbyReviewList=hobbyReviewRepository.findByHobby(hobby);
-        List<HobbyReviewDTO> hobbyReviewDTOList=hobbyReviewList.stream().map(hobbyReview -> {
-            HobbyReviewDTO dto=hobbyReviewMapper.toHobbyReviewDTO(hobbyReview);
-            dto.setHobbyNumber(hobbyReview.getHobby().getHobbyNumber());
-            dto.setUserNumber(hobbyReview.getUser().getUserNumber());
-            dto.setUserName(hobbyReview.getUser().getUserName());
-            return dto;
-        }).toList();
-        return hobbyReviewDTOList;
-    }
-
 }
