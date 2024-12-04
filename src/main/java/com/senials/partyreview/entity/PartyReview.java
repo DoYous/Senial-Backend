@@ -54,7 +54,7 @@ public class PartyReview {
     }
 
 
-    /* 모임 후기 작성 시 작성자, 모임, 작성일자 세팅 */
+    /* 모임후기 작성 시 작성자, 모임, 작성일자 세팅 */
     public void initializeUser(User user) {
         this.user = user;
     }

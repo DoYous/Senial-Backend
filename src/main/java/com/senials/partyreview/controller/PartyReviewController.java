@@ -6,9 +6,7 @@ import com.senials.partyreview.service.PartyReviewService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -39,4 +37,21 @@ public class PartyReviewController {
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 후기 전체 조회 성공", responseMap));
     }
+
+    /* 모임 후기 작성 */
+    @PostMapping("/partyboards/{partyBoardNumber}/partyreviews")
+    public ResponseEntity<ResponseMessage> registerPartyReview (
+            @PathVariable Integer partyBoardNumber
+            , @RequestBody PartyReviewDTO partyReviewDTO
+    ) {
+        // 유저 번호 임의 지정
+        int userNumber = 4;
+
+        partyReviewService.registerPartyReview(userNumber, partyBoardNumber, partyReviewDTO);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 후기 작성 성공", null));
+    }
+
 }
