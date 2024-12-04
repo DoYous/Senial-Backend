@@ -1,0 +1,3 @@
+###취미 게시판 전체 보기
+GET http://localhost:8081/hobby-board
+
