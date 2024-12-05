@@ -69,7 +69,6 @@ public class UserService {
     }
 
     // 특정 사용자 수정
-    // 특정 사용자 수정
     public boolean updateUserProfile(int userNumber, String userNickname, String userDetail, String userProfileImg) {
         return userRepository.findById(userNumber).map(existingUser -> {
             if (userNickname != null) {
