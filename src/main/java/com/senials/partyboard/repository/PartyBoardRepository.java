@@ -1,6 +1,7 @@
 package com.senials.partyboard.repository;
 
 import com.senials.hobbyboard.entity.Hobby;
+import com.senials.partyboard.dto.PartyBoardDTO;
 import com.senials.partyboard.entity.PartyBoard;
 import com.senials.user.entity.User;
 import org.springframework.data.domain.Page;
@@ -24,5 +25,8 @@ public interface PartyBoardRepository extends JpaRepository<PartyBoard, Integer>
 
     /*사용자별 만든 모임의 수*/
     long countByUser(User user);
+
+    List<PartyBoard> findByHobby(Hobby hobby);
+
 
 }
