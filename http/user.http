@@ -36,3 +36,13 @@ Content-Type: application/json
   "userNickname": "귀여운 쿼카3",
   "userDetail": "귀여운 쿼카입니다3"
 }
+
+### 사용자 프로필 수정
+PUT http://localhost:8080/users/1/modify
+Content-Type: application/json
+
+{
+  "userNickname": "새 닉네임",
+  "userDetail": "새 사용자 상세 정보",
+  "userProfileImg": "https://example.com/new-profile-image.jpg"
+}

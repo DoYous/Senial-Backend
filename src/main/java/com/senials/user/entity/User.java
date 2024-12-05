@@ -113,4 +113,5 @@ public class User {
     public void updateUserProfileImg(String userProfileImg){
         this.userProfileImg = userProfileImg;
     }
+
 }
