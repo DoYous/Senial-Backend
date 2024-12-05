@@ -5,6 +5,7 @@ import com.senials.partyboard.dto.PartyBoardDTOForDetail;
 import com.senials.partyboard.dto.PartyBoardDTOForModify;
 import com.senials.partyboard.dto.PartyBoardDTOForWrite;
 import com.senials.partyboard.service.PartyBoardService;
+import com.senials.user.dto.UserDTOForPublic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

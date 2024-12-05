@@ -119,4 +119,9 @@ public class PartyBoard {
         this.partyBoardStatus = partyBoardStatus;
     }
 
+
+    /* 모임 가입 */
+    public void registerPartyMember(PartyMember partyMember) {
+        this.partyMembers.add(partyMember);
+    }
 }

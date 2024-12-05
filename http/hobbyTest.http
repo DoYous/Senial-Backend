@@ -38,3 +38,12 @@ Content-Type: application/json;charset=UTF-8
   "hobbyReviewLevel": 1,
   "hobbyReviewWriteDate": "2024-12-02"
 }
+
+###맞춤형 취미 추천 결과 조회
+GET http://localhost:8081/suggest-hobby-result?hobbyAbility=3&hobbyBudget=2&hobbyLevel=2&hobbyTendency=1
+
+###맞춤형 취미 추천 나의 취미 등록
+POST  http://localhost:8081/suggest-hobby-result?hobbyNumber=3
+
+###맞춤형 취미 추천 관련 모임 조회
+GET http://localhost:8081/partyboards/search/1
