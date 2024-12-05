@@ -13,7 +13,7 @@ public interface PartyMemberRepository extends JpaRepository<PartyMember, Intege
 
     List<PartyMember> findByUser_UserNumber(int userNumber); // 사용자별 참여 데이터 조회
 
-  //페이지네이션 용
+  // 페이지네이션 용
     Page<PartyMember> findByUser_UserNumber(int userNumber, Pageable pageable);
 
     List<PartyMember> findAllByPartyBoard(PartyBoard partyBoard);

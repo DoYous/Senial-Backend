@@ -92,7 +92,12 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        boolean isUpdated = userService.updateUserProfile(userNumber, updatedFields.get("userNickname"), updatedFields.get("userDetail"));
+        boolean isUpdated = userService.updateUserProfile(
+                userNumber,
+                updatedFields.get("userNickname"),
+                updatedFields.get("userDetail"),
+                updatedFields.get("userProfileImg")
+        );
 
         if (!isUpdated) {
             return ResponseEntity.status(404)
@@ -104,6 +109,7 @@ public class UserController {
                 .headers(headers)
                 .body(new ResponseMessage(200, "사용자 프로필 수정 성공", null));
     }
+
 
 
 

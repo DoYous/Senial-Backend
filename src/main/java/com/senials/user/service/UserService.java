@@ -69,7 +69,7 @@ public class UserService {
     }
 
     // 특정 사용자 수정
-    public boolean updateUserProfile(int userNumber, String userNickname, String userDetail) {
+    public boolean updateUserProfile(int userNumber, String userNickname, String userDetail, String userProfileImg) {
         return userRepository.findById(userNumber).map(existingUser -> {
             if (userNickname != null) {
                 existingUser.updateUserNickname(userNickname);
@@ -77,10 +77,14 @@ public class UserService {
             if (userDetail != null) {
                 existingUser.updateUserDetail(userDetail);
             }
+            if (userProfileImg != null) {
+                existingUser.updateUserProfileImg(userProfileImg);
+            }
             userRepository.save(existingUser);
             return true;
         }).orElseThrow(IllegalArgumentException::new);
     }
+
 
     //사용자별 참여한 모임 출력
     // 사용자별 참여한 모임 목록을 PartyBoardDTOForCard로 반환
