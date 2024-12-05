@@ -17,4 +17,6 @@ public interface MeetRepository extends JpaRepository<Meet, Integer> {
     //사용자 별 참여한 모임 확인
     @Query("SELECT m FROM Meet m JOIN m.partyBoard pb WHERE pb.user.userNumber = :userNumber")
     List<Meet> findAllByUserNumber(int userNumber);
+
+    Meet findByPartyBoard(PartyBoard partyBoard);
 }
