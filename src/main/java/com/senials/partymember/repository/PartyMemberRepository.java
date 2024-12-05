@@ -11,4 +11,7 @@ import java.util.List;
 public interface PartyMemberRepository extends JpaRepository<PartyMember, Integer> {
     List<PartyMember> findByUser_UserNumber(int userNumber); // 사용자별 참여 데이터 조회
     Page<PartyMember> findByUser_UserNumber(int userNumber, Pageable pageable);
+
+    /*사용자별 참여한 모임 개수*/
+    long countByUser_UserNumber(int userNumber);
 }

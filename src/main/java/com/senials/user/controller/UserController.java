@@ -171,4 +171,37 @@ public class UserController {
                 .body(new ResponseMessage(200, "사용자가 만든 모임 조회 성공", responseMap));
     }
 
+
+    /*모임 개수 api*/
+
+    /*사용자 별 참여한 모임 개수*/
+    @GetMapping("/{userNumber}/parties/count")
+    public ResponseEntity<ResponseMessage> countUserJoinedParties(@PathVariable int userNumber) {
+        long count = userService.countPartiesPartyBoardsByUserNumber(userNumber);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("partiesPartyCount", count);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new ResponseMessage(200, "사용자가 참여한 모임 개수 조회 성공", responseMap));
+    }
+    /*사용자 별 만든 모임 개수*/
+    @GetMapping("/{userNumber}/made/count")
+    public ResponseEntity<ResponseMessage> countUserMadeParties(@PathVariable int userNumber) {
+        long count = userService.countMadePartyBoardsByUserNumber(userNumber);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("madePartyCount", count);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new ResponseMessage(200, "사용자가 만든 모임 개수 조회 성공", responseMap));
+    }
 }

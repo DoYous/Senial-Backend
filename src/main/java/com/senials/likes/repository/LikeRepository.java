@@ -24,4 +24,7 @@ public interface LikeRepository extends JpaRepository<Likes, Integer> {
 
     // 페이지네이션 용
     Page<Likes> findAllByUser(User user, Pageable pageable);
+
+    /*사용자별 좋아요 한 모임 개수*/
+    long countByUser(User user);
 }

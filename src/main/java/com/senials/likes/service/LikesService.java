@@ -67,6 +67,15 @@ public class LikesService {
                     firstImage
             );
         }).collect(Collectors.toList());
-
     }
+
+    /*모임 개수 api*/
+    /*사용자 별 좋아요 한 모임 개수*/
+    public long countLikesPartyBoardsByUserNumber(int userNumber) {
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        return likesRepository.countByUser(user);
+    }
+
 }
