@@ -11,7 +11,12 @@ import com.senials.user.dto.UserCommonDTO;
 import com.senials.user.dto.UserDTO;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,11 +29,13 @@ public class UserService {
     private com.senials.user.repository.UserRepository userRepository;
 
     private final PartyMemberRepository partyMemberRepository;
+    private final PartyBoardRepository partyBoardRepository;
 
-    public UserService(UserMapper userMapper, UserRepository userRepository, PartyMemberRepository partyMemberRepository) {
+    public UserService(UserMapper userMapper, UserRepository userRepository, PartyMemberRepository partyMemberRepository,PartyBoardRepository partyBoardRepository) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.partyMemberRepository = partyMemberRepository;
+        this.partyBoardRepository = partyBoardRepository;
     }
 
     //모든 사용자 조회
@@ -77,12 +84,15 @@ public class UserService {
 
     //사용자별 참여한 모임 출력
     // 사용자별 참여한 모임 목록을 PartyBoardDTOForCard로 반환
-    public List<PartyBoardDTOForCard> getJoinedPartyBoardsByUserNumber(int userNumber) {
-        // 사용자가 참여한 PartyMember 목록 조회
-        List<PartyMember> partyMembers = partyMemberRepository.findByUser_UserNumber(userNumber);
+    public List<PartyBoardDTOForCard> getJoinedPartyBoardsByUserNumber(int userNumber, int page, int size) {
+        // Page 요청 객체 생성
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // 사용자가 참여한 PartyMember 목록 페이징 조회
+        Page<PartyMember> partyMembersPage = partyMemberRepository.findByUser_UserNumber(userNumber, pageable);
 
         // PartyBoardDTOForCard 리스트로 변환
-        return partyMembers.stream()
+        return partyMembersPage.stream()
                 .map(pm -> {
                     PartyBoard partyBoard = pm.getPartyBoard();
                     // 별점 평균 계산
@@ -107,24 +117,28 @@ public class UserService {
                     );
                 }).collect(Collectors.toList());
     }
+
+
     // 사용자가 만든 모임 목록 조회
-    public List<PartyBoardDTOForCard> getMadePartyBoardsByUserNumber(int userNumber) {
-        // User가 만든 PartyBoard 목록을 직접 조회
+    public List<PartyBoardDTOForCard> getMadePartyBoardsByUserNumber(int userNumber, int page, int size) {
+        // User가 존재하는지 확인
         User user = userRepository.findById(userNumber)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        List<PartyBoard> partyBoards = user.getPartyBoards(); // User와 PartyBoard가 연결되어 있다고 가정
+        // Page 요청 객체 생성
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-        return partyBoards.stream().map(partyBoard -> {
+        // User가 만든 PartyBoard 페이징 조회
+        Page<PartyBoard> partyBoardPage = partyBoardRepository.findByUser(user, pageable);
+
+        // PartyBoardDTOForCard 리스트로 변환
+        return partyBoardPage.stream().map(partyBoard -> {
             // 별점 평균 계산
             double averageRating = 0.0;
-            List<PartyReview> reviews = partyBoard.getReviews(); // PartyBoard에 PartyReview 관계가 있다고 가정
+            List<PartyReview> reviews = partyBoard.getReviews();
 
             if (!reviews.isEmpty()) {
-                int totalRating = 0;
-                for (PartyReview review : reviews) {
-                    totalRating += review.getPartyReviewRate();
-                }
+                int totalRating = reviews.stream().mapToInt(PartyReview::getPartyReviewRate).sum();
                 averageRating = (double) totalRating / reviews.size();
             }
 
@@ -142,5 +156,6 @@ public class UserService {
             );
         }).collect(Collectors.toList());
     }
+
 
 }
