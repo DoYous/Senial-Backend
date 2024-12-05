@@ -72,14 +72,14 @@ public class MeetMemberService {
 
         /* 일정이 존재하는지 */
         Meet meet = meetRepository.findById(meetNumber)
-                .orElseThrow(() -> new IllegalArgumentException("일정이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청 (일정이 존재하지 않음)"));
 
 
         /* 해당 모임에 가입되어 있는 지 (PathVariable 불필요) */
         PartyBoard partyBoard = meet.getPartyBoard();
         PartyMember partyMember = partyMemberRepository.findByPartyBoardAndUser(partyBoard, user);
         if(partyMember == null) {
-            throw new IllegalArgumentException("먼저 모임에 가입해야 함");
+            throw new IllegalArgumentException("잘못된 요청 (모임에 속하지 않음)");
         }
 
 
@@ -97,7 +97,7 @@ public class MeetMemberService {
         if(meetMember == null) {
             meetMemberRepository.save(new MeetMember(0, meet, partyMember));
         } else {
-            throw new IllegalArgumentException("이미 참여 중인 일정");
+            throw new IllegalArgumentException("잘못된 요청 (이미 참여 중인 멤버)");
         }
 
     }
@@ -111,14 +111,14 @@ public class MeetMemberService {
 
         /* 일정이 존재하는지 */
         Meet meet = meetRepository.findById(meetNumber)
-                .orElseThrow(() -> new IllegalArgumentException("일정이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청 (일정이 존재하지 않음)"));
 
 
         /* 해당 모임에 가입되어 있는 지 (PathVariable 불필요) */
         PartyBoard partyBoard = meet.getPartyBoard();
         PartyMember partyMember = partyMemberRepository.findByPartyBoardAndUser(partyBoard, user);
         if(partyMember == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다. (모임에 속하지 않음)");
+            throw new IllegalArgumentException("잘못된 요청 (모임에 속하지 않음)");
         }
 
 
@@ -136,7 +136,7 @@ public class MeetMemberService {
         LocalDate presentDate = LocalDate.now();
         if(presentDate.isAfter(deadLine) || presentDate.isEqual(deadLine)) {
 
-            throw new IllegalArgumentException("최소 이틀 전에 취소 해야함 (모임장에 문의)");
+            throw new IllegalArgumentException("일정 시작일로부터 최소 이틀 전 탈퇴 가능 (모임장에 문의)");
 
         }else if(presentDate.isAfter(startDate) || presentDate.isEqual(startDate)) {
 
