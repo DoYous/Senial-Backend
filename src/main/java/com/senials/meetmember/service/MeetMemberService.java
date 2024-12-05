@@ -72,33 +72,80 @@ public class MeetMemberService {
 
         /* 일정이 존재하는지 */
         Meet meet = meetRepository.findById(meetNumber)
-                .orElseThrow(() -> new IllegalArgumentException("일정이 존재하지 않습니다."));
-
-
-        /* 신청 시점이 시작일을 넘겼는 지 */
-        LocalDate startDate = meet.getMeetStartDate();
-        LocalDate presentDate = LocalDate.now();
-        if(presentDate.isAfter(startDate) || presentDate.isEqual(startDate)) {
-            throw new IllegalArgumentException("이미 종료된 일정");
-        }
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청 (일정이 존재하지 않음)"));
 
 
         /* 해당 모임에 가입되어 있는 지 (PathVariable 불필요) */
         PartyBoard partyBoard = meet.getPartyBoard();
         PartyMember partyMember = partyMemberRepository.findByPartyBoardAndUser(partyBoard, user);
         if(partyMember == null) {
-            throw new IllegalArgumentException("먼저 모임에 가입해야 함");
+            throw new IllegalArgumentException("잘못된 요청 (모임에 속하지 않음)");
         }
 
 
-        /* 이미 모임 멤버 인지 (Unique 제약조건으로 곧바로 save 성공 여부로 단축 가능)*/
+        /* 신청 시점이 시작일을 넘겼는 지 */
+        LocalDate startDate = meet.getMeetStartDate();
+        LocalDate presentDate = LocalDate.now();
+        if(presentDate.isAfter(startDate) || presentDate.isEqual(startDate)) {
+            throw new IllegalArgumentException("이미 종료(시작)된 일정");
+        }
+
+
+        /* 이미 일정 참여 멤버 인지 (Unique 제약조건으로 곧바로 save 성공 여부로 단축 가능)*/
         MeetMember meetMember = meetMemberRepository.findByMeetAndPartyMember(meet, partyMember);
 
         if(meetMember == null) {
             meetMemberRepository.save(new MeetMember(0, meet, partyMember));
         } else {
-            throw new IllegalArgumentException("이미 참여 중인 일정");
+            throw new IllegalArgumentException("잘못된 요청 (이미 참여 중인 멤버)");
         }
+
+    }
+
+    /* 모임 일정 탈퇴 */
+    public void quitMeetMembers(Integer userNumber, Integer partyBoardNumber, Integer meetNumber) {
+
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(() -> new IllegalArgumentException("서버 내부 오류"));
+
+
+        /* 일정이 존재하는지 */
+        Meet meet = meetRepository.findById(meetNumber)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청 (일정이 존재하지 않음)"));
+
+
+        /* 해당 모임에 가입되어 있는 지 (PathVariable 불필요) */
+        PartyBoard partyBoard = meet.getPartyBoard();
+        PartyMember partyMember = partyMemberRepository.findByPartyBoardAndUser(partyBoard, user);
+        if(partyMember == null) {
+            throw new IllegalArgumentException("잘못된 요청 (모임에 속하지 않음)");
+        }
+
+
+        /* 이미 일정에 참여하지 않은 상태인지 */
+        MeetMember meetMember = meetMemberRepository.findByMeetAndPartyMember(meet, partyMember);
+
+        if(meetMember == null) {
+            throw new IllegalArgumentException("잘못된 요청 (일정 참여 멤버가 아님)");
+        }
+
+
+        /* 탈퇴 시점이 시작일로부터 이틀 이내인지 혹은 시작일을 넘겼는 지 */
+        LocalDate startDate = meet.getMeetStartDate();
+        LocalDate deadLine = startDate.minusDays(2);
+        LocalDate presentDate = LocalDate.now();
+        if(presentDate.isAfter(deadLine) || presentDate.isEqual(deadLine)) {
+
+            throw new IllegalArgumentException("일정 시작일로부터 최소 이틀 전 탈퇴 가능 (모임장에 문의)");
+
+        }else if(presentDate.isAfter(startDate) || presentDate.isEqual(startDate)) {
+
+            throw new IllegalArgumentException("이미 종료(시작)된 일정");
+
+        }
+
+
+        meetMemberRepository.delete(meetMember);
 
     }
 }

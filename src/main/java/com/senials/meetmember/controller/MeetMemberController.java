@@ -72,4 +72,20 @@ public class MeetMemberController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 참여 성공", null));
     }
 
+    /* 모임 일정 탈퇴 */
+    @DeleteMapping("/partyboards/{partyBoardNumber}/meets/{meetNumber}/meetmembers")
+    public ResponseEntity<ResponseMessage> quitMeetMembers(
+            @PathVariable Integer partyBoardNumber
+            , @PathVariable Integer meetNumber
+    ) {
+        /* 유저 임의 정의 */
+        // 유저 로그인 확인 필요
+        int userNumber = 4;
+
+        meetMemberService.quitMeetMembers(userNumber, partyBoardNumber, meetNumber);
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 탈퇴 성공", null));
+    }
+
 }

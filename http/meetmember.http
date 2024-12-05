@@ -4,3 +4,7 @@ GET https://examples.http-client.intellij.net/get
 
 ###
 POST http://localhost:8080/partyboards/1/meets/5/meetmembers
+
+
+###
+DELETE http://localhost:8080/partyboards/1/meets/5/meetmembers
