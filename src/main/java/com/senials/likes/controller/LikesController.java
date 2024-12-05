@@ -43,10 +43,28 @@ public class LikesController {
                 .body(new ResponseMessage(200, "사용자가 만든 모임 조회 성공", responseMap));
     }
 
+
+    /*사용자 별 좋아요 한 모임 개수*/
+    @GetMapping("/{userNumber}/like/count")
+    public ResponseEntity<ResponseMessage> countUserLikeParties(@PathVariable int userNumber) {
+        long count = likesService.countLikesPartyBoardsByUserNumber(userNumber);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("likesPartyCount", count);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new ResponseMessage(200, "사용자가 좋아요한 개수 조회 성공", responseMap));
+    }
+
     //사용자가 좋아한 상태별 모임 목록
 /*    @GetMapping("/{userNumber}/likes/{partyBoardStatus}")
     public ResponseEntity<List<PartyBoardDTOForCard>> getLikedPartyBoardsStatus(@PathVariable int userNumber) {
         List<PartyBoardDTOForCard> likedBoards = likesService.getLikedPartyBoardsByUserNumber(userNumber);
         return ResponseEntity.ok(likedBoards);
     }*/
+
 }

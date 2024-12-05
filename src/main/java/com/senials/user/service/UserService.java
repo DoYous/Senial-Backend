@@ -161,5 +161,18 @@ public class UserService {
         }).collect(Collectors.toList());
     }
 
+    /*모임 개수 api*/
+    /*사용자 별 참여한 모임 개수*/
+    public long countPartiesPartyBoardsByUserNumber(int userNumber) {
+        return partyMemberRepository.countByUser_UserNumber(userNumber);
+    }
+
+    /*사용자 별 만든 모임 개수*/
+    public long countMadePartyBoardsByUserNumber(int userNumber) {
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        return partyBoardRepository.countByUser(user);
+    }
 
 }

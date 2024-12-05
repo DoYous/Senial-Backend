@@ -23,7 +23,9 @@ public interface PartyBoardRepository extends JpaRepository<PartyBoard, Integer>
     /* 페이지네이션 용 */
     Page<PartyBoard> findByUser(User user, Pageable pageable);
 
-    List<PartyBoard> findByHobby(Hobby hobby);
+    /*사용자별 만든 모임의 수*/
+    long countByUser(User user);
 
+    List<PartyBoard> findByHobby(Hobby hobby);
 
 }

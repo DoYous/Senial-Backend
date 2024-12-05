@@ -46,3 +46,13 @@ Content-Type: application/json
   "userDetail": "새 사용자 상세 정보",
   "userProfileImg": "https://example.com/new-profile-image.jpg"
 }
+
+### 사용자가 참여한 모임 개수 출력
+GET http://localhost:8080/users/1/parties/count
+
+### 사용자가 만든 모임 개수 출력
+GET http://localhost:8080/users/1/made/count
+
+### 사용자가 좋아한 모임 개수 출력
+GET http://localhost:8080/users/1/like/count
+
