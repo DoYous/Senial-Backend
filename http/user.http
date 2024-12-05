@@ -55,3 +55,4 @@ GET http://localhost:8080/users/1/made/count
 
 ### 사용자가 좋아한 모임 개수 출력
 GET http://localhost:8080/users/1/like/count
+

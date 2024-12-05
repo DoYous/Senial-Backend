@@ -189,6 +189,7 @@ public class UserController {
                 .headers(headers)
                 .body(new ResponseMessage(200, "사용자가 참여한 모임 개수 조회 성공", responseMap));
     }
+  
     /*사용자 별 만든 모임 개수*/
     @GetMapping("/{userNumber}/made/count")
     public ResponseEntity<ResponseMessage> countUserMadeParties(@PathVariable int userNumber) {
@@ -203,5 +204,7 @@ public class UserController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(new ResponseMessage(200, "사용자가 만든 모임 개수 조회 성공", responseMap));
+
     }
+
 }

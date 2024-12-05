@@ -175,5 +175,4 @@ public class UserService {
         return partyBoardRepository.countByUser(user);
     }
 
-
 }

@@ -18,6 +18,9 @@ public interface PartyMemberRepository extends JpaRepository<PartyMember, Intege
     /*사용자별 참여한 모임 개수*/
     long countByUser_UserNumber(int userNumber);
 
+  // 페이지네이션 용
+    Page<PartyMember> findByUser_UserNumber(int userNumber, Pageable pageable);
+
     List<PartyMember> findAllByPartyBoard(PartyBoard partyBoard);
 
     PartyMember findByPartyBoardAndUser(PartyBoard partyBoard, User user);

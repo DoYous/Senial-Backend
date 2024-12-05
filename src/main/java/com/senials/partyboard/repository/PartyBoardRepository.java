@@ -28,5 +28,4 @@ public interface PartyBoardRepository extends JpaRepository<PartyBoard, Integer>
 
     List<PartyBoard> findByHobby(Hobby hobby);
 
-
 }

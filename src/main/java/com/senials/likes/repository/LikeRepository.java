@@ -27,4 +27,5 @@ public interface LikeRepository extends JpaRepository<Likes, Integer> {
 
     /*사용자별 좋아요 한 모임 개수*/
     long countByUser(User user);
+
 }
