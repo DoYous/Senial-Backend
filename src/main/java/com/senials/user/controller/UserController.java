@@ -110,10 +110,13 @@ public class UserController {
     //사용자 별 참여한 모임 출력
     // 사용자별 참여 모임 목록 조회
     @GetMapping("/{userNumber}/parties")
-    public ResponseEntity<ResponseMessage> getUserJoinedPartyBoards(@PathVariable int userNumber) {
+    public ResponseEntity<ResponseMessage> getUserJoinedPartyBoards(
+            @PathVariable int userNumber,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "9") int size) {
         // Service 호출
-        List<PartyBoardDTOForCard> joinedParties = userService.getJoinedPartyBoardsByUserNumber(userNumber);
-        // ResponseHeader 설정
+        List<PartyBoardDTOForCard> joinedParties = userService.getJoinedPartyBoardsByUserNumber(userNumber, page, size);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
@@ -125,19 +128,24 @@ public class UserController {
         // 응답 데이터 생성
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("joinedParties", joinedParties);
+        responseMap.put("currentPage", page);
+        responseMap.put("pageSize", size);
 
-        return ResponseEntity.ok().headers(headers).body(
-                new ResponseMessage(200, "사용자가 참여한 모임 조회 성공", responseMap)
-        );
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new ResponseMessage(200, "사용자가 참여한 모임 조회 성공", responseMap));
     }
 
     //사용자 별 자신이 만든 모임 조회
     @GetMapping("/{userNumber}/made")
-    public ResponseEntity<ResponseMessage> getUserMadeParties(@PathVariable int userNumber) {
-        // UserService에서 리스트로 결과를 가져옴
-        List<PartyBoardDTOForCard> madeParties = userService.getMadePartyBoardsByUserNumber(userNumber);
+    public ResponseEntity<ResponseMessage> getUserMadeParties(
+            @PathVariable int userNumber,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "9") int size) {
 
-        // ResponseHeader 설정
+        // Service 호출
+        List<PartyBoardDTOForCard> madeParties = userService.getMadePartyBoardsByUserNumber(userNumber, page, size);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
@@ -146,12 +154,15 @@ public class UserController {
                     .body(new ResponseMessage(404, "사용자가 만든 모임이 없습니다.", null));
         }
 
-        // 성공
+        // 응답 데이터 생성
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("madeParties", madeParties);
+        responseMap.put("currentPage", page);
+        responseMap.put("pageSize", size);
 
-        return ResponseEntity.ok().headers(headers).body(
-                new ResponseMessage(200, "사용자가 만든 모임 조회 성공", responseMap)
-        );
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new ResponseMessage(200, "사용자가 만든 모임 조회 성공", responseMap));
     }
+
 }

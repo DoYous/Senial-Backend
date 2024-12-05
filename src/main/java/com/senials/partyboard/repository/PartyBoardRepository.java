@@ -2,6 +2,7 @@ package com.senials.partyboard.repository;
 
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.partyboard.entity.PartyBoard;
+import com.senials.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,5 +18,8 @@ public interface PartyBoardRepository extends JpaRepository<PartyBoard, Integer>
     PartyBoard findByPartyBoardNumber(int partyBoardNumber);
 
     Page<PartyBoard> findAllByHobbyIn(List<Hobby> hobby, Pageable pageable);
+
+    /* 페이지네이션 용 */
+    Page<PartyBoard> findByUser(User user, Pageable pageable);
 
 }

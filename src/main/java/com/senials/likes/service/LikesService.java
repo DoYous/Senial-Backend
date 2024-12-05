@@ -9,6 +9,9 @@ import com.senials.partyboard.entity.PartyBoard;
 import com.senials.partyreview.entity.PartyReview;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,11 +30,17 @@ public class LikesService {
     }
 
     // 좋아요 한 모임 리스트 가져오기
-    public List<PartyBoardDTOForCard> getLikedPartyBoardsByUserNumber(int userNumber) {
+    public List<PartyBoardDTOForCard> getLikedPartyBoardsByUserNumber(int userNumber, int page, int size) {
+
+        //User 가 존재하는지 확인
         User user = userRepository.findById(userNumber)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        List<Likes> likesList = likesRepository.findAllByUser(user);
+        // Page 요청 객체 생성
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // User가 좋아한 목록 페이징 조회
+        Page<Likes> likesList = likesRepository.findAllByUser(user, pageable);
 
         return likesList.stream().map(likes -> {
             PartyBoard partyBoard = likes.getPartyBoard();

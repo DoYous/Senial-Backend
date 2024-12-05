@@ -2,6 +2,8 @@ package com.senials.likes.repository;
 
 import com.senials.likes.entity.Likes;
 import com.senials.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +22,6 @@ public interface LikeRepository extends JpaRepository<Likes, Integer> {
             "WHERE l.user = :user")
     List<Likes> findWithDetailsByUser(@Param("user") User user);
 
-    // 기존 메서드
-    List<Likes> findAllByUser(User user);
+    // 페이지네이션 용
+    Page<Likes> findAllByUser(User user, Pageable pageable);
 }
