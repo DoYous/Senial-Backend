@@ -90,12 +90,12 @@ public class User {
         this.userBirth = userBirth;
         this.userEmail = userEmail;
         this.userGender = userGender;
-        this.userReportCnt = userReportCnt;
-        this.userStatus = userStatus;
+        this.userReportCnt = 0;
+        this.userStatus = 0;
         this.userNickname = userNickname;
         this.userDetail = userDetail;
         this.userProfileImg = userProfileImg;
-        this.userSignupDate = userSignupDate;
+        this.userSignupDate = LocalDate.now();
         this.userUuid = userUuid;
     }
 
