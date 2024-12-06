@@ -41,4 +41,4 @@ out/
 src/main/resources/application.yml
 
 ### securtiy ###
-src/main/java/com/senials/security
+#src/main/java/com/senials/security
