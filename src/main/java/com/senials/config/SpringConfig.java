@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
         , "com.senials.*.service"
         , "com.senials.*.repository"
         , "com.senials.common.mapper"
-        , "com.senials.security.config"
+        , "com.senials.security.*"
 })
 public class SpringConfig {
 

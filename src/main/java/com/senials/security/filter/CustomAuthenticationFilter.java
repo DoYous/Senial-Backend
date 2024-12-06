@@ -1,6 +1,6 @@
 package com.senials.security.filter;
 
-import com.senials.security.repository.UserRepository;
+import com.senials.security.repository.SecurityUserRepository;
 import com.senials.security.service.JwtService;
 import com.senials.security.service.OAuth2Service;
 import jakarta.servlet.FilterChain;
@@ -20,13 +20,13 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final OAuth2Service oAuth2Service; // OAuth2Service 추가
-    private final UserRepository userRepository; // UserRepository 추가
+    private final SecurityUserRepository userRepository; // UserRepository 추가
 
-    public CustomAuthenticationFilter(AuthenticationManager authenticationManager, JwtService jwtService, OAuth2Service oAuth2Service, UserRepository userRepository) {
+    public CustomAuthenticationFilter(AuthenticationManager authenticationManager, JwtService jwtService, OAuth2Service oAuth2Service, SecurityUserRepository securityUserRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.oAuth2Service = oAuth2Service; // OAuth2Service 초기화
-        this.userRepository = userRepository; // UserRepository 초기화
+        this.userRepository = securityUserRepository; // UserRepository 초기화
     }
 
 

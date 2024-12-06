@@ -1,7 +1,7 @@
 package com.senials.security.controller;
 
 import com.senials.security.domain.kakao.auth.PrincipalDetails;
-import com.senials.security.repository.UserRepository;
+import com.senials.security.repository.SecurityUserRepository;
 import com.senials.security.service.PrincipalOauth2UserService;
 import com.senials.user.entity.User;
 import jakarta.servlet.http.HttpSession;
@@ -11,20 +11,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.Map;
 
 @Controller
 public class Oauth2Controller {
-    private final UserRepository userRepository;
+    private final SecurityUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final HttpSession httpSession;
 
 
-    public Oauth2Controller(UserRepository userRepository, PasswordEncoder passwordEncoder, PrincipalOauth2UserService principalOauth2UserService, HttpSession httpSession) {
+    public Oauth2Controller(SecurityUserRepository userRepository, PasswordEncoder passwordEncoder, PrincipalOauth2UserService principalOauth2UserService, HttpSession httpSession) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.httpSession = httpSession;
