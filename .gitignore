@@ -42,3 +42,6 @@ src/main/resources/application.yml
 
 ### securtiy ###
 #src/main/java/com/senials/security
+src/main/java/com/senials/security/service/OAuth2Service.java
+src/main/java/com/senials/security/config/SecurityConfigurer.java
+src/main/java/com/senials/security/config/SecurityFilterChainConfig.java
