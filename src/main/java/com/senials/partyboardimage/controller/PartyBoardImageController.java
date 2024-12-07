@@ -198,8 +198,10 @@ public class PartyBoardImageController {
                 if (optionalPath.isPresent()) {
                     String foundPath = optionalPath.get().toString();
                     foundResource = resourceLoader.getResource("file:" + foundPath);
+
+                    return ResponseEntity.ok().body(foundResource);
                 } else {
-                    throw new IOException("Failed to load image");
+                    return ResponseEntity.notFound().build();
                 }
 
             } else {
@@ -208,12 +210,6 @@ public class PartyBoardImageController {
 
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
-        }
-
-        if (foundResource.exists()) {
-            return ResponseEntity.ok().body(foundResource);
-        } else {
-            return ResponseEntity.notFound().build();
         }
     }
 
