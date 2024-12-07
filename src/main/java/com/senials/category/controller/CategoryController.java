@@ -1,7 +1,6 @@
 package com.senials.category.controller;
 
-import com.senials.category.CategoryDTO;
-import com.senials.category.entity.Category;
+import com.senials.category.dto.CategoryDTO;
 import com.senials.category.service.CategoryService;
 import com.senials.common.ResponseMessage;
 import com.senials.config.HttpHeadersFactory;

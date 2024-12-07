@@ -1,6 +1,6 @@
 package com.senials.category.service;
 
-import com.senials.category.CategoryDTO;
+import com.senials.category.dto.CategoryDTO;
 import com.senials.category.entity.Category;
 import com.senials.category.repository.CategoryRepository;
 import com.senials.common.mapper.CategoryMapper;

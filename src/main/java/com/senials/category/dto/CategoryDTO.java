@@ -1,4 +1,4 @@
-package com.senials.category;
+package com.senials.category.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

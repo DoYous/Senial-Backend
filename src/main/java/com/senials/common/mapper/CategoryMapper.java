@@ -1,7 +1,6 @@
 package com.senials.common.mapper;
 
-import ch.qos.logback.core.model.ComponentModel;
-import com.senials.category.CategoryDTO;
+import com.senials.category.dto.CategoryDTO;
 import com.senials.category.entity.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
