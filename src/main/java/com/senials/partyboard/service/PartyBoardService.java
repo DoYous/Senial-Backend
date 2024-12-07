@@ -182,7 +182,6 @@ public class PartyBoardService {
                 }).toList();
 
         return partyBoardDTOForCardList;
-        // return partyBoardList.map(partyBoardMapper::toPartyBoardDTOForDetail).toList();
     }
 
 
