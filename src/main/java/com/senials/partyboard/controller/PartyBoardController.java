@@ -1,6 +1,7 @@
 package com.senials.partyboard.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.partyboard.dto.PartyBoardDTOForCard;
 import com.senials.partyboard.dto.PartyBoardDTOForDetail;
 import com.senials.partyboard.dto.PartyBoardDTOForModify;
 import com.senials.partyboard.dto.PartyBoardDTOForWrite;
@@ -49,7 +50,7 @@ public class PartyBoardController {
     {
         /* isLikedOnly 유저 세션 검사 필요 */
 
-        List<PartyBoardDTOForDetail> partyBoardDTOList = partyBoardService.searchPartyBoard(sortMethod, keyword, cursor, size, isLikedOnly);
+        List<PartyBoardDTOForCard> partyBoardDTOList = partyBoardService.searchPartyBoard(sortMethod, keyword, cursor, size, isLikedOnly);
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("partyBoards", partyBoardDTOList);

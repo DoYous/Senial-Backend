@@ -6,6 +6,7 @@ import com.senials.favorites.entity.Favorites;
 import com.senials.favorites.repository.FavoritesRepository;
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.hobbyboard.repository.HobbyRepository;
+import com.senials.partyboard.dto.PartyBoardDTOForCard;
 import com.senials.partyboard.dto.PartyBoardDTOForDetail;
 import com.senials.partyboard.dto.PartyBoardDTOForModify;
 import com.senials.partyboard.dto.PartyBoardDTOForWrite;
@@ -15,6 +16,7 @@ import com.senials.partyboard.repository.PartyBoardSpecification;
 import com.senials.partyboardimage.entity.PartyBoardImage;
 import com.senials.partymember.entity.PartyMember;
 import com.senials.partymember.repository.PartyMemberRepository;
+import com.senials.partyreview.repository.PartyReviewRepository;
 import com.senials.user.dto.UserDTOForPublic;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
@@ -47,25 +49,33 @@ public class PartyBoardService {
 
     private final FavoritesRepository favoritesRepository;
 
+    private final PartyMemberRepository partyMemberRepository;
+
+    private final PartyReviewRepository partyReviewRepository;
+
 
     @Autowired
     public PartyBoardService(
             PartyBoardMapperImpl partyBoardMapperImpl
             , PartyBoardRepository partyBoardRepository
             , UserRepository userRepository
-            , HobbyRepository hobbyRepository,
-            FavoritesRepository favoritesRepository, PartyMemberRepository partyMemberRepository)
+            , HobbyRepository hobbyRepository
+            , FavoritesRepository favoritesRepository
+            , PartyMemberRepository partyMemberRepository
+            , PartyReviewRepository partyReviewRepository)
     {
         this.partyBoardMapper = partyBoardMapperImpl;
         this.partyBoardRepository = partyBoardRepository;
         this.userRepository = userRepository;
         this.hobbyRepository = hobbyRepository;
         this.favoritesRepository = favoritesRepository;
+        this.partyMemberRepository = partyMemberRepository;
+        this.partyReviewRepository = partyReviewRepository;
     }
 
 
     /* 모임 검색 및 정렬 */
-    public List<PartyBoardDTOForDetail> searchPartyBoard(String sortMethod, String keyword, Integer cursor, int size, boolean isLikedOnly) {
+    public List<PartyBoardDTOForCard> searchPartyBoard(String sortMethod, String keyword, Integer cursor, int size, boolean isLikedOnly) {
 
         Sort.Order numberAsc = Sort.Order.asc("partyBoardNumber");
         Sort.Order numberDesc = Sort.Order.desc("partyBoardNumber");
@@ -149,7 +159,29 @@ public class PartyBoardService {
 
         }
 
-        return partyBoardList.map(partyBoardMapper::toPartyBoardDTOForDetail).toList();
+        List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardList
+                .map(partyBoard -> {
+                    PartyBoardDTOForCard partyBoardCard = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
+
+                    int partyMemberCnt = partyMemberRepository.countAllByPartyBoard(partyBoard);
+                    double partyAvgRate = partyReviewRepository.findAvgRateByPartyBoardNumber(partyBoard.getPartyBoardNumber());
+                    int partyReviewCnt = partyReviewRepository.countAllByPartyBoard(partyBoard);
+
+                    String partyImageThumbnail = null;
+                    List<PartyBoardImage> partyBoardImageList = partyBoard.getImages();
+                    if (partyBoardImageList != null && !partyBoardImageList.isEmpty()) {
+                        partyImageThumbnail = partyBoardImageList.get(0).getPartyBoardImg();
+                    }
+
+                    partyBoardCard.setMemberCount(partyMemberCnt);
+                    partyBoardCard.setAverageRating(partyAvgRate);
+                    partyBoardCard.setFirstImage(partyImageThumbnail);
+                    partyBoardCard.setReviewCount(partyReviewCnt);
+
+                    return partyBoardCard;
+                }).toList();
+
+        return partyBoardDTOForCardList;
     }
 
 
