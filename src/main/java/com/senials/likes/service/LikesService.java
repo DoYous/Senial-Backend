@@ -64,7 +64,8 @@ public class LikesService {
                     partyBoard.getPartyBoardStatus(),
                     partyBoard.getPartyMembers().size(), // 참여 인원 수
                     averageRating,
-                    firstImage
+                    firstImage,
+                    0   // PartyBoardDTOForCard에 reviewCount 추가해서 임시로 넣어둠!!
             );
         }).collect(Collectors.toList());
     }
