@@ -20,8 +20,9 @@ public class HobbyDTO {
     private int hobbyBudget;       // 취미 예산
     private int hobbyLevel;        // 취미 난이도
     private int hobbyTendency;     // 취미 성향
+    private double rating;          // 취미 평균 평점
 
-    public HobbyDTO(int hobbyNumber, int categoryNumber, String hobbyName, String hobbyExplain, String hobbyImg, int hobbyAbility, int hobbyBudget, int hobbyLevel, int hobbyTendency) {
+    public HobbyDTO(int hobbyNumber, int categoryNumber, String hobbyName, String hobbyExplain, String hobbyImg, int hobbyAbility, int hobbyBudget, int hobbyLevel, int hobbyTendency, double rating) {
         this.hobbyNumber = hobbyNumber;
         this.categoryNumber = categoryNumber;
         this.hobbyName = hobbyName;
@@ -31,6 +32,7 @@ public class HobbyDTO {
         this.hobbyBudget = hobbyBudget;
         this.hobbyLevel = hobbyLevel;
         this.hobbyTendency = hobbyTendency;
+        this.rating=rating;
     }
     
 }

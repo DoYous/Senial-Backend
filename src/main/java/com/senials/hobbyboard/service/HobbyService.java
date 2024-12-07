@@ -47,7 +47,12 @@ public class HobbyService {
     public List<HobbyDTO> findAll() {
         List<Hobby> hobbyList = hobbyRepository.findAll();
 
-        List<HobbyDTO> hobbyDTOList = hobbyList.stream().map(hobby -> hobbyMapper.toHobbyDTO(hobby)).toList();
+        List<HobbyDTO> hobbyDTOList = hobbyList.stream().map(hobby -> {
+            HobbyDTO dto=hobbyMapper.toHobbyDTO(hobby);
+            dto.setRating();
+
+            return dto;
+        }).toList();
 
         return hobbyDTOList;
     }
@@ -64,7 +69,7 @@ public class HobbyService {
     public List<HobbyDTO> findByCategory(int categoryNumber) {
         List<Hobby> hobbyList = hobbyRepository.findByCategoryNumber(categoryNumber);
 
-        List<HobbyDTO> hobbyDTOList = hobbyList.stream().map(hobby -> hobbyMapper.toHobbyDTO(hobby)).toList();
+        List<HobbyDTO> hobbyDTOList = hobbyList.stream().map(hobby -> {hobbyMapper.toHobbyDTO(hobby)}).toList();
 
         return hobbyDTOList;
     }
