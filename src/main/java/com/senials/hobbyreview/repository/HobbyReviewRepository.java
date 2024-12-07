@@ -12,7 +12,11 @@ import java.util.List;
 public interface HobbyReviewRepository extends JpaRepository<HobbyReview,Integer> {
     List<HobbyReview> findByHobby(Hobby hobby);
 
-    @Query(value="SELECT AVG(HobbyReview .hobbyReviewRate)" +
-            "FROM HobbyReview " +
-            "GROUP BY h");
+    @Query(value = "SELECT hobby_number,AVG(hobby_review_rate), COUNT(hobby_review_number) " +
+            "FROM hobby_review " +
+            "GROUP BY hobby_number",
+            nativeQuery = true)
+    List<Object[]> findAverageReviewRateByHobby();
+    
+
 }

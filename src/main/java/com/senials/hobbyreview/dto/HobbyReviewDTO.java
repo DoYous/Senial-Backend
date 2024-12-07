@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Date;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -20,9 +22,9 @@ public class HobbyReviewDTO {
     private int hobbyReviewHealthStatus; // 건강 상태 (예: true = 예, false = 아니요)
     private int hobbyReviewTendency; // 성향 (예: true = 외향적, false = 내향적)
     private int hobbyReviewLevel; // 취미 난이도 (1-쉬움, 2-약간 쉬움, 3-평범, 4-약간 어려움, 5-어려움)
-    private String hobbyReviewWriteDate; // 후기 작성 날짜
+    private Date hobbyReviewWriteDate; // 후기 작성 날짜
 
-    public HobbyReviewDTO(int hobbyReviewNumber, int userNumber, String userName, int hobbyNumber, int hobbyReviewRate, String hobbyReviewDetail, int hobbyReviewHealthStatus, int hobbyReviewTendency, int hobbyReviewLevel, String hobbyReviewWriteDate) {
+    public HobbyReviewDTO(int hobbyReviewNumber, int userNumber, String userName, int hobbyNumber, int hobbyReviewRate, String hobbyReviewDetail, int hobbyReviewHealthStatus, int hobbyReviewTendency, int hobbyReviewLevel, Date hobbyReviewWriteDate) {
         this.hobbyReviewNumber = hobbyReviewNumber;
         this.userNumber = userNumber;
         this.userName = userName;

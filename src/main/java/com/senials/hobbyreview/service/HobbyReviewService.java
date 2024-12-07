@@ -2,6 +2,7 @@ package com.senials.hobbyreview.service;
 import com.senials.common.mapper.HobbyReviewMapper;
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.hobbyboard.repository.HobbyRepository;
+import com.senials.hobbyreview.dto.HobbyReviewAverageRateDTO;
 import com.senials.hobbyreview.dto.HobbyReviewDTO;
 import com.senials.hobbyreview.entity.HobbyReview;
 import com.senials.hobbyreview.repository.HobbyReviewRepository;
@@ -10,6 +11,7 @@ import com.senials.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class HobbyReviewService {
