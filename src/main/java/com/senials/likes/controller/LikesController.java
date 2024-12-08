@@ -78,12 +78,31 @@ public class LikesController {
             @PathVariable int partyBoardNumber
     )
     {
-        int userNumber = 3;
+        /* 유저 임의 지정 */
+        Integer userNumber = 3;
+        // userNumber = null;
+        
+        
+        Integer code = 2;
+        if(userNumber != null) {
+            code = likesService.toggleLike(userNumber, partyBoardNumber);
+        }
 
-        int result = likesService.toggleLike(userNumber, partyBoardNumber);
-        String message = result == 0 ? "좋아요 취소" : "좋아요";
+        
+        String message = null;
+        if(code == 1) {
+            message = "좋아요";
+        } else if(code == 0) {
+            message = "좋아요 취소";
+        } else {
+            message = "로그인 필요";
+        }
+        
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("code", code);
+        
 
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
-        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, message, null));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, message, responseMap));
     }
 }
