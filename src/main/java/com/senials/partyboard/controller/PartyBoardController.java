@@ -7,7 +7,6 @@ import com.senials.partyboard.dto.PartyBoardDTOForDetail;
 import com.senials.partyboard.dto.PartyBoardDTOForModify;
 import com.senials.partyboard.dto.PartyBoardDTOForWrite;
 import com.senials.partyboard.service.PartyBoardService;
-import com.senials.user.dto.UserDTOForPublic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -46,7 +45,7 @@ public class PartyBoardController {
         List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardService.getPopularPartyBoards(minReviewCount, size);
 
         Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("popularParties", partyBoardDTOForCardList);
+        responseMap.put("popularPartyBoards", partyBoardDTOForCardList);
 
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "인기 추천 모임 조회 성공", responseMap));
@@ -69,21 +68,41 @@ public class PartyBoardController {
     )
     {
         /* isLikedOnly 유저 세션 검사 필요 */
+        Integer userNumber = 3;
 
-        List<PartyBoardDTOForCard> partyBoardDTOList = partyBoardService.searchPartyBoard(sortMethod, keyword, cursor, size, isLikedOnly);
+        /* 더보기 버튼 출력 여부 확인 용 데이터 + 1 */
+        List<PartyBoardDTOForCard> partyBoardDTOList = partyBoardService.searchPartyBoard(sortMethod, keyword, cursor, size + 1, isLikedOnly, userNumber);
+
 
         Map<String, Object> responseMap = new HashMap<>();
+
+
+        /* 남은 정보 존재 여부 설정 - 가져온 데이터가 페이지 별 최대 정보 수(size)보다 같거나 작을 경우 false */
+        boolean isRemain = true;
+        if(partyBoardDTOList.size() <= size) {
+            isRemain = false;
+        } else {
+            // 남은 정보 존재 시 마지막 PartyBoard 제거
+            partyBoardDTOList.remove(partyBoardDTOList.size() - 1);
+        }
+        responseMap.put("isRemain", isRemain);
         responseMap.put("partyBoards", partyBoardDTOList);
 
+
+        /* 마지막 PartyBoardNumber */
+        Integer nextCursor = null;
         if (!partyBoardDTOList.isEmpty()) {
-            responseMap.put("cursor", partyBoardDTOList.get(partyBoardDTOList.size() - 1).getPartyBoardNumber());
+            nextCursor = partyBoardDTOList.get(partyBoardDTOList.size() - 1).getPartyBoardNumber();
         }
+        responseMap.put("cursor", nextCursor);
+
 
         // ResponseHeader 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
+
 
     // 모임 상세 조회
     @GetMapping("/partyboards/{partyBoardNumber}")
