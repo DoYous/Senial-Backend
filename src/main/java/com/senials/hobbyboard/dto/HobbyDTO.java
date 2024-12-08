@@ -21,7 +21,7 @@ public class HobbyDTO {
     private int hobbyLevel;        // 취미 난이도
     private int hobbyTendency;     // 취미 성향
     private double rating;          // 취미 평균 평점
-    private int reviewCont;         // 취미 후기 개수
+    private int reviewCount;         // 취미 후기 개수
 
     public HobbyDTO(int hobbyNumber,
                     int categoryNumber,
@@ -33,7 +33,7 @@ public class HobbyDTO {
                     int hobbyLevel,
                     int hobbyTendency,
                     double rating,
-                    int reviewCont) {
+                    int reviewCount) {
         this.hobbyNumber = hobbyNumber;
         this.categoryNumber = categoryNumber;
         this.hobbyName = hobbyName;
@@ -44,7 +44,7 @@ public class HobbyDTO {
         this.hobbyLevel = hobbyLevel;
         this.hobbyTendency = hobbyTendency;
         this.rating=rating;
-        this.reviewCont=reviewCont;
+        this.reviewCount=reviewCount;
     }
     
 }
