@@ -54,7 +54,6 @@ public class PartyBoardService {
 
     private final PartyReviewRepository partyReviewRepository;
 
-    private final PartyBoardImageRepository partyBoardImageRepository;
     private final LikeRepository likeRepository;
 
 
@@ -67,7 +66,6 @@ public class PartyBoardService {
             , FavoritesRepository favoritesRepository
             , PartyMemberRepository partyMemberRepository
             , PartyReviewRepository partyReviewRepository
-            , PartyBoardImageRepository partyBoardImageRepository
             , LikeRepository likeRepository
     )
     {
@@ -78,27 +76,31 @@ public class PartyBoardService {
         this.favoritesRepository = favoritesRepository;
         this.partyMemberRepository = partyMemberRepository;
         this.partyReviewRepository = partyReviewRepository;
-        this.partyBoardImageRepository = partyBoardImageRepository;
         this.likeRepository = likeRepository;
     }
 
     /* 인기 추천 모임 (평점 높은 순, 리뷰 개수 N개 이상, 모집중 >> M개 제한)*/
-    public List<PartyBoardDTOForCard> getPopularPartyBoards(int minReviewCount, int size) {
+    public List<PartyBoardDTOForCard> getPopularPartyBoards(int minReviewCount, int size, int pageNumber) {
 
-        List<PartyBoard> partyBoardList = partyBoardRepository.findPopularPartyBoards(minReviewCount, size);
+        Page<PartyBoard> partyBoardList = partyBoardRepository.findPopularPartyBoards(minReviewCount, PageRequest.of(pageNumber, size));
 
         List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardList.stream().map(partyBoard -> {
 
             int partyMemberCnt = partyMemberRepository.countAllByPartyBoard(partyBoard);
-            String partyBoardImg = partyBoardImageRepository.findPartyBoardImgByPartyBoardNumber(partyBoard.getPartyBoardNumber());
-            double partyAvgRate = partyReviewRepository.findAvgRateByPartyBoard(partyBoard);
             int partyReviewCnt = partyReviewRepository.countAllByPartyBoard(partyBoard);
+            double partyAvgRate = partyReviewRepository.findAvgRateByPartyBoard(partyBoard);
+
+            String partyImageThumbnail = null;
+            List<PartyBoardImage> partyBoardImageList = partyBoard.getImages();
+            if (partyBoardImageList != null && !partyBoardImageList.isEmpty()) {
+                partyImageThumbnail = partyBoardImageList.get(0).getPartyBoardImg();
+            }
 
             PartyBoardDTOForCard partyBoardCard = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
             partyBoardCard.setMemberCount(partyMemberCnt);
-            partyBoardCard.setFirstImage(partyBoardImg);
-            partyBoardCard.setAverageRating(partyAvgRate);
             partyBoardCard.setReviewCount(partyReviewCnt);
+            partyBoardCard.setAverageRating(partyAvgRate);
+            partyBoardCard.setFirstImage(partyImageThumbnail);
 
             return partyBoardCard;
 
@@ -114,10 +116,12 @@ public class PartyBoardService {
         Sort.Order numberAsc = Sort.Order.asc("partyBoardNumber");
         Sort.Order numberDesc = Sort.Order.desc("partyBoardNumber");
 
+
         String sortColumn = null;
         Pageable pageable = null;
         boolean isAscending = false;
         boolean isIntegerSort = true;
+
 
         switch (sortMethod) {
             /* 최신순 */
@@ -176,6 +180,7 @@ public class PartyBoardService {
         }
 
 
+        Page<PartyBoard> partyBoardList = null;
         /* Specification 쿼리문 실행 */
         Specification<PartyBoard> spec = null;
         if(isIntegerSort) {
@@ -183,7 +188,14 @@ public class PartyBoardService {
         } else {
             spec = PartyBoardSpecification.searchLoadLocalDate(sortColumn, keyword, cursor, isAscending, hobbyList);
         }
-        Page<PartyBoard> partyBoardList = partyBoardRepository.findAll(spec, pageable);
+        partyBoardList = partyBoardRepository.findAll(spec, pageable);
+
+
+        // if(!sortMethod.equals("mostRated")) {
+        //
+        // } else {
+        //     partyBoardList = partyBoardRepository.findPopularPartyBoards();
+        // }
 
 
         List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardList.stream()
