@@ -52,17 +52,11 @@ public class HobbyService {
     //전체 hobby 불러오기
     public List<HobbyDTO> findAll() {
         List<Hobby> hobbyList = hobbyRepository.findAll();
-        List<Object[]> rate = hobbyReviewRepository.findAverageReviewRateByHobby();
-
-        Map<Integer, Double> hobbyReviewRateMap = rate.stream()
-                .collect(Collectors.toMap(
-                        result -> (Integer) result[0],  // hobby_number
-                        result -> ((BigDecimal) result[1]).doubleValue()  //평균 평균
-                ));
 
         List<HobbyDTO> hobbyDTOList = hobbyList.stream().map(hobby -> {
             HobbyDTO dto=hobbyMapper.toHobbyDTO(hobby);
-            dto.setRating(hobbyReviewRateMap.getOrDefault(hobby.getHobbyNumber(), 0.0));
+            dto.setRating(hobbyReviewRepository.avgRatingByHobbyNumber(hobby.getHobbyNumber()));
+            dto.setReviewCont(hobbyReviewRepository.reviewCountByHobbyNumber(hobby.getHobbyNumber()));
             return dto;
         }).toList();
 
@@ -72,17 +66,9 @@ public class HobbyService {
     //특정 hobby hobbyNumber로 불러오기
     public HobbyDTO findById(int hobbyNumber) {
         Hobby hobby = hobbyRepository.findById(hobbyNumber).orElseThrow(() -> new IllegalArgumentException("해당 취미가 존재하지 않습니다: " + hobbyNumber));
-        List<Object[]> rate = hobbyReviewRepository.findAverageReviewRateByHobby();
-
-        Double rating = rate.stream()
-                .filter(result -> (Integer) result[0] == hobbyNumber)  // hobbyNumber가 일치하는 항목 찾기
-                .map(result -> ((BigDecimal) result[1]).doubleValue()) // 해당 평점을 가져오기
-                .findFirst()
-                .orElse(0.0);
-
         HobbyDTO hobbyDTO = hobbyMapper.toHobbyDTO(hobby);
-        hobbyDTO.setRating(rating);
-
+        hobbyDTO.setRating(hobbyReviewRepository.avgRatingByHobbyNumber(hobby.getHobbyNumber()));
+        hobbyDTO.setReviewCont(hobbyReviewRepository.reviewCountByHobbyNumber(hobby.getHobbyNumber()));
         return hobbyDTO;
     }
 
