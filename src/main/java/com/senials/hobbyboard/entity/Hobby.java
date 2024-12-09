@@ -45,6 +45,11 @@ public class Hobby {
     @Column(name = "hobby_tendency", nullable = false)
     private int hobbyTendency;
 
+    // 카테고리와의 관계 설정
+    @ManyToOne
+    @JoinColumn(name = "category_number", insertable = false, updatable = false)
+    private Category category;
+
     // 관계 설정
     @OneToMany(mappedBy = "hobby")
     private List<PartyBoard> partyBoards; // Hobby -> PartyBoard 관계 (1:N)
@@ -54,11 +59,6 @@ public class Hobby {
 
     @OneToMany(mappedBy = "hobby", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Favorites> favorites;
-
-    // 카테고리와의 관계 설정
-    @ManyToOne
-    @JoinColumn(name = "category_number", insertable = false, updatable = false)
-    private Category category;
 
     /* AllArgsConstructor */
     public Hobby(int hobbyNumber, int categoryNumber, String hobbyName, String hobbyExplain, String hobbyImg, int hobbyAbility, int hobbyBudget, int hobbyLevel, int hobbyTendency, List<PartyBoard> partyBoards, List<HobbyReview> hobbyReviews, List<Favorites> favorites) {
@@ -74,6 +74,10 @@ public class Hobby {
         this.partyBoards = partyBoards;
         this.hobbyReviews = hobbyReviews;
         this.favorites = favorites;
+    }
+
+    public void initializeCategory(Category category) {
+        this.category = category;
     }
 
 }
