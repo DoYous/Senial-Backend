@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
 import java.util.UUID;
@@ -92,13 +93,20 @@ public class Oauth2Controller {
     }
 
     @PostMapping("/join")
-    public String join(@RequestBody User user) {
+    public String join(@RequestBody User user, RedirectAttributes redirectAttributes) {
         // 가입 요청 로깅
         System.out.println("가입 요청: " + user);
 
+        // 사용자 이름 중복 확인
+        if (userRepository.existsByUserName(user.getUserName())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "이미 사용 중인 사용자 이름입니다.");
+            return "redirect:/join"; // join 페이지로 리다이렉트
+        }
+
         // 비밀번호가 null인지 확인
         if (user.getUserPwd() == null) {
-            throw new IllegalArgumentException("비밀번호는 null일 수 없습니다.");
+            redirectAttributes.addFlashAttribute("errorMessage", "비밀번호는 null일 수 없습니다.");
+            return "redirect:/join"; // join 페이지로 리다이렉트
         }
 
         // 비밀번호를 변수에 저장
@@ -128,6 +136,7 @@ public class Oauth2Controller {
 
         return "redirect:/success"; // 가입 후 성공 페이지로 리디렉션
     }
+
 
 
 
