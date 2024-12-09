@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @Getter
@@ -95,8 +96,8 @@ public class User {
         this.userNickname = userNickname;
         this.userDetail = userDetail;
         this.userProfileImg = userProfileImg;
-        this.userSignupDate = LocalDate.now();
-        this.userUuid = userUuid;
+        this.userSignupDate = (userSignupDate != null) ? userSignupDate : LocalDate.now();
+        this.userUuid = (userUuid != null) ? userUuid : UUID.randomUUID().toString();
     }
 
     /* 닉네임 수정용*/
@@ -113,5 +114,18 @@ public class User {
     public void updateUserProfileImg(String userProfileImg){
         this.userProfileImg = userProfileImg;
     }
+
+    public void initializePwd(String password) {
+        this.userPwd = password;
+    }
+
+    public void initializeSignupDate() {
+        this.userSignupDate = LocalDate.now(); // 현재 날짜로 초기화
+    }
+
+    public void initializeUuid() {
+        this.userUuid = UUID.randomUUID().toString();
+    }
+
 
 }
