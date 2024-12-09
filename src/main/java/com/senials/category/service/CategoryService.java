@@ -1,6 +1,7 @@
 package com.senials.category.service;
 
 import com.senials.category.dto.CategoryDTO;
+import com.senials.category.dto.CategoryDTOWithHobbies;
 import com.senials.category.entity.Category;
 import com.senials.category.repository.CategoryRepository;
 import com.senials.common.mapper.CategoryMapper;
@@ -35,5 +36,18 @@ public class CategoryService {
                 .toList();
 
         return categoryDTOList;
+    }
+
+
+    public List<CategoryDTOWithHobbies> getAllCategoriesWithHobbies() {
+
+        List<Category> categoryList = categoryRepository.findAll();
+
+        List<CategoryDTOWithHobbies> getCategoryDTOWithHobbies = categoryList.stream()
+                .map(categoryMapper::toCategoryDTOWithHobbies)
+                .toList();
+
+        return getCategoryDTOWithHobbies;
+
     }
 }
