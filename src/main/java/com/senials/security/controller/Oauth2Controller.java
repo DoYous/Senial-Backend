@@ -5,19 +5,29 @@ import com.senials.security.repository.SecurityUserRepository;
 import com.senials.security.service.PrincipalOauth2UserService;
 import com.senials.user.entity.User;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 public class Oauth2Controller {
     private final SecurityUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final HttpSession httpSession;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
 
     public Oauth2Controller(SecurityUserRepository userRepository, PasswordEncoder passwordEncoder, PrincipalOauth2UserService principalOauth2UserService, HttpSession httpSession) {
@@ -38,6 +48,7 @@ public class Oauth2Controller {
 
     @GetMapping("/success")
     public String successPage(Model model) {
+        System.out.println("성공페이지 불러오는중");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); // 현재 인증 정보 가져오기
         if (authentication != null && authentication.getPrincipal() instanceof PrincipalDetails) {
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal(); // PrincipalDetails 가져오기
@@ -65,6 +76,73 @@ public class Oauth2Controller {
     @ResponseBody
     public String loginFail() {
         return "너 로그인 실패했어";
+    }
+
+
+    @GetMapping("/oauth/loginInfo")
+    @ResponseBody
+    public String oauthLoginInfo(Authentication authentication, @AuthenticationPrincipal OAuth2User oAuth2UserPrincipal) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "사용자가 인증되지 않았습니다.";
+        }
+
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+        return attributes.toString();
+    }
+
+    @PostMapping("/join")
+    public String join(@RequestBody User user) {
+        // 가입 요청 로깅
+        System.out.println("가입 요청: " + user);
+
+        // 비밀번호가 null인지 확인
+        if (user.getUserPwd() == null) {
+            throw new IllegalArgumentException("비밀번호는 null일 수 없습니다.");
+        }
+
+        // 비밀번호를 변수에 저장
+        String rawPassword = user.getUserPwd();
+
+        // 비밀번호 암호화
+        String encodePassword = passwordEncoder.encode(rawPassword);
+        user.initializePwd(encodePassword); // 사용자 객체에 암호화된 비밀번호 저장
+        user.initializeSignupDate(); // 가입 날짜 초기화
+        user.initializeUuid(); // UUID 초기화
+
+        System.out.println("생성된 UUID: " + user.getUserUuid());
+
+        // 사용자 정보를 저장
+        userRepository.save(user);
+
+        // 자동 로그인 처리
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUserName(), rawPassword)); // 입력된 비밀번호 사용
+
+            // SecurityContext에 인증 정보 설정
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (Exception e) {
+            System.out.println("자동 로그인 실패: " + e.getMessage());
+        }
+
+        return "redirect:/success"; // 가입 후 성공 페이지로 리디렉션
+    }
+
+
+
+
+
+
+    @GetMapping("/loginInfo")
+    @ResponseBody
+    public String loginInfo(Authentication authentication, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "사용자가 인증되지 않았습니다.";
+        }
+
+        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+        return "OAuth2 로그인 : " + principal;
     }
 
     /*@PostMapping("/checkPassword")
