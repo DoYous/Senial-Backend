@@ -13,8 +13,8 @@ public interface PartyReviewRepository extends JpaRepository<PartyReview, Intege
     List<PartyReview> findAllByPartyBoardOrderByPartyReviewWriteDateDesc(PartyBoard partyBoard);
 
     /* 모임 후기 평점 */
-    @Query(value = "SELECT IFNULL(ROUND(AVG(party_review_rate), 1), 0) from PARTY_REVIEW WHERE party_board_number = :partyBoardNumber", nativeQuery = true)
-    double findAvgRateByPartyBoardNumber(int partyBoardNumber);
+    @Query(value = "SELECT IFNULL(ROUND(AVG(partyReviewRate), 1), 0) from PartyReview WHERE partyBoard = :partyBoard")
+    double findAvgRateByPartyBoard(PartyBoard partyBoard);
 
     /* 모임 후기 개수 */
     int countAllByPartyBoard(PartyBoard partyBoard);

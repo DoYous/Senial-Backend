@@ -1,6 +1,7 @@
 package com.senials.partyboard.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.config.HttpHeadersFactory;
 import com.senials.partyboard.dto.PartyBoardDTOForCard;
 import com.senials.partyboard.dto.PartyBoardDTOForDetail;
 import com.senials.partyboard.dto.PartyBoardDTOForModify;
@@ -23,13 +24,32 @@ import java.util.Map;
 public class PartyBoardController {
 
     private final PartyBoardService partyBoardService;
+    private final HttpHeadersFactory httpHeadersFactory;
 
     @Autowired
     public PartyBoardController(
-            PartyBoardService partyBoardService
-    )
+            PartyBoardService partyBoardService,
+            HttpHeadersFactory httpHeadersFactory)
     {
         this.partyBoardService = partyBoardService;
+        this.httpHeadersFactory = httpHeadersFactory;
+    }
+
+
+
+    /* 인기 추천 모임 (평점 높은 순, 리뷰 개수 N개 이상, 모집중 >> M개 제한)*/
+    @GetMapping("/partyboards/popular-parties")
+    public ResponseEntity<ResponseMessage> getPopularPartyBoards(
+            @RequestParam(required = false, defaultValue = "1") Integer minReviewCount
+            , @RequestParam(required = false, defaultValue = "4") Integer size
+    ) {
+        List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardService.getPopularPartyBoards(minReviewCount, size);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("popularParties", partyBoardDTOForCardList);
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "인기 추천 모임 조회 성공", responseMap));
     }
 
     // 모임 검색

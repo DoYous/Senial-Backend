@@ -14,6 +14,7 @@ import com.senials.partyboard.entity.PartyBoard;
 import com.senials.partyboard.repository.PartyBoardRepository;
 import com.senials.partyboard.repository.PartyBoardSpecification;
 import com.senials.partyboardimage.entity.PartyBoardImage;
+import com.senials.partyboardimage.repository.PartyBoardImageRepository;
 import com.senials.partymember.entity.PartyMember;
 import com.senials.partymember.repository.PartyMemberRepository;
 import com.senials.partyreview.repository.PartyReviewRepository;
@@ -53,6 +54,8 @@ public class PartyBoardService {
 
     private final PartyReviewRepository partyReviewRepository;
 
+    private final PartyBoardImageRepository partyBoardImageRepository;
+
 
     @Autowired
     public PartyBoardService(
@@ -62,7 +65,9 @@ public class PartyBoardService {
             , HobbyRepository hobbyRepository
             , FavoritesRepository favoritesRepository
             , PartyMemberRepository partyMemberRepository
-            , PartyReviewRepository partyReviewRepository)
+            , PartyReviewRepository partyReviewRepository
+            , PartyBoardImageRepository partyBoardImageRepository
+    )
     {
         this.partyBoardMapper = partyBoardMapperImpl;
         this.partyBoardRepository = partyBoardRepository;
@@ -71,6 +76,32 @@ public class PartyBoardService {
         this.favoritesRepository = favoritesRepository;
         this.partyMemberRepository = partyMemberRepository;
         this.partyReviewRepository = partyReviewRepository;
+        this.partyBoardImageRepository = partyBoardImageRepository;
+    }
+
+    /* 인기 추천 모임 (평점 높은 순, 리뷰 개수 N개 이상, 모집중 >> M개 제한)*/
+    public List<PartyBoardDTOForCard> getPopularPartyBoards(int minReviewCount, int size) {
+
+        List<PartyBoard> partyBoardList = partyBoardRepository.findPopularPartyBoards(minReviewCount, size);
+
+        List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardList.stream().map(partyBoard -> {
+
+            int partyMemberCnt = partyMemberRepository.countAllByPartyBoard(partyBoard);
+            String partyBoardImg = partyBoardImageRepository.findPartyBoardImgByPartyBoardNumber(partyBoard.getPartyBoardNumber());
+            double partyAvgRate = partyReviewRepository.findAvgRateByPartyBoard(partyBoard);
+            int partyReviewCnt = partyReviewRepository.countAllByPartyBoard(partyBoard);
+
+            PartyBoardDTOForCard partyBoardCard = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
+            partyBoardCard.setMemberCount(partyMemberCnt);
+            partyBoardCard.setFirstImage(partyBoardImg);
+            partyBoardCard.setAverageRating(partyAvgRate);
+            partyBoardCard.setReviewCount(partyReviewCnt);
+
+            return partyBoardCard;
+
+        }).toList();
+
+        return partyBoardDTOForCardList;
     }
 
 
@@ -164,7 +195,7 @@ public class PartyBoardService {
                     PartyBoardDTOForCard partyBoardCard = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
 
                     int partyMemberCnt = partyMemberRepository.countAllByPartyBoard(partyBoard);
-                    double partyAvgRate = partyReviewRepository.findAvgRateByPartyBoardNumber(partyBoard.getPartyBoardNumber());
+                    double partyAvgRate = partyReviewRepository.findAvgRateByPartyBoard(partyBoard);
                     int partyReviewCnt = partyReviewRepository.countAllByPartyBoard(partyBoard);
 
                     String partyImageThumbnail = null;
