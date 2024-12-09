@@ -1,0 +1,21 @@
+###
+GET http://localhost:8080/oauth2/authorization/kakao
+
+###
+POST http://localhost:8080/join
+Content-Type: application/json;charset=UTF-8
+
+{
+  "userName": "gg",
+  "userPwd": "gg",
+  "userEmail": "gg@naver.com",
+  "userNickname": "gg",
+  "userBirth": "2024-12-09",
+  "userGender": 1
+}
+
+###
+POST http://localhost:8080/login
+Content-Type: application/x-www-form-urlencoded
+
+userName=ww&userPwd=ww
