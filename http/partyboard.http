@@ -7,7 +7,7 @@ GET http://localhost:8080/partyboards/popular-parties
 GET http://localhost:8080/partyboards/search?keyword=workshop&isLikedOnly=true
 
 ###
-GET http://localhost:8080/partyboards/search
+GET http://localhost:8080/partyboards/search?sortMethod=lastest
 
 ###
 GET http://localhost:8080/partyboards/search?sortMethod=oldest&cursor=100
