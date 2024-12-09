@@ -119,6 +119,10 @@ public class PartyBoard {
         this.partyBoardStatus = partyBoardStatus;
     }
 
+    public void updateImages(List<PartyBoardImage> images) {
+        this.images = images;
+    }
+
 
     /* 모임 가입 */
     public void registerPartyMember(PartyMember partyMember) {
