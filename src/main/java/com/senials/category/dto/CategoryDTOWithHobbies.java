@@ -12,17 +12,18 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class CategoryDTO {
+public class CategoryDTOWithHobbies {
 
     private int categoryNumber;
 
     private String categoryName;
 
+    private List<HobbyDTO> hobbies;
 
     /* AllArgsConstructor */
-    public CategoryDTO(int categoryNumber, String categoryName) {
+    public CategoryDTOWithHobbies(int categoryNumber, String categoryName, List<HobbyDTO> hobbies) {
         this.categoryNumber = categoryNumber;
         this.categoryName = categoryName;
+        this.hobbies = hobbies;
     }
-
 }
