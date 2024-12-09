@@ -15,10 +15,8 @@ import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -59,6 +57,25 @@ public class HobbyService {
             dto.setReviewCount(hobbyReviewRepository.reviewCountByHobbyNumber(hobby.getHobbyNumber()));
             return dto;
         }).toList();
+
+        return hobbyDTOList;
+    }
+
+    //취미 리스트 전체 조회후 최소 리뷰수 필터링 후 , 평균 평점 순 조회
+    public List<HobbyDTO> hobbySortByRating(int minimumReviewCount, int limit) {
+        List<Hobby> hobbyList = hobbyRepository.findAll();
+
+        List<HobbyDTO> hobbyDTOList = hobbyList.stream().map(hobby -> {
+            HobbyDTO dto=hobbyMapper.toHobbyDTO(hobby);
+            dto.setRating(hobbyReviewRepository.avgRatingByHobbyNumber(hobby.getHobbyNumber()));
+            dto.setReviewCount(hobbyReviewRepository.reviewCountByHobbyNumber(hobby.getHobbyNumber()));
+            return dto;
+        }).toList();
+
+        hobbyDTOList=hobbyDTOList.stream().filter(hobbyDTO->hobbyDTO.getReviewCount()>=minimumReviewCount)
+                .sorted(Comparator.comparing(HobbyDTO::getRating).reversed())
+                .limit(limit)
+                .collect(Collectors.toList());
 
         return hobbyDTOList;
     }

@@ -48,6 +48,19 @@ public class HobbyController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 
+    @GetMapping("/hobby-board/top3")
+    public ResponseEntity<ResponseMessage> hobbySortByRating(){
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+
+        List<HobbyDTO> hobbyDTOList = hobbyService.hobbySortByRating(3,3);
+
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("hobby", hobbyDTOList);
+
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
+    }
+
     //취미 상세 조회, 해당 취미후기 리스트 조회
     @GetMapping("/hobby-detail/{hobbyNumber}")
     public ResponseEntity<ResponseMessage> findHobbyDetail(@PathVariable("hobbyNumber")int hobbyNumber){
