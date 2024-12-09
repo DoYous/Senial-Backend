@@ -3,7 +3,6 @@ package com.senials.partyboard.dto;
 import lombok.*;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -14,5 +13,17 @@ public class PartyBoardDTOForCard {
     private long memberCount; // 참여 인원 수
     private double averageRating; // 별점 평균
     private String firstImage; // 첫 번째 이미지 경로
+    private int reviewCount;    // 모임 후기 수
+
+    /* AllArgsConstructor */
+    public PartyBoardDTOForCard(int partyBoardNumber, String partyBoardName, int partyBoardStatus, long memberCount, double averageRating, String firstImage, int reviewCount) {
+        this.partyBoardNumber = partyBoardNumber;
+        this.partyBoardName = partyBoardName;
+        this.partyBoardStatus = partyBoardStatus;
+        this.memberCount = memberCount;
+        this.averageRating = averageRating;
+        this.firstImage = firstImage;
+        this.reviewCount = reviewCount;
+    }
 }
 
