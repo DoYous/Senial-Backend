@@ -7,10 +7,7 @@ import com.senials.favorites.repository.FavoritesRepository;
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.hobbyboard.repository.HobbyRepository;
 import com.senials.likes.repository.LikeRepository;
-import com.senials.partyboard.dto.PartyBoardDTOForCard;
-import com.senials.partyboard.dto.PartyBoardDTOForDetail;
-import com.senials.partyboard.dto.PartyBoardDTOForModify;
-import com.senials.partyboard.dto.PartyBoardDTOForWrite;
+import com.senials.partyboard.dto.*;
 import com.senials.partyboard.entity.PartyBoard;
 import com.senials.partyboard.repository.PartyBoardRepository;
 import com.senials.partyboard.repository.PartyBoardSpecification;
@@ -21,6 +18,8 @@ import com.senials.partyreview.repository.PartyReviewRepository;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,17 +27,20 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class PartyBoardService {
 
-    private final String imageRootPath = "src/main/resources/static/img/party_board";
+    private final String partyImagePath = "src/main/resources/static/img/party_board";
 
     private final PartyBoardMapper partyBoardMapper;
 
@@ -56,6 +58,9 @@ public class PartyBoardService {
 
     private final LikeRepository likeRepository;
 
+    private final ResourceLoader resourceLoader;
+    private final PartyBoardImageRepository partyBoardImageRepository;
+
 
     @Autowired
     public PartyBoardService(
@@ -67,7 +72,8 @@ public class PartyBoardService {
             , PartyMemberRepository partyMemberRepository
             , PartyReviewRepository partyReviewRepository
             , LikeRepository likeRepository
-    )
+            , ResourceLoader resourceLoader,
+            PartyBoardImageRepository partyBoardImageRepository)
     {
         this.partyBoardMapper = partyBoardMapperImpl;
         this.partyBoardRepository = partyBoardRepository;
@@ -77,6 +83,8 @@ public class PartyBoardService {
         this.partyMemberRepository = partyMemberRepository;
         this.partyReviewRepository = partyReviewRepository;
         this.likeRepository = likeRepository;
+        this.resourceLoader = resourceLoader;
+        this.partyBoardImageRepository = partyBoardImageRepository;
     }
 
     /* 인기 추천 모임 (평점 높은 순, 리뷰 개수 N개 이상, 모집중 >> M개 제한)*/
@@ -241,7 +249,7 @@ public class PartyBoardService {
 
     /* 모임 글 작성 */
     @Transactional
-    public int registerPartyBoard(int userNumber, PartyBoardDTOForWrite newPartyBoardDTO) {
+    public int registerPartyBoard(int userNumber, List<MultipartFile> imageFiles, PartyBoardDTOForWrite newPartyBoardDTO) {
 
         // 1. userNumber로 User 엔티티 조회
         User user = userRepository.findById(userNumber)
@@ -261,23 +269,64 @@ public class PartyBoardService {
                 .partyBoardOpenDate(LocalDate.now())
                 .build();
 
+
+        /* 글 정보 저장 & 자동 증가 된 partyBoardNumber */
+        PartyBoard savedPartyBoard = partyBoardRepository.save(newPartyBoard);
+        int partyBoardNumber = savedPartyBoard.getPartyBoardNumber();
+
+
         // 4. 이미지 저장
+        Resource resource = resourceLoader.getResource("classpath:static/img/party_board/" + partyBoardNumber + "/thumbnail");
+
+        /* 파일 경로 지정 (없으면 디렉터리 생성) */
+        String filePath = null;
+        try {
+            if (!resource.exists()) {
+
+                String root = partyImagePath + "/" + partyBoardNumber + "/thumbnail";
+                File file = new File(root);
+
+                if( !file.mkdirs() ) {
+                    throw new IOException();
+                }
+                filePath = file.getAbsolutePath();
+
+            } else {
+                filePath = resource.getFile().getAbsolutePath();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 저장 실패");
+        }
+
+
+        /* 파일 실제 저장 */
         List<PartyBoardImage> partyBoardImages = new ArrayList<>();
-        for (String savedFile : newPartyBoardDTO.getSavedFiles()) {
+        for (MultipartFile imageFile : imageFiles) {
+            String randomId = UUID.randomUUID().toString().replace("-", "");
+
+            String originalName = imageFile.getOriginalFilename();
+            String ext = originalName.substring(originalName.lastIndexOf("."));
+            String savedName = randomId + ext;
+            
+            try {
+                imageFile.transferTo(new File(filePath + "/" + savedName));
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 저장 실패");
+            }
+            
             // PartyBoardImage 엔티티 생성
             PartyBoardImage partyBoardImage = PartyBoardImage.builder()
-                    .partyBoard(newPartyBoard)
-                    .partyBoardImg(savedFile)
+                    .partyBoard(savedPartyBoard)
+                    .partyBoardImg(savedName)
                     .build();
-
+            
             partyBoardImages.add(partyBoardImage);
         }
 
-        newPartyBoard.initializeImages(partyBoardImages);
 
-        // 4. 엔티티 저장
-        PartyBoard registeredPartyBoard = partyBoardRepository.save(newPartyBoard);
-        return registeredPartyBoard.getPartyBoardNumber();
+        // 5. 파일이미지 엔티티 저장
+        savedPartyBoard.updateImages(partyBoardImages);
+        return partyBoardRepository.save(newPartyBoard).getPartyBoardNumber();
     }
 
 
@@ -317,7 +366,7 @@ public class PartyBoardService {
 
         List<PartyBoardImage> partyBoardImages = partyBoard.getImages();
 
-        String imgBoardPath = imageRootPath + "/" + partyBoardNumber + "/thumbnail";
+        String imgBoardPath = partyImagePath + "/" + partyBoardNumber + "/thumbnail";
         /* 2. 이미지 삭제*/
         if (removedFileNumbers != null && !removedFileNumbers.isEmpty()) {
             // 역순으로 순회 (리스트 순회 중 삭제해도 문제 없도록) > Iterator로 순회하는 방법도 있음
