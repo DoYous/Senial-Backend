@@ -154,4 +154,38 @@ public class PartyBoardImageController {
         }
     }
 
+    //취미 썸네일 이미지 조회
+    @GetMapping("/img/hobbyboard/{hobbyNumber}")
+    public ResponseEntity<Resource> getHobbyImg(@PathVariable String hobbyNumber) {
+        try {
+            // 확장자를 동적으로 확인
+            String[] extensions = {".png", ".jpg", ".jpeg"};
+            Resource resource = null;
+
+            for (String ext : extensions) {
+                resource = resourceLoader.getResource("classpath:static/img/hobby_board/" + hobbyNumber + ext);
+                if (resource.exists()) {
+                    break; // 첫 번째로 발견된 파일 반환
+                }
+            }
+
+            if (resource != null && resource.exists() && resource.isReadable()) {
+                String contentType = "image/png"; // 기본 MIME 타입 설정
+                if (resource.getFilename().endsWith(".jpg") || resource.getFilename().endsWith(".jpeg")) {
+                    contentType = "image/jpeg";
+                }
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+
 }
