@@ -1,7 +1,6 @@
 package com.senials.partyboard.repository;
 
 import com.senials.hobbyboard.entity.Hobby;
-import com.senials.partyboard.dto.PartyBoardDTOForCard;
 import com.senials.partyboard.entity.PartyBoard;
 import com.senials.user.entity.User;
 import org.springframework.data.domain.Page;
