@@ -40,9 +40,19 @@ public interface PartyBoardRepository extends JpaRepository<PartyBoard, Integer>
             GROUP BY pb.party_board_number 
             HAVING COUNT(pr.party_review_number) >= :minReviewCount 
             ORDER BY AVG(pr.party_review_rate) DESC 
-            LIMIT :size
             """
+            , countQuery = """
+                SELECT COUNT(*) 
+                FROM PARTY_BOARD pb 
+                    JOIN PARTY_REVIEW pr 
+                        ON pb.party_board_status = 0 
+                               AND 
+                           pb.party_board_number = pr.party_board_number 
+                GROUP BY pb.party_board_number
+                HAVING COUNT(pr.party_review_number) >= :minReviewCount
+                ORDER BY AVG(pr.party_review_rate) DESC
+                """
             , nativeQuery = true)
-    List<PartyBoard> findPopularPartyBoards(int minReviewCount, int size);
+    Page<PartyBoard> findPopularPartyBoards(int minReviewCount, Pageable pageable);
 
 }

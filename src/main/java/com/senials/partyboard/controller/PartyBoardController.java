@@ -22,8 +22,11 @@ import java.util.Map;
 @RestController
 public class PartyBoardController {
 
+
+    private final int userNumber = 3;
     private final PartyBoardService partyBoardService;
     private final HttpHeadersFactory httpHeadersFactory;
+
 
     @Autowired
     public PartyBoardController(
@@ -35,21 +38,24 @@ public class PartyBoardController {
     }
 
 
-
-    /* 인기 추천 모임 (평점 높은 순, 리뷰 개수 N개 이상, 모집중 >> M개 제한)*/
+    /* 인기 추천 모임 (평점 높은 순, 리뷰 개수 minReviewCount개 이상, 모집중 >> size개 제한)*/
     @GetMapping("/partyboards/popular-parties")
     public ResponseEntity<ResponseMessage> getPopularPartyBoards(
             @RequestParam(required = false, defaultValue = "1") Integer minReviewCount
             , @RequestParam(required = false, defaultValue = "4") Integer size
+            , @RequestParam(required = false, defaultValue = "0") Integer pageNumber
     ) {
-        List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardService.getPopularPartyBoards(minReviewCount, size);
+
+        List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardService.getPopularPartyBoards(minReviewCount, size, pageNumber);
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("popularPartyBoards", partyBoardDTOForCardList);
 
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "인기 추천 모임 조회 성공", responseMap));
+
     }
+
 
     // 모임 검색
     // 쿼리스트링
