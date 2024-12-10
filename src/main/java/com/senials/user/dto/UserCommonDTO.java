@@ -28,5 +28,11 @@ public class UserCommonDTO {
         this.userDetail = userDetail;
         this.userProfileImg = userProfileImg;
     }
+    // 새로운 생성자 추가
+    public UserCommonDTO(String userName, String userNickname, String userDetail) {
+        this.userName = userName;
+        this.userNickname = userNickname;
+        this.userDetail = userDetail;
+    }
 
 }
