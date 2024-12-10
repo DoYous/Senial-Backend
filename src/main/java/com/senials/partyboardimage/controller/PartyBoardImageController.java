@@ -27,6 +27,7 @@ public class PartyBoardImageController {
 
     private final ResourceLoader resourceLoader;
 
+
     @Autowired
     public PartyBoardImageController(
             ResourceLoader resourceLoader
@@ -34,68 +35,6 @@ public class PartyBoardImageController {
         this.resourceLoader = resourceLoader;
     }
 
-    // 모임 섬네일(대표) 이미지 저장
-    @PostMapping("/partyboardimages")
-    public ResponseEntity<ResponseMessage> uploadPartyBoardThumbnails(
-            @RequestParam List<MultipartFile> multiFiles
-    ) throws IOException {
-
-        /* 파일 임시 저장 경로 지정 */
-        String randomId = UUID.randomUUID().toString().replace("-", "");
-        Resource resource = resourceLoader.getResource("classpath:static/img/party_board/" + randomId + "/thumbnail");
-        String filePath = null;
-
-        if (!resource.exists()) {
-            String root = "src/main/resources/static/img/party_board/" + randomId + "/thumbnail";
-            File file = new File(root);
-
-            file.mkdirs();
-
-            filePath = file.getAbsolutePath();
-        } else {
-            filePath = resource.getFile().getAbsolutePath();
-        }
-
-        Map<String, Object> responseMap = new HashMap<>();
-
-        List<FileDTO> files = new ArrayList<>();
-        List<String> savedFiles = new ArrayList<>();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-
-        try {
-            for(MultipartFile file  : multiFiles) {
-                /* 파일명 랜덤 UUID 변경 처리 */
-                String originFileName = file.getOriginalFilename();
-                String ext = originFileName.substring(originFileName.lastIndexOf("."));
-                String savedFileName = UUID.randomUUID().toString().replace("-", "")
-                        + ext;
-
-
-                /* 파일 정보 등록 */
-                files.add(new FileDTO(originFileName, savedFileName, filePath));
-
-                /* 파일 저장 */
-                file.transferTo(new File(filePath + "/" + savedFileName));
-
-                savedFiles.add(savedFileName);
-            }
-
-            responseMap.put("tempNumber", randomId);
-            responseMap.put("savedFiles", savedFiles);
-
-            return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "업로드 성공", responseMap));
-
-        } catch (Exception e) {
-
-            for (FileDTO file : files) {
-                new File(filePath + "/" + file.getSavedFileName()).delete();
-            }
-
-            return ResponseEntity.internalServerError().headers(headers).body(new ResponseMessage(500, "업로드 실패", null));
-        }
-    }
 
     // 모임 섬네일(대표) 이미지 추가
     @PutMapping("/partyboardimages/{partyBoardNumber}")
