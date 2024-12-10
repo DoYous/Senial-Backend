@@ -50,10 +50,12 @@ public class FavoritesService {
         List<Hobby> allHobbies = hobbyRepository.findAll();
 
         // 각 취미에 대해 저장 여부와 카테고리명 포함한 DTO 반환
+        // 카테고리로 취미 묶어서 가져오기
         return allHobbies.stream().map(hobby -> {
             boolean isFavorite = userFavorites.stream()
                     .anyMatch(fav -> fav.getHobby().getHobbyNumber() == hobby.getHobbyNumber());
             return new FavoriteSelectDTO(
+                    hobby.getHobbyNumber(),
                     hobby.getHobbyName(),
                     hobby.getCategory().getCategoryName(),
                     isFavorite
