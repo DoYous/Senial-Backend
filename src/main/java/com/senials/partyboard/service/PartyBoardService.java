@@ -239,9 +239,16 @@ public class PartyBoardService {
 
         PartyBoard partyBoard = partyBoardRepository.findByPartyBoardNumber(partyBoardNumber);
 
+        if(partyBoard == null) {
+            throw new RuntimeException("[Error] 잘못된 모임 번호 요청");
+        }
+
         PartyBoardDTOForDetail partyBoardDTO = partyBoardMapper.toPartyBoardDTOForDetail(partyBoard);
         partyBoardDTO.setUserNumber(partyBoard.getUser().getUserNumber());
+        partyBoardDTO.setHobbyNumber(partyBoard.getHobby().getHobbyNumber());
+        partyBoardDTO.setCategoryName(partyBoard.getHobby().getCategory().getCategoryName());
         partyBoardDTO.setImages(partyBoard.getImages().stream().map(partyBoardMapper::toPartyBoardImageDTO).toList());
+        partyBoardDTO.setPartyMemberCnt(partyBoard.getPartyMembers().size());
 
         return partyBoardDTO;
     }

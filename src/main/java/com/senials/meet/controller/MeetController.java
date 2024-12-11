@@ -18,6 +18,7 @@ import java.util.Map;
 @RestController
 public class MeetController {
 
+    private Integer loggedInUserNumber = 3;
     private final MeetService meetService;
     private final MeetRepository meetRepository;
 
@@ -29,16 +30,23 @@ public class MeetController {
     }
 
 
-    /* 모임 내 일정 전체 조회 */
+    /* 모임 내 일정 전체 조회 (로그인 중일시 참여여부 까지) */
     @GetMapping("/partyboards/{partyBoardNumber}/meets")
     public ResponseEntity<ResponseMessage> getMeetsByPartyBoardNumber(
             @PathVariable Integer partyBoardNumber
+            , @RequestParam(required = false, defaultValue = "0") Integer pageNumber
+            , @RequestParam(required = false, defaultValue = "4") Integer pageSize
     ) {
 
-        List<MeetDTO> meetDTOList = meetService.getMeetsByPartyBoardNumber(partyBoardNumber);
+        List<MeetDTO> meetDTOList = meetService.getMeetsByPartyBoardNumber(loggedInUserNumber, partyBoardNumber, pageNumber, pageSize + 1);
 
         Map<String, Object> responseMap = new HashMap<>();
+        boolean hasMore = meetDTOList.size() > pageSize;
+        if(hasMore) {
+            meetDTOList.remove(meetDTOList.size() - 1);
+        }
         responseMap.put("meets", meetDTOList);
+        responseMap.put("hasMore", hasMore);
 
         // ResponseHeader 설정
         HttpHeaders headers = new HttpHeaders();

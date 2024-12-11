@@ -23,4 +23,7 @@ public interface PartyMemberRepository extends JpaRepository<PartyMember, Intege
     /* 모임 내 전체 멤버 수 */
     int countAllByPartyBoard(PartyBoard partyBoard);
 
+    /* 모임 멤버 여부 확인 */
+    boolean existsByUser_UserNumberAndPartyBoard_PartyBoardNumber(int userNumber, int partyBoardNumber);
+
 }

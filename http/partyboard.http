@@ -26,7 +26,7 @@ GET http://localhost:8080/partyboards/search?cursor=6&isLikedOnly=true&sortMetho
 
 
 ### 모임 상세 조회
-GET http://localhost:8080/partyboards/20
+GET http://localhost:8080/partyboards/1
 
 
 ### 모임 글 작성
