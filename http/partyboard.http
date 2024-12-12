@@ -1,4 +1,6 @@
 
+### 취미 기반 모임 추천
+GET http://localhost:8080/partyboards/recommended-parties?hobbyNumber=1&partyBoardNumber=1
 
 ### 인기 모임 전체 조회
 GET http://localhost:8080/partyboards/popular-parties

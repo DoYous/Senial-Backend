@@ -33,6 +33,20 @@ public class PartyMemberService {
         this.userRepository = userRepository;
     }
 
+
+    /* 모임 멤버 랜덤 4명 조회 */
+    public List<UserDTOForPublic> getRandomPartyMembers(int partyBoardNumber) {
+
+        List<PartyMember> partyMemberList = partyMemberRepository.find4ByPartyBoardNumber(partyBoardNumber);
+
+        List<UserDTOForPublic> userDTOList = partyMemberList.stream().map(partyMember -> {
+            return userMapper.toUserDTOForPublic(partyMember.getUser());
+        }).toList();
+
+        return userDTOList;
+    }
+
+
     /* 모임 멤버 전체 조회 */
     public List<UserDTOForPublic> getPartyMembers (int partyBoardNumber) {
 

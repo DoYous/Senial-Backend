@@ -87,6 +87,26 @@ public class PartyBoardService {
         this.partyBoardImageRepository = partyBoardImageRepository;
     }
 
+    /* 같은 취미 추천 모임 (상세 페이지 최하단) */
+    public List<PartyBoardDTOForCard> getRecommendedPartyBoards(Integer userNumber, int partyBoardNumber) {
+        User user;
+        if(userNumber != null) {
+            user = userRepository.findById(userNumber).orElseThrow(IllegalArgumentException::new);
+        } else {
+            user = null;
+        }
+
+        List<PartyBoard> partyBoardList = partyBoardRepository.find4ByHobbyOrderByRand(partyBoardNumber);
+
+        List<PartyBoardDTOForCard> partyBoardDTOList = partyBoardList.stream().map(partyBoard -> {
+            boolean isLiked = user != null && likeRepository.existsByUserAndPartyBoard(user, partyBoard);
+            PartyBoardDTOForCard partyBoardDTO = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
+            partyBoardDTO.setLiked(isLiked);
+            return partyBoardDTO;
+        }).toList();
+        return partyBoardDTOList;
+    }
+
     /* 인기 추천 모임 (평점 높은 순, 리뷰 개수 N개 이상, 모집중 >> M개 제한)*/
     public List<PartyBoardDTOForCard> getPopularPartyBoards(int minReviewCount, int size, int pageNumber) {
 

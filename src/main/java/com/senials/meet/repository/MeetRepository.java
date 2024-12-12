@@ -16,6 +16,7 @@ public interface MeetRepository extends JpaRepository<Meet, Integer> {
 
     /* 모임 내 일정 총 개수 */
     int countAllByPartyBoard(PartyBoard partyBoard);
+    int countAllByPartyBoard_PartyBoardNumber(int partyBoardNumber);
   
     //사용자 별 참여한 모임 확인
     @Query("SELECT m FROM Meet m JOIN m.partyBoard pb WHERE pb.user.userNumber = :userNumber")

@@ -50,6 +50,11 @@ public class MeetService {
         this.meetMemberRepository = meetMemberRepository;
     }
 
+    /* 모임 내 일정 개수 확인 */
+    public int countMeets(int partyBoardNumber) {
+        return meetRepository.countAllByPartyBoard_PartyBoardNumber(partyBoardNumber);
+    }
+
 
     /* 모임 내 일정 전체 조회 */
     public List<MeetDTO> getMeetsByPartyBoardNumber(Integer userNumber, int partyBoardNumber, int pageNumber, int pageSize) {
@@ -64,7 +69,7 @@ public class MeetService {
             meetDTO.setMeetMemberCnt(meet.getMeetMembers().size());
 
             return meetDTO;
-        }).toList();
+        }).collect(Collectors.toList());
 
         // 로그인 여부 확인
         if(userNumber != null) {

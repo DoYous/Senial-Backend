@@ -7,6 +7,8 @@ import com.senials.likes.service.LikesService;
 import com.senials.partyboard.dto.*;
 import com.senials.partyboard.service.PartyBoardService;
 import com.senials.partymember.service.PartyMemberService;
+import com.senials.partyreview.dto.PartyReviewDTOForDetail;
+import com.senials.partyreview.service.PartyReviewService;
 import com.senials.user.dto.UserDTOForPublic;
 import com.senials.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ public class PartyBoardController {
 
     private final LikesService likesService;
     private final PartyMemberService partyMemberService;
+    private final PartyReviewService partyReviewService;
     private Integer loggedInUserNumber = 3;
     private final PartyBoardService partyBoardService;
     private final HttpHeadersFactory httpHeadersFactory;
@@ -39,7 +42,7 @@ public class PartyBoardController {
             PartyBoardService partyBoardService
             , HttpHeadersFactory httpHeadersFactory
             , UserService userService,
-            HobbyService hobbyService, LikesService likesService, PartyMemberService partyMemberService)
+            HobbyService hobbyService, LikesService likesService, PartyMemberService partyMemberService, PartyReviewService partyReviewService)
     {
         this.partyBoardService = partyBoardService;
         this.httpHeadersFactory = httpHeadersFactory;
@@ -47,6 +50,21 @@ public class PartyBoardController {
         this.hobbyService = hobbyService;
         this.likesService = likesService;
         this.partyMemberService = partyMemberService;
+        this.partyReviewService = partyReviewService;
+    }
+
+    /* 같은 취미 추천 모임 (상세 페이지 최하단) */
+    @GetMapping("/partyboards/recommended-parties")
+    public ResponseEntity<ResponseMessage>  getRecommendPartyBoards(
+            @RequestParam int partyBoardNumber
+    ) {
+        List<PartyBoardDTOForCard> recommendedPartyBoards = partyBoardService.getRecommendedPartyBoards(loggedInUserNumber, partyBoardNumber);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("recommendedPartyBoards", recommendedPartyBoards);
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "취미 기반 추천 모임 조회 성공", responseMap));
     }
 
 
@@ -130,6 +148,7 @@ public class PartyBoardController {
 
 
         PartyBoardDTOForDetail partyBoardDTO = partyBoardService.getPartyBoardByNumber(partyBoardNumber);
+
         // 신고 수 마스킹
         partyBoardDTO.setPartyBoardReportCnt(0);
 
@@ -149,9 +168,13 @@ public class PartyBoardController {
             isMaster = masterUserDTO.getUserNumber() == loggedInUserDTO.getUserNumber();
         }
 
-        if(isMember) {
 
-        }
+        // 내가 작성한 후기 불러오기
+        PartyReviewDTOForDetail myReview = partyReviewService.getOnePartyReview(loggedInUserNumber, partyBoardNumber);
+
+
+        // 초기 로딩용 랜덤 모임 멤버 4명 불러오기
+        List<UserDTOForPublic> randMembers = partyMemberService.getRandomPartyMembers(partyBoardNumber);
 
 
         // ResponseBody 삽입
@@ -163,6 +186,8 @@ public class PartyBoardController {
         responseMap.put("isLiked", isLiked);
         responseMap.put("isMember", isMember);
         responseMap.put("isMaster", isMaster);
+        responseMap.put("myReview", myReview);
+        responseMap.put("randMembers", randMembers);
 
 
         // ResponseHeader 설정

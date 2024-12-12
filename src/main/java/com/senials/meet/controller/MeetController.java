@@ -34,17 +34,16 @@ public class MeetController {
     @GetMapping("/partyboards/{partyBoardNumber}/meets")
     public ResponseEntity<ResponseMessage> getMeetsByPartyBoardNumber(
             @PathVariable Integer partyBoardNumber
-            , @RequestParam(required = false, defaultValue = "0") Integer pageNumber
             , @RequestParam(required = false, defaultValue = "4") Integer pageSize
+            , @RequestParam(required = false, defaultValue = "0") Integer pageNumber
     ) {
 
-        List<MeetDTO> meetDTOList = meetService.getMeetsByPartyBoardNumber(loggedInUserNumber, partyBoardNumber, pageNumber, pageSize + 1);
+        List<MeetDTO> meetDTOList = meetService.getMeetsByPartyBoardNumber(loggedInUserNumber, partyBoardNumber, pageNumber, pageSize);
+        int totalCnt = meetService.countMeets(partyBoardNumber);
 
         Map<String, Object> responseMap = new HashMap<>();
-        boolean hasMore = meetDTOList.size() > pageSize;
-        if(hasMore) {
-            meetDTOList.remove(meetDTOList.size() - 1);
-        }
+        boolean hasMore = (pageNumber + 1) * pageSize < totalCnt;
+
         responseMap.put("meets", meetDTOList);
         responseMap.put("hasMore", hasMore);
 

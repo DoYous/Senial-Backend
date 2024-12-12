@@ -1,6 +1,7 @@
 package com.senials.partymember.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.config.HttpHeadersFactory;
 import com.senials.partymember.service.PartyMemberService;
 import com.senials.user.dto.UserDTOForPublic;
 import org.springframework.http.HttpHeaders;
@@ -17,13 +18,15 @@ import java.util.Map;
 public class PartyMemberController {
 
     private Integer loggedInUserNumber = 3;
+    private final HttpHeadersFactory httpHeadersFactory;
     private final PartyMemberService partyMemberService;
 
 
     public PartyMemberController(
-            PartyMemberService partyMemberService
-    ) {
+            PartyMemberService partyMemberService,
+            HttpHeadersFactory httpHeadersFactory) {
         this.partyMemberService = partyMemberService;
+        this.httpHeadersFactory = httpHeadersFactory;
     }
 
 
