@@ -1,18 +1,23 @@
 package com.senials.partyboard.controller;
 
 import com.senials.common.ResponseMessage;
-import com.senials.partyboard.dto.PartyBoardDTOForDetail;
-import com.senials.partyboard.dto.PartyBoardDTOForModify;
-import com.senials.partyboard.dto.PartyBoardDTOForWrite;
+import com.senials.config.HttpHeadersFactory;
+import com.senials.hobbyboard.service.HobbyService;
+import com.senials.likes.service.LikesService;
+import com.senials.partyboard.dto.*;
 import com.senials.partyboard.service.PartyBoardService;
+import com.senials.partymember.service.PartyMemberService;
+import com.senials.partyreview.dto.PartyReviewDTOForDetail;
+import com.senials.partyreview.service.PartyReviewService;
 import com.senials.user.dto.UserDTOForPublic;
+import com.senials.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -21,15 +26,66 @@ import java.util.Map;
 @RestController
 public class PartyBoardController {
 
+
+    private final LikesService likesService;
+    private final PartyMemberService partyMemberService;
+    private final PartyReviewService partyReviewService;
+    private Integer loggedInUserNumber = 3;
     private final PartyBoardService partyBoardService;
+    private final HttpHeadersFactory httpHeadersFactory;
+    private final UserService userService;
+    private final HobbyService hobbyService;
+
 
     @Autowired
     public PartyBoardController(
             PartyBoardService partyBoardService
-    )
+            , HttpHeadersFactory httpHeadersFactory
+            , UserService userService,
+            HobbyService hobbyService, LikesService likesService, PartyMemberService partyMemberService, PartyReviewService partyReviewService)
     {
         this.partyBoardService = partyBoardService;
+        this.httpHeadersFactory = httpHeadersFactory;
+        this.userService = userService;
+        this.hobbyService = hobbyService;
+        this.likesService = likesService;
+        this.partyMemberService = partyMemberService;
+        this.partyReviewService = partyReviewService;
     }
+
+    /* 같은 취미 추천 모임 (상세 페이지 최하단) */
+    @GetMapping("/partyboards/recommended-parties")
+    public ResponseEntity<ResponseMessage>  getRecommendPartyBoards(
+            @RequestParam int partyBoardNumber
+    ) {
+        List<PartyBoardDTOForCard> recommendedPartyBoards = partyBoardService.getRecommendedPartyBoards(loggedInUserNumber, partyBoardNumber);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("recommendedPartyBoards", recommendedPartyBoards);
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "취미 기반 추천 모임 조회 성공", responseMap));
+    }
+
+
+    /* 인기 추천 모임 (평점 높은 순, 리뷰 개수 minReviewCount개 이상, 모집중 >> size개 제한)*/
+    @GetMapping("/partyboards/popular-parties")
+    public ResponseEntity<ResponseMessage> getPopularPartyBoards(
+            @RequestParam(required = false, defaultValue = "1") Integer minReviewCount
+            , @RequestParam(required = false, defaultValue = "4") Integer size
+            , @RequestParam(required = false, defaultValue = "0") Integer pageNumber
+    ) {
+
+        List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardService.getPopularPartyBoards(minReviewCount, size, pageNumber);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("popularPartyBoards", partyBoardDTOForCardList);
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "인기 추천 모임 조회 성공", responseMap));
+
+    }
+
 
     // 모임 검색
     // 쿼리스트링
@@ -48,15 +104,34 @@ public class PartyBoardController {
     )
     {
         /* isLikedOnly 유저 세션 검사 필요 */
+        Integer userNumber = 3;
 
-        List<PartyBoardDTOForDetail> partyBoardDTOList = partyBoardService.searchPartyBoard(sortMethod, keyword, cursor, size, isLikedOnly);
+        /* 더보기 버튼 출력 여부 확인 용 데이터 + 1 */
+        List<PartyBoardDTOForCard> partyBoardDTOList = partyBoardService.searchPartyBoard(sortMethod, keyword, cursor, size + 1, isLikedOnly, userNumber);
+
 
         Map<String, Object> responseMap = new HashMap<>();
+
+
+        /* 남은 정보 존재 여부 설정 - 가져온 데이터가 페이지 별 최대 정보 수(size)보다 같거나 작을 경우 false */
+        boolean isRemain = true;
+        if(partyBoardDTOList.size() <= size) {
+            isRemain = false;
+        } else {
+            // 남은 정보 존재 시 마지막 PartyBoard 제거
+            partyBoardDTOList.remove(partyBoardDTOList.size() - 1);
+        }
+        responseMap.put("isRemain", isRemain);
         responseMap.put("partyBoards", partyBoardDTOList);
 
+
+        /* 마지막 PartyBoardNumber */
+        Integer nextCursor = null;
         if (!partyBoardDTOList.isEmpty()) {
-            responseMap.put("cursor", partyBoardDTOList.get(partyBoardDTOList.size() - 1).getPartyBoardNumber());
+            nextCursor = partyBoardDTOList.get(partyBoardDTOList.size() - 1).getPartyBoardNumber();
         }
+        responseMap.put("cursor", nextCursor);
+
 
         // ResponseHeader 설정
         HttpHeaders headers = new HttpHeaders();
@@ -64,19 +139,59 @@ public class PartyBoardController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 
+
     // 모임 상세 조회
     @GetMapping("/partyboards/{partyBoardNumber}")
     public ResponseEntity<ResponseMessage> getPartyBoardByNumber(@PathVariable Integer partyBoardNumber) {
 
+        Integer tempUserNumber = 3;
+
+
         PartyBoardDTOForDetail partyBoardDTO = partyBoardService.getPartyBoardByNumber(partyBoardNumber);
 
-        // ResponseHeader 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        // 신고 수 마스킹
+        partyBoardDTO.setPartyBoardReportCnt(0);
+
+        // 모임장 정보 불러오기
+        UserDTOForPublic masterUserDTO = userService.getUserPublicByNumber(partyBoardDTO.getUserNumber());
+
+
+        // 로그인 유저 정보 불러오기 + 좋아요 여부
+        UserDTOForPublic loggedInUserDTO = null;
+        boolean isLiked = false;
+        boolean isMember = false;
+        boolean isMaster = false;
+        if(tempUserNumber != null) {
+            loggedInUserDTO = userService.getUserPublicByNumber(tempUserNumber);
+            isLiked = likesService.isLikedByPartyBoardNumber(tempUserNumber, partyBoardNumber);
+            isMember = partyMemberService.checkIsMember(tempUserNumber, partyBoardNumber);
+            isMaster = masterUserDTO.getUserNumber() == loggedInUserDTO.getUserNumber();
+        }
+
+
+        // 내가 작성한 후기 불러오기
+        PartyReviewDTOForDetail myReview = partyReviewService.getOnePartyReview(loggedInUserNumber, partyBoardNumber);
+
+
+        // 초기 로딩용 랜덤 모임 멤버 4명 불러오기
+        List<UserDTOForPublic> randMembers = partyMemberService.getRandomPartyMembers(partyBoardNumber);
+
+
         // ResponseBody 삽입
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("partyBoard", partyBoardDTO);
+        responseMap.put("partyMaster", masterUserDTO);
+        responseMap.put("isLoggedIn", tempUserNumber != null);
+        responseMap.put("loggedInUser", loggedInUserDTO);
+        responseMap.put("isLiked", isLiked);
+        responseMap.put("isMember", isMember);
+        responseMap.put("isMaster", isMaster);
+        responseMap.put("myReview", myReview);
+        responseMap.put("randMembers", randMembers);
 
+
+        // ResponseHeader 설정
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 
@@ -84,30 +199,25 @@ public class PartyBoardController {
     /* 모임 글 작성 */
     @PostMapping("/partyboards")
     public ResponseEntity<ResponseMessage> registerPartyBoard(
-            @ModelAttribute PartyBoardDTOForWrite newPartyBoardDTO
+            @RequestPart("imageFiles") List<MultipartFile> imageFiles
+            , @ModelAttribute PartyBoardDTOForWrite newPartyBoardDTO
     ) {
 
         // 유저 번호 임의 지정
-        int userNumber = 4;
+        int userNumber = 3;
 
-        // 글 작성 후 자동 생성된 글 번호
-        int registeredPartyBoardNumber = partyBoardService.registerPartyBoard(userNumber, newPartyBoardDTO);
+        int newPartyBoardNumber = partyBoardService.registerPartyBoard(userNumber, imageFiles, newPartyBoardDTO);
 
-
-        /* 이미지 저장 임시 디렉터리 명 변경 */
-        String tempDirStr = "src/main/resources/static/img/party_board/" + newPartyBoardDTO.getTempNumber();
-        String newDirStr = "src/main/resources/static/img/party_board/" + registeredPartyBoardNumber;
-
-        File tempDir = new File(tempDirStr);
-        File newFileDir = new File(newDirStr);
-        tempDir.renameTo(newFileDir);
-
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("partyBoardNumber", newPartyBoardNumber);
 
         // ResponseHeader 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "글 작성 성공", null));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "글 작성 성공", responseMap));
+
     }
+
 
     /* 모임 글 수정 */
     @PutMapping("/partyboards/{partyBoardNumber}")

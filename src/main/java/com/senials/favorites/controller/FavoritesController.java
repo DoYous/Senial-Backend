@@ -34,7 +34,7 @@ public class FavoritesController {
     }
 
     //모든 취미, 카테고리명, 저장 여부 가져오기
-    @GetMapping("/{userNumber}/FavoritesAll")
+    @GetMapping("/{userNumber}/favoritesAll")
     public ResponseEntity<List<FavoriteSelectDTO>> getAllHobbiesWithCategoryAndFavoriteStatus(@PathVariable int userNumber) {
         // ResponseHeader 설정
         HttpHeaders headers = new HttpHeaders();

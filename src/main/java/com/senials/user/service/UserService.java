@@ -9,6 +9,7 @@ import com.senials.partymember.repository.PartyMemberRepository;
 import com.senials.partyreview.entity.PartyReview;
 import com.senials.user.dto.UserCommonDTO;
 import com.senials.user.dto.UserDTO;
+import com.senials.user.dto.UserDTOForPublic;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -17,8 +18,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,11 +59,21 @@ public class UserService {
                 .map(user -> new UserCommonDTO(
                         user.getUserName(),
                         user.getUserNickname(),
-                        user.getUserDetail(),
-                        user.getUserProfileImg()
+                        user.getUserDetail()
+                        /*, user.getUserProfileImg()*/
                 ))
                 .orElseThrow(IllegalArgumentException::new);
     }
+
+
+    // 특정 사용자 조회 (UserDTOForPublic)
+    public UserDTOForPublic getUserPublicByNumber(int userNumber) {
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        return userMapper.toUserDTOForPublic(user);
+    }
+
 
     //특정 사용자 탈퇴
     public boolean deleteUser(int userNumber) {
@@ -69,7 +85,9 @@ public class UserService {
     }
 
     // 특정 사용자 수정
-    public boolean updateUserProfile(int userNumber, String userNickname, String userDetail, String userProfileImg) {
+    public boolean updateUserProfile(int userNumber, String userNickname, String userDetail
+                                     /*String userProfileImg*/
+    ) {
         return userRepository.findById(userNumber).map(existingUser -> {
             if (userNickname != null) {
                 existingUser.updateUserNickname(userNickname);
@@ -77,13 +95,24 @@ public class UserService {
             if (userDetail != null) {
                 existingUser.updateUserDetail(userDetail);
             }
-            if (userProfileImg != null) {
+    /*        if (userProfileImg != null) {
                 existingUser.updateUserProfileImg(userProfileImg);
-            }
+            }*/
             userRepository.save(existingUser);
             return true;
         }).orElseThrow(IllegalArgumentException::new);
     }
+
+    //사용자 프로필 수정
+    public boolean updateUserProfileImage(int userNumber, String userProfileImg) {
+        return userRepository.findById(userNumber).map(user -> {
+            user.updateUserProfileImg(userProfileImg);
+            userRepository.save(user);
+            return true;
+        }).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    }
+
+
 
 
     //사용자별 참여한 모임 출력
