@@ -108,8 +108,13 @@ public class PartyBoardImageController {
 
         Resource resource = resourceLoader.getResource("classpath:static/img/party_board/" + partyBoardNumber + "/thumbnail/" + imageName);
 
-        if (resource.exists()) {
-            return ResponseEntity.ok().body(resource);
+        if(resource.exists()) {
+            String contentType = "image/png"; // 기본 MIME 타입 설정
+            if (resource.getFilename().endsWith(".jpg") || resource.getFilename().endsWith(".jpeg")) {
+                contentType = "image/jpeg";
+            }
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(resource);
+
         } else {
             return ResponseEntity.notFound().build();
         }
