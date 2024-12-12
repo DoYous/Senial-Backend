@@ -1,11 +1,18 @@
 package com.senials.security.controller;
 
+import com.senials.common.ResponseMessage;
+import com.senials.config.HttpHeadersFactory;
 import com.senials.security.domain.kakao.auth.PrincipalDetails;
 import com.senials.security.repository.SecurityUserRepository;
 import com.senials.security.service.PrincipalOauth2UserService;
 import com.senials.user.entity.User;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,9 +24,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.senials.security.service.OAuth2Service;
+import com.senials.security.service.JwtService;
 
-import java.util.Map;
-import java.util.UUID;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @Controller
 public class Oauth2Controller {
@@ -29,6 +40,12 @@ public class Oauth2Controller {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private HttpHeadersFactory httpHeadersFactory;
+    @Autowired
+    private OAuth2Service oAuth2Service;
+    @Autowired
+    private JwtService jwtService;
 
 
     public Oauth2Controller(SecurityUserRepository userRepository, PasswordEncoder passwordEncoder, PrincipalOauth2UserService principalOauth2UserService, HttpSession httpSession) {
@@ -38,6 +55,7 @@ public class Oauth2Controller {
     }
 
     @GetMapping("/login")
+    @ResponseBody
     public String loginForm() {
         return "login";
     }
@@ -47,36 +65,11 @@ public class Oauth2Controller {
         return "join";
     }
 
-    @GetMapping("/success")
-    public String successPage(Model model) {
-        System.out.println("성공페이지 불러오는중");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); // 현재 인증 정보 가져오기
-        if (authentication != null && authentication.getPrincipal() instanceof PrincipalDetails) {
-            PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal(); // PrincipalDetails 가져오기
-            User user = principalDetails.getUser(); // User 객체 가져오기
-            model.addAttribute("user", user); // 모델에 사용자 정보 추가
-            httpSession.getId();
-            model.addAttribute("sessionID", httpSession.getId());
-            if (authentication != null && authentication.isAuthenticated()) {
-                model.addAttribute("sessionActive", true); //세션 활성화됨
-                model.addAttribute("username", authentication.getName());
-                System.out.println("세션돌아가요");
-            } else {
-                model.addAttribute("sessionActive", false); //세션 비활성화됨
-                System.out.println("세션안돌아가요");
-            }
-            System.out.println("여기야11");
-        } else {
-            System.out.println("여기야22");
-            return "redirect:/login"; // 인증 정보가 없을 경우 로그인 페이지로 리디렉션
-        }
-        return "success"; // 성공 페이지를 반환
-    }
-
     @GetMapping("/fail")
     @ResponseBody
-    public String loginFail() {
-        return "너 로그인 실패했어";
+    public ResponseEntity<String> loginFail()
+    {
+        return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body("로그인 실패");
     }
 
 
@@ -93,20 +86,19 @@ public class Oauth2Controller {
     }
 
     @PostMapping("/join")
-    public String join(@RequestBody User user, RedirectAttributes redirectAttributes) {
+    @ResponseBody
+    public ResponseEntity<?> join(@RequestBody User user) {
         // 가입 요청 로깅
         System.out.println("가입 요청: " + user);
 
         // 사용자 이름 중복 확인
         if (userRepository.existsByUserName(user.getUserName())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "이미 사용 중인 사용자 이름입니다.");
-            return "redirect:/join"; // join 페이지로 리다이렉트
+            return ResponseEntity.badRequest().body(Map.of("error", "이미 사용 중인 사용자 이름입니다."));
         }
 
         // 비밀번호가 null인지 확인
         if (user.getUserPwd() == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "비밀번호는 null일 수 없습니다.");
-            return "redirect:/join"; // join 페이지로 리다이렉트
+            return ResponseEntity.badRequest().body(Map.of("error", "비밀번호는 null일 수 없습니다."));
         }
 
         // 비밀번호를 변수에 저장
@@ -134,14 +126,8 @@ public class Oauth2Controller {
             System.out.println("자동 로그인 실패: " + e.getMessage());
         }
 
-        return "redirect:/success"; // 가입 후 성공 페이지로 리디렉션
+        return ResponseEntity.ok(Map.of("message", "회원가입 성공")); // 성공 응답 반환
     }
-
-
-
-
-
-
 
     @GetMapping("/loginInfo")
     @ResponseBody
@@ -154,26 +140,25 @@ public class Oauth2Controller {
         return "OAuth2 로그인 : " + principal;
     }
 
-    /*@PostMapping("/checkPassword")
-    @ResponseBody
-    public String checkPassword(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String password = request.get("password"); // 사용자가 입력한 비밀번호
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String clientId; // 카카오 클라이언트 ID
 
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            String storedHash = user.getUserPwd(); // 데이터베이스에서 가져온 비밀번호 해시
-            boolean isMatch = passwordEncoder.matches(password, storedHash); // 비교
+    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+    private String redirectUri; // 카카오 리디렉션 URI
 
-            // 콘솔에 비밀번호 매칭 결과 출력
-            System.out.println("사용자 이름: " + username);
-            System.out.println("입력된 비밀번호: " + password);
-            System.out.println("저장된 비밀번호 해시: " + storedHash);
-            System.out.println("비밀번호 매칭 결과: " + isMatch); // true 또는 false
-
-            return isMatch ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다.";
-        } else {
-            return "사용자를 찾을 수 없습니다.";
+    @GetMapping("/api/init-kakao-login")
+    public ResponseEntity<Map<String, String>> initKakaoLogin() {
+        try {
+            String encodedRedirectUri = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString());
+            String authUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + clientId + "&redirect_uri=" + encodedRedirectUri + "&response_type=code";
+            Map<String, String> response = new HashMap<>();
+            response.put("authUrl", authUrl);
+            System.out.println("전달준비완료");
+            System.out.println("Auth URL: " + authUrl); // URL 확인
+            return ResponseEntity.ok(response);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Encoding error"));
         }
-    }*/
+    }
 }
