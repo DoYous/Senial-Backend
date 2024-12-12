@@ -5,6 +5,9 @@ import com.senials.config.HttpHeadersFactory;
 import com.senials.hobbyreview.dto.HobbyReviewDTO;
 import com.senials.hobbyreview.entity.HobbyReview;
 import com.senials.hobbyreview.service.HobbyReviewService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +18,7 @@ import java.util.Map;
 @RestController
 public class HobbyReviewController {
 
-    int userNumber=1;
+//    int userNumber=1;
 
     private final HobbyReviewService hobbyReviewService;
 
@@ -26,12 +29,26 @@ public class HobbyReviewController {
         this.httpHeadersFactory=httpHeadersFactory;
     }
 
+    @Value("${jwt.secret}")
+    private String secretKey;
+    // JWT에서 userNumber를 추출하는 메서드
+    private int extractUserNumberFromToken(String token) {
+        // JWT 디코딩 로직 (예: jjwt 라이브러리 사용)
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey) // 비밀 키 설정
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userNumber", Integer.class);
+    }
+
     //취미 후기 조회
     @GetMapping("{hobbyNumber}/hobby-review/{hobbyReviewNumber}")
     public ResponseEntity<ResponseMessage> getHobbyReview(
             @PathVariable("hobbyNumber") int hobbyNumber,
-            @PathVariable("hobbyReviewNumber") int hobbyReviewNumber) {
+            @PathVariable("hobbyReviewNumber") int hobbyReviewNumber,
+            @RequestHeader("Authorization") String token) {
 
+        int userNumber = extractUserNumberFromToken(token);
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
 
        HobbyReviewDTO hobbyReviewDTO= hobbyReviewService.getHobbyReview(hobbyNumber,userNumber,hobbyReviewNumber);
@@ -44,23 +61,34 @@ public class HobbyReviewController {
 
     //취미 후기 작성
     @PostMapping("/{hobbyNumber}/hobby-review")
-    public ResponseEntity<ResponseMessage> createHobbyReview(@RequestBody HobbyReviewDTO hobbyReviewDTO, @PathVariable("hobbyNumber")int hobbyNumber) {
+    public ResponseEntity<ResponseMessage> createHobbyReview(
+            @RequestBody HobbyReviewDTO hobbyReviewDTO,
+            @PathVariable("hobbyNumber") int hobbyNumber,
+            @RequestHeader("Authorization") String token) { // JWT 토큰을 헤더로 받기
 
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
 
-        HobbyReview hobbyReview= hobbyReviewService.saveHobbyReview(hobbyReviewDTO,userNumber,hobbyNumber);
+        int userNumber = extractUserNumberFromToken(token); // 토큰에서 userNumber 추출
+        hobbyReviewDTO.setUserNumber(userNumber); // DTO에 userNumber 설정
 
-        Map<String, Object> responseMap = new HashMap<String, Object>();
-        responseMap.put("hobbyReview",hobbyReview);
+        HobbyReview hobbyReview = hobbyReviewService.saveHobbyReview(hobbyReviewDTO, userNumber, hobbyNumber);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("hobbyReview", hobbyReview);
 
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(201, "생성 성공", responseMap));
     }
+
+
 
     //취미 후기 삭제
     @DeleteMapping("/{hobbyNumber}/hobby-review/{hobbyReviewNumber}")
     public ResponseEntity<ResponseMessage> deleteHobbyReview(
             @PathVariable("hobbyNumber") int hobbyNumber,
-            @PathVariable("hobbyReviewNumber") int hobbyReviewNumber) {
+            @PathVariable("hobbyReviewNumber") int hobbyReviewNumber,
+            @RequestHeader("Authorization") String token) {
+
+        int userNumber = extractUserNumberFromToken(token);
         try {
             hobbyReviewService.deleteHobbyReview(hobbyReviewNumber, userNumber, hobbyNumber);
 
@@ -85,7 +113,9 @@ public class HobbyReviewController {
     public ResponseEntity<ResponseMessage> updateHobbyReview(
             @PathVariable("hobbyNumber") int hobbyNumber,
             @PathVariable("hobbyReviewNumber") int hobbyReviewNumber,
-            @RequestBody HobbyReviewDTO hobbyReviewDTO) {
+            @RequestBody HobbyReviewDTO hobbyReviewDTO,
+            @RequestHeader("Authorization") String token) {
+        int userNumber = extractUserNumberFromToken(token);
         try {
             hobbyReviewService.updateHobbyReview(hobbyReviewDTO,hobbyReviewNumber, userNumber, hobbyNumber);
 
