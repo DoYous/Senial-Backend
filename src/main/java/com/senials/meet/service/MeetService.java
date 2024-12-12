@@ -49,6 +49,17 @@ public class MeetService {
         return meetDTOList;
     }
 
+    /* 특정 모임 일정 조회 */
+    public MeetDTO getMeetByNumber(int partyBoardNumber, int meetNumber) {
+        PartyBoard partyBoard = partyBoardRepository.findById(partyBoardNumber)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 partyBoardNumber입니다."));
+
+        Meet meet = meetRepository.findByPartyBoardAndMeetNumber(partyBoard, meetNumber)
+                .orElseThrow(() -> new IllegalArgumentException("해당 번호의 일정이 존재하지 않습니다."));
+
+        return meetMapper.toMeetDTO(meet);
+    }
+
 
     /* 모임 일정 추가 */
     @Transactional

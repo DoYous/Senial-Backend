@@ -46,6 +46,23 @@ public class MeetController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 전체 조회 완료", responseMap));
     }
 
+    /* 특정 일정 조회 */
+    @GetMapping("/partyboards/{partyBoardNumber}/meets/{meetNumber}")
+    public ResponseEntity<ResponseMessage> getMeetByNumber(
+            @PathVariable Integer partyBoardNumber,
+            @PathVariable Integer meetNumber
+    ) {
+        MeetDTO meetDTO = meetService.getMeetByNumber(partyBoardNumber, meetNumber);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("meet", meetDTO);
+
+        // ResponseHeader 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "특정 일정 조회 완료", responseMap));
+    }
+
     /* 모임 일정 추가 */
     @PostMapping("/partyboards/{partyBoardNumber}/meets")
     public ResponseEntity<ResponseMessage> registerMeet(

@@ -8,12 +8,17 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MeetRepository extends JpaRepository<Meet, Integer> {
 
     /* 모임 내 일정 전체 조회 (내림차순) */
     List<Meet> findAllByPartyBoardOrderByMeetNumberDesc(PartyBoard partyBoard);
-  
+
+    /* 특정 모임 일정 조회 */
+    Optional<Meet> findByPartyBoardAndMeetNumber(PartyBoard partyBoard, int meetNumber);
+
+
     //사용자 별 참여한 모임 확인
     @Query("SELECT m FROM Meet m JOIN m.partyBoard pb WHERE pb.user.userNumber = :userNumber")
     List<Meet> findAllByUserNumber(int userNumber);
