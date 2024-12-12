@@ -1,6 +1,12 @@
 ###취미 게시판 전체 보기
 GET http://localhost:8081/hobby-board
 
+###
+GET http://localhost:8081/img/hobbyboard/1
+
+###취미 게시판 인기 취미 조회
+GET http://localhost:8081/hobby-board/top3
+
 ###취미 게시판 상세 보기, 관련된 후기 가져오기
 GET http://localhost:8081/hobby-detail/1
 
@@ -8,7 +14,7 @@ GET http://localhost:8081/hobby-detail/1
 GET http://localhost:8081/hobby-board/3
 
 ###취미 게시판 후기 조회
-GET http://localhost:8081/1/hobby-review/17
+GET http://localhost:8081/1/hobby-review/11
 
 ###취미 게시판 후기 작성
 POST http://localhost:8081/1/hobby-review
@@ -16,7 +22,7 @@ Content-Type: application/json;charset=UTF-8
 
 {
   "hobbyReviewRate": 4,
-  "hobbyReviewDetail": "데이터 삭제 테스트",
+  "hobbyReviewDetail": "데이터 작성 테스트",
   "hobbyReviewHealthStatus": 1,
   "hobbyReviewTendency": 1,
   "hobbyReviewLevel": 3,
