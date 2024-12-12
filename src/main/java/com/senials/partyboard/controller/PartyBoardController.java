@@ -222,17 +222,12 @@ public class PartyBoardController {
     /* 모임 글 수정 */
     @PutMapping("/partyboards/{partyBoardNumber}")
     public ResponseEntity<ResponseMessage> modifyPartyBoard(
-            @PathVariable int partyBoardNumber,
-            @ModelAttribute PartyBoardDTOForModify partyBoardDTO
+            @PathVariable int partyBoardNumber
+            , @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles
+            , @ModelAttribute PartyBoardDTOForModify partyBoardDTO
     ) {
-        // PathVariable의 partyBoardNumber를 DTO에 삽입
-        partyBoardDTO.setPartyBoardNumber(partyBoardNumber);
 
-        // form 태그로 테스트할 때 공백이 리스트에 삽입되는 것 방지
-        // partyBoardDTO.getRemovedFileNumbers().removeAll(partyBoardDTO.getRemovedFileNumbers());
-        // partyBoardDTO.getAddedFiles().removeAll(partyBoardDTO.getAddedFiles());
-
-        partyBoardService.modifyPartyBoard(partyBoardDTO);
+        partyBoardService.modifyPartyBoard(loggedInUserNumber, imageFiles, partyBoardNumber, partyBoardDTO);
 
         // ResponseHeader 설정
         HttpHeaders headers = new HttpHeaders();

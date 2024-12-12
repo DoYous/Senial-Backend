@@ -28,7 +28,7 @@ GET http://localhost:8080/partyboards/search?cursor=6&isLikedOnly=true&sortMetho
 
 
 ### 모임 상세 조회
-GET http://localhost:8080/partyboards/1
+GET http://localhost:8080/partyboards/24
 
 
 ### 모임 글 작성
@@ -41,3 +41,6 @@ Content-Type: application/json;charset=utf-8
 
 ### 모임 글 삭제
 DELETE http://localhost:8080/partyboards/18
+
+###
+GET http://localhost:8080/img/partyboard/24/thumbnail/f9830f03c4b743079746c1287fd190c2.png

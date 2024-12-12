@@ -35,6 +35,9 @@ public class PartyBoardDTOForDetail {
     // 이미지 명
     private List<PartyBoardImageDTO> images;
 
+    // 카테고리 번호
+    private int categoryNumber;
+
     // 카테고리 명
     private String categoryName;
 
@@ -43,7 +46,7 @@ public class PartyBoardDTOForDetail {
 
     /* AllArgsConstructor */
     @Builder
-    public PartyBoardDTOForDetail(int partyBoardNumber, int userNumber, int hobbyNumber, String partyBoardName, String partyBoardDetail, LocalDate partyBoardOpenDate, int partyBoardStatus, int partyBoardViewCnt, int partyBoardLikeCnt, int partyBoardReportCnt, List<PartyBoardImageDTO> images, String categoryName, int partyMemberCnt) {
+    public PartyBoardDTOForDetail(int partyBoardNumber, int userNumber, int hobbyNumber, String partyBoardName, String partyBoardDetail, LocalDate partyBoardOpenDate, int partyBoardStatus, int partyBoardViewCnt, int partyBoardLikeCnt, int partyBoardReportCnt, List<PartyBoardImageDTO> images, int categoryNumber, String categoryName, int partyMemberCnt) {
         this.partyBoardNumber = partyBoardNumber;
         this.userNumber = userNumber;
         this.hobbyNumber = hobbyNumber;
@@ -55,6 +58,7 @@ public class PartyBoardDTOForDetail {
         this.partyBoardLikeCnt = partyBoardLikeCnt;
         this.partyBoardReportCnt = partyBoardReportCnt;
         this.images = images;
+        this.categoryNumber = categoryNumber;
         this.categoryName = categoryName;
         this.partyMemberCnt = partyMemberCnt;
     }

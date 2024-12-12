@@ -266,6 +266,7 @@ public class PartyBoardService {
         PartyBoardDTOForDetail partyBoardDTO = partyBoardMapper.toPartyBoardDTOForDetail(partyBoard);
         partyBoardDTO.setUserNumber(partyBoard.getUser().getUserNumber());
         partyBoardDTO.setHobbyNumber(partyBoard.getHobby().getHobbyNumber());
+        partyBoardDTO.setCategoryNumber(partyBoard.getHobby().getCategory().getCategoryNumber());
         partyBoardDTO.setCategoryName(partyBoard.getHobby().getCategory().getCategoryName());
         partyBoardDTO.setImages(partyBoard.getImages().stream().map(partyBoardMapper::toPartyBoardImageDTO).toList());
         partyBoardDTO.setPartyMemberCnt(partyBoard.getPartyMembers().size());
@@ -359,74 +360,87 @@ public class PartyBoardService {
 
     /* 모임 글 수정 */
     @Transactional
-    public void modifyPartyBoard(PartyBoardDTOForModify partyBoardDTO) {
+    public void modifyPartyBoard(int userNumber, List<MultipartFile> imageFiles, int partyBoardNumber, PartyBoardDTOForModify newPartyBoardDTO) {
 
-        int partyBoardNumber = partyBoardDTO.getPartyBoardNumber();
 
-        /* 기존 엔티티 로드 */
+        // 1. userNumber로 User 엔티티 조회
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(() -> new IllegalArgumentException("서버 내부 오류"));
+
+        // 2. hobbyNumber로 Hobby 엔티티 조회
+        Hobby hobby = hobbyRepository.findById(newPartyBoardDTO.getHobbyNumber())
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+
+        // 3. 기존 엔티티 로드 및 유저 검사 후 수정
         PartyBoard partyBoard = partyBoardRepository.findById(partyBoardNumber)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid partyBoardNumber: " + partyBoardNumber));
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
 
-
-        /* 수정 DTO 데이터 */
-        int newHobbyNumber = partyBoardDTO.getHobbyNumber();
-        String newPartyBoardName = partyBoardDTO.getPartyBoardName();
-        String newPartyBoardDetail = partyBoardDTO.getPartyBoardDetail();
-        int newPartyBoardStatus = partyBoardDTO.getPartyBoardStatus();
-        List<Integer> removedFileNumbers = partyBoardDTO.getRemovedFileNumbers();
-        List<String> addedFiles = partyBoardDTO.getAddedFiles();
-
-
-        /* 1. hobbyNumber 수정 됐을 때 */
-        if(partyBoard.getHobby().getHobbyNumber() != partyBoardDTO.getHobbyNumber()) {
-            Hobby hobby = hobbyRepository.findById(partyBoardDTO.getHobbyNumber())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid hobbyNumber: " + partyBoardDTO.getHobbyNumber()));
-
-            partyBoard.updateHobby(hobby);
+        if(partyBoard.getUser().getUserNumber() != userNumber) {
+            throw new IllegalArgumentException("잘못된 요청입니다. (모임장 아님)");
         }
 
-        /* 나머지는 비교X */
-        partyBoard.updatePartyBoardName(newPartyBoardName);
-        partyBoard.updatePartyBoardDetail(newPartyBoardDetail);
-        partyBoard.updatePartyBoardStatus(newPartyBoardStatus);
+        partyBoard.updatePartyBoardName(newPartyBoardDTO.getPartyBoardName());
+        partyBoard.updatePartyBoardDetail(newPartyBoardDTO.getPartyBoardDetail());
+        partyBoard.updateHobby(hobby);
+        partyBoard.updatePartyBoardStatus(newPartyBoardDTO.getPartyBoardStatus());
 
 
-        List<PartyBoardImage> partyBoardImages = partyBoard.getImages();
-
+        // 4. 이미지 저장
         String imgBoardPath = partyImagePath + "/" + partyBoardNumber + "/thumbnail";
-        /* 2. 이미지 삭제*/
-        if (removedFileNumbers != null && !removedFileNumbers.isEmpty()) {
-            // 역순으로 순회 (리스트 순회 중 삭제해도 문제 없도록) > Iterator로 순회하는 방법도 있음
-            for (int i = partyBoardImages.size() - 1; i >= 0; i--) {
-                PartyBoardImage partyboardImage = partyBoardImages.get(i);
+        Resource resource = resourceLoader.getResource("classpath:static/img/party_board/" + partyBoardNumber + "/thumbnail");
 
-                // 역순으로 순회 (리스트 순회 중 삭제해도 문제 없도록)
-                for (int j = removedFileNumbers.size() - 1; j >= 0; j--) {
-                    Integer removedFileNumber = removedFileNumbers.get(j);
+        /* 파일 경로 지정 (없으면 디렉터리 생성) */
+        String filePath = null;
+        try {
+            if (!resource.exists()) {
 
-                    // 이미지 번호와 제거한 이미지 번호가 일치할 때
-                    if (partyboardImage.getPartyBoardImageNumber() == removedFileNumber) {
+                File file = new File(imgBoardPath);
 
-                        // PartyBoard 엔티티 이미지 리스트에서 제거
-                        partyBoardImages.remove(partyboardImage);
-                        // 엔티티에서 제거 완료한 이미지 번호는 더 이상 비교하지 않음
-                        removedFileNumbers.remove(removedFileNumber);
-
-                        /* 실제 파일 삭제 */
-                        File removedFile = new File(imgBoardPath + "/" + partyboardImage.getPartyBoardImg());
-                        removedFile.delete();
-                        break;
-                    }
+                if( !file.mkdirs() ) {
+                    throw new IOException();
                 }
+                filePath = file.getAbsolutePath();
+
+            } else {
+                filePath = resource.getFile().getAbsolutePath();
             }
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 저장 실패");
         }
 
-        /* 3. 이미지 추가 */
-        if (addedFiles != null && !addedFiles.isEmpty()) {
-            for (String addedFile : addedFiles) {
+
+        /* 파일 실제 저장 */
+        if(imageFiles != null && !imageFiles.isEmpty()) {
+
+            /* 이미지 새롭게 업로드 된 경우 기존 이미지 삭제 */
+            File[] deletedFiles = new File(imgBoardPath).listFiles();
+            for(File deletedFile : deletedFiles) {
+                deletedFile.delete();
+            }
+
+
+            /* 엔티티에서도 삭제 */
+            List<PartyBoardImage> partyBoardImages = partyBoard.getImages();
+            partyBoardImages.clear();
+
+
+            for (MultipartFile imageFile : imageFiles) {
+                String randomId = UUID.randomUUID().toString().replace("-", "");
+
+                String originalName = imageFile.getOriginalFilename();
+                String ext = originalName.substring(originalName.lastIndexOf("."));
+                String savedName = randomId + ext;
+
+                try {
+                    imageFile.transferTo(new File(filePath + "/" + savedName));
+                } catch (IOException e) {
+                    throw new RuntimeException("이미지 저장 실패");
+                }
+
+                // PartyBoardImage 엔티티 생성
                 PartyBoardImage partyBoardImage = PartyBoardImage.builder()
                         .partyBoard(partyBoard)
-                        .partyBoardImg(addedFile)
+                        .partyBoardImg(savedName)
                         .build();
 
                 partyBoardImages.add(partyBoardImage);
