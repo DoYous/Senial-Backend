@@ -242,7 +242,7 @@ public class PartyBoardController {
             @PathVariable int partyBoardNumber
     ) {
 
-        partyBoardService.removePartyBoard(partyBoardNumber);
+        partyBoardService.removePartyBoard(loggedInUserNumber, partyBoardNumber);
 
         // ResponseHeader 설정
         HttpHeaders headers = new HttpHeaders();

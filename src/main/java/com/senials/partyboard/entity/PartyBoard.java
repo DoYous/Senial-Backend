@@ -64,7 +64,7 @@ public class PartyBoard {
     private List<PartyBoardImage> images;
 
     // 좋아요
-    @OneToMany(mappedBy = "partyBoard")
+    @OneToMany(mappedBy = "partyBoard", orphanRemoval = true)
     private List<Likes> likes;
 
     // 모임 멤버 목록

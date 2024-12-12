@@ -450,9 +450,56 @@ public class PartyBoardService {
 
     /* 모임 글 삭제 */
     @Transactional
-    public void removePartyBoard(int partyBoardNumber) {
+    public void removePartyBoard(Integer userNumber, int partyBoardNumber) {
 
-        partyBoardRepository.deleteById(partyBoardNumber);
+
+        if(userNumber != null ){
+            User user = userRepository.findById(userNumber)
+                    .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+
+
+            PartyBoard partyBoard = partyBoardRepository.findById(partyBoardNumber)
+                    .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+
+
+            if(partyBoard.getUser().getUserNumber() != userNumber) {
+                throw new IllegalArgumentException("잘못된 요청입니다.");
+            } else {
+
+                String imgBoardPath = partyImagePath + "/" + partyBoardNumber + "/thumbnail";
+                Resource resource = resourceLoader.getResource("classpath:static/img/party_board/" + partyBoardNumber + "/thumbnail");
+
+                /* 파일 경로 지정 (없으면 디렉터리 생성) */
+                String filePath = null;
+                try {
+                    if (!resource.exists()) {
+
+                        File file = new File(imgBoardPath);
+
+                        if( !file.mkdirs() ) {
+                            throw new IOException();
+                        }
+                        filePath = file.getAbsolutePath();
+
+                    } else {
+                        filePath = resource.getFile().getAbsolutePath();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("글 삭제 실패");
+                }
+
+                File[] deletedFiles = new File(imgBoardPath).listFiles();
+                for(File deletedFile : deletedFiles) {
+                    deletedFile.delete();
+                }
+
+                partyBoardRepository.deleteById(partyBoardNumber);
+            }
+
+        }else {
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
     }
 
 }
