@@ -110,28 +110,13 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             System.out.println("사용자 이메일 확임다~ : " + user.getUserEmail());
             System.out.println("사용자 성별 확임다~ : " + user.getUserGender());
 
-            String email = user.getUserEmail(); // 이메일
-            String gender;
-            switch (user.getUserGender()) {
-                case 0:
-                    gender = "남성";
-                    break;
-                case 1:
-                    gender = "여성";
-                    break;
-                default:
-                    gender = "알 수 없음";
-            }
-
-
-
             // 권한 목록 가져오기
             List<String> roles = authResult.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
             // JWT 생성 시 추가 정보 포함
-            String token = jwtService.generateToken(username, email, gender, roles);
+            String token = jwtService.generateToken(user, roles);
 
             response.addHeader("Authorization", "Bearer " + token);
             System.out.println("생성된 JWT: " + token); // JWT 로그 출력
