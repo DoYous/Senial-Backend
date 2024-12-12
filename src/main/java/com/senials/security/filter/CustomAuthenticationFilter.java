@@ -5,6 +5,7 @@ import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.senials.security.repository.SecurityUserRepository;
 import com.senials.security.service.JwtService;
 import com.senials.security.service.OAuth2Service;
+import com.senials.user.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,10 +15,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.GrantedAuthority;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -35,6 +41,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("attemptAuthentication 메소드 작동확인");
         String username = null;
         String password = null;
 
@@ -79,41 +86,76 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         return authenticationManager.authenticate(authenticationToken);
     }
 
-
-
-
-
-
-
-
-
-
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    public void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        System.out.println("successfulAuthentication 메소드 작동확인");
         // SecurityContext에 인증 정보 저장
         SecurityContextHolder.getContext().setAuthentication(authResult);
 
         System.out.println("successfulAuthentication - 인증 성공!");
-        System.out.println("successfulAuthentication - 인증된 유저 : " + authResult.getName());
-        System.out.println("successfulAuthentication - 인증 권한: " + authResult.getAuthorities());
+        System.out.println("인증된 유저 : " + authResult.getName());
+        System.out.println("인증 권한: " + authResult.getAuthorities());
 
         try {
-            String token = jwtService.generateToken(authResult.getName());
+            UserDetails userDetails = (UserDetails) authResult.getPrincipal();
+
+            // 필요한 정보를 가져온다
+            String username = userDetails.getUsername(); // 사용자 이름
+            User user = userRepository.findByUserName(username);
+            if (user == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"error\":\"사용자를 찾을 수 없습니다.\"}");
+                return;
+            }
+            System.out.println("사용자 이메일 확임다~ : " + user.getUserEmail());
+            System.out.println("사용자 성별 확임다~ : " + user.getUserGender());
+
+            String email = user.getUserEmail(); // 이메일
+            String gender;
+            switch (user.getUserGender()) {
+                case 0:
+                    gender = "남성";
+                    break;
+                case 1:
+                    gender = "여성";
+                    break;
+                default:
+                    gender = "알 수 없음";
+            }
+
+
+
+            // 권한 목록 가져오기
+            List<String> roles = authResult.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
+            // JWT 생성 시 추가 정보 포함
+            String token = jwtService.generateToken(username, email, gender, roles);
+
             response.addHeader("Authorization", "Bearer " + token);
             System.out.println("생성된 JWT: " + token); // JWT 로그 출력
+
+            // JSON 응답 작성
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"message\":\"인증이 성공했습니다.\", \"token\":\"" + token + "\"}");
+            response.setStatus(HttpServletResponse.SC_OK); // HTTP 200 상태 코드
         } catch (Exception e) {
             e.printStackTrace(); // 에러 로그 출력
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "JWT 생성 실패");
             return; // 예외 발생 시 더 이상 진행하지 않음
         }
 
-//        chain.doFilter(request, response); // 성공 페이지 처리
-        response.getWriter().write("인증이 성공했습니다."); // 성공 메시지를 클라이언트에 반환
-        response.setStatus(HttpServletResponse.SC_OK); // HTTP 200 상태 코드
+        System.out.println("인증 성공 후 SecurityContext에 설정된 사용자 이름: " + authResult.getName());
     }
+
+
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        System.out.println("unsuccessfulAuthentication 메소드 작동확인");
+        System.out.println("인증 실패: " + failed.getMessage());
         super.unsuccessfulAuthentication(request, response, failed);
     }
 }
