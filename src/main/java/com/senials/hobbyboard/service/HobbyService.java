@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -111,36 +112,53 @@ public class HobbyService {
 
     //4가지 요소를 우선순위로 둬서 최종적으로 하나의 hobby를 조회
     public HobbyDTO suggestHobby(int hobbyAbility, int hobbyBudget, int hobbyLevel, int hobbyTendency) {
-        List<Hobby> hobbyList = null;
-        List<Hobby> tempList = hobbyRepository.findByHobbyAbility(hobbyAbility);
-        if (!tempList.isEmpty()) {
-            hobbyList = tempList;
-            tempList = tempList.stream()
-                    .filter(hobby -> hobby.getHobbyBudget() == hobbyBudget)
-                    .collect(Collectors.toList());
-            if (!tempList.isEmpty()) {
-                hobbyList = tempList;
-                tempList = tempList.stream()
-                        .filter(hobby -> hobby.getHobbyBudget() == hobbyTendency)
-                        .collect(Collectors.toList());
-                if (!tempList.isEmpty()) {
-                    hobbyList = tempList;
-                    tempList = tempList.stream()
-                            .filter(hobby -> hobby.getHobbyBudget() == hobbyLevel)
-                            .collect(Collectors.toList());
-                    if (!tempList.isEmpty()) {
-                        hobbyList = tempList;
-                    }
+        List<Hobby> hobbyList = hobbyRepository.findByHobbyAbility(hobbyAbility);
+        if (hobbyList.isEmpty()) {
+            throw new IllegalStateException("No hobbies found for the given ability.");
+        }
+
+        // 단계별 필터링
+        List<Hobby> previousList = new ArrayList<>(hobbyList);
+
+        List<Hobby> filteredList = hobbyList.stream()
+                .filter(hobby -> hobby.getHobbyBudget() == hobbyBudget)
+                .toList();
+
+        if (filteredList.isEmpty()) {
+            filteredList = previousList;
+        } else {
+            previousList = filteredList;
+            filteredList = filteredList.stream()
+                    .filter(hobby -> hobby.getHobbyTendency() == hobbyTendency)
+                    .toList();
+
+            if (filteredList.isEmpty()) {
+                filteredList = previousList;
+            } else {
+                previousList = filteredList;
+                filteredList = filteredList.stream()
+                        .filter(hobby -> hobby.getHobbyLevel() == hobbyLevel)
+                        .toList();
+
+                if (filteredList.isEmpty()) {
+                    filteredList = previousList;
                 }
             }
         }
-        List<HobbyDTO> hobbyDTOList = hobbyList.stream().map(hobby -> hobbyMapper.toHobbyDTO(hobby)).toList();
 
+        // 필터링 결과 확인
+        if (filteredList.isEmpty()) {
+            throw new IllegalStateException("No hobbies matched the criteria.");
+        }
+
+        // Hobby -> HobbyDTO 변환
+        List<HobbyDTO> hobbyDTOList = filteredList.stream()
+                .map(hobbyMapper::toHobbyDTO)
+                .toList();
+
+        // 무작위로 하나 선택
         Random random = new Random();
-        int randomIndex = random.nextInt(hobbyDTOList.size());
-        HobbyDTO hobbyDTO = hobbyDTOList.get(randomIndex);
-
-        return hobbyDTO;
+        return hobbyDTOList.get(random.nextInt(hobbyDTOList.size()));
     }
 
     //사용자와 취미를 받아와 해당 사용자에게 해당 취미를 관심사로 부여

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
@@ -41,15 +42,25 @@ public class HobbyReview {
     private int hobbyReviewTendency; // 성향 (1=외향적, 0=내향적)
 
     @Column(name = "hobby_review_level", nullable = false)
-    private int hobbyReviewLevel; // 난이도 (1-쉬움, 2-약간쉬움, 3-평범, 4-약간어려움, 5-어려움)
+    private int hobbyReviewLevel; // 난이도 (0-쉬움, 1-약간쉬움, 2-평범, 3-약간어려움, 4-어려움)
+
+    @Column(name = "hobby_review_budget", nullable = false)
+    private int hobbyReviewBudget; // 비용 (0- 0~100,000, 1- 100,000~400,000-, 2- 400,000~1,000,000, 3- 1,000,000~)
 
     @Column(name = "hobby_review_write_date", nullable = false)
-    private LocalDate hobbyReviewWriteDate; // 리뷰 작성 날짜
+    private LocalDateTime hobbyReviewWriteDate; // 리뷰 작성 날짜
 
 
     /* AllArgsConstructor */
     @Builder
-    public HobbyReview(int hobbyReviewNumber, User user, Hobby hobby, int hobbyReviewRate, String hobbyReviewDetail, int hobbyReviewHealthStatus, int hobbyReviewTendency, int hobbyReviewLevel, LocalDate hobbyReviewWriteDate) {
+    public HobbyReview(int hobbyReviewNumber,
+                       User user,
+                       Hobby hobby,
+                       int hobbyReviewRate,
+                       String hobbyReviewDetail,
+                       int hobbyReviewHealthStatus,
+                       int hobbyReviewTendency, int hobbyReviewLevel,
+                       LocalDateTime hobbyReviewWriteDate) {
         this.hobbyReviewNumber = hobbyReviewNumber;
         this.user = user;
         this.hobby = hobby;
@@ -87,6 +98,9 @@ public class HobbyReview {
 
     public void updateHobbyReviewLevel(int hobbyReviewLevel) {
         this.hobbyReviewLevel = hobbyReviewLevel;
+    }
+    public void updateHobbyReviewBudget(int hobbyReviewBudget) {
+        this.hobbyReviewBudget = hobbyReviewBudget;
     }
 
 }

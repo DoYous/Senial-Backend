@@ -1,7 +1,7 @@
 ###취미 게시판 전체 보기
 GET http://localhost:8081/hobby-board
 
-###
+###취미 이미지 조회
 GET http://localhost:8081/img/hobbyboard/1
 
 ###취미 게시판 인기 취미 조회
@@ -26,7 +26,8 @@ Content-Type: application/json;charset=UTF-8
   "hobbyReviewHealthStatus": 1,
   "hobbyReviewTendency": 1,
   "hobbyReviewLevel": 3,
-  "hobbyReviewWriteDate": "2024-12-02"
+  "hobbyReviewBudget": 2,
+  "hobbyReviewWriteDate": "2024-12-13T18:45:06"
 }
 
 ###취미 게시판 후기 삭제
@@ -42,7 +43,7 @@ Content-Type: application/json;charset=UTF-8
   "hobbyReviewHealthStatus": 3,
   "hobbyReviewTendency": 2,
   "hobbyReviewLevel": 1,
-  "hobbyReviewWriteDate": "2024-12-02"
+  "hobbyReviewWriteDate": "2024-12-13T18:45:06"
 }
 
 ###맞춤형 취미 추천 결과 조회
