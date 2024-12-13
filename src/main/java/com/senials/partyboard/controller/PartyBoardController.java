@@ -250,4 +250,20 @@ public class PartyBoardController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "글 삭제 성공", null));
     }
 
+    //키워드 검색후 모임 결과 조회 + 페이지네이션
+    @GetMapping("/search-whole/party")
+    public ResponseEntity<ResponseMessage> getPartyByKeyword(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size){
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+
+        List<PartyBoardDTOForCard> partyBoardDTOForCardList = partyBoardService.searchPartyByKeyword(keyword,page,size);
+
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("partyBoardDTOForCardList", partyBoardDTOForCardList);
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
+    }
+
 }

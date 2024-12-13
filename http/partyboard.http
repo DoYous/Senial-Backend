@@ -44,3 +44,6 @@ DELETE http://localhost:8080/partyboards/18
 
 ###
 GET http://localhost:8080/img/partyboard/24/thumbnail/f9830f03c4b743079746c1287fd190c2.png
+
+### 키워드 검색후 모임 결과 조회 + 페이지네이션
+GET http://localhost:8081//search-whole/party?keyword=회&page=0&size=4
