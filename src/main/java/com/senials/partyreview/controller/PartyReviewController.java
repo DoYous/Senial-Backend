@@ -20,15 +20,40 @@ import java.util.Map;
 @RestController
 public class PartyReviewController {
 
-    private Integer loggedInUserNumber = 3;
+    private Integer loggedInUserNumber = 1;
     private final PartyReviewService partyReviewService;
 
     public PartyReviewController(PartyReviewService partyReviewService) {
         this.partyReviewService = partyReviewService;
     }
 
-    // /* 모임 후기 조회 - 로그인 유저 */
-    // @GetMapping()
+    /* 특정 모임 후기 단일 조회 */
+    @GetMapping("/partyboards/{partyBoardNumber}/partyreviews/{partyReviewNumber}")
+    public ResponseEntity<ResponseMessage> getMyPartyReview(
+            @PathVariable Integer partyBoardNumber
+    ) {
+        int userNumber = loggedInUserNumber; // 로그인 유저 번호 (예시로 고정값 사용)
+
+        PartyReviewDTOForDetail partyReviewDTO = partyReviewService.getOnePartyReview(userNumber, partyBoardNumber);
+
+        if (partyReviewDTO == null) {
+            return ResponseEntity.status(404)
+                    .body(new ResponseMessage(404, "작성한 모임 후기를 찾을 수 없습니다.", null));
+        }
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("startDate", partyReviewDTO.getPartyReviewWriteDate().toLocalDate()); // 시작 날짜
+        responseMap.put("startTime", partyReviewDTO.getPartyReviewWriteDate().toLocalTime()); // 시작 시간
+        responseMap.put("rating", partyReviewDTO.getPartyReviewRate()); // 평점
+        responseMap.put("content", partyReviewDTO.getPartyReviewDetail()); // 내용
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        return ResponseEntity.ok().headers(headers)
+                .body(new ResponseMessage(200, "작성한 모임 후기 조회 성공", responseMap));
+    }
+
 
 
     /* 모임 후기 전체 조회*/
@@ -65,7 +90,7 @@ public class PartyReviewController {
             , @RequestBody PartyReviewDTO partyReviewDTO
     ) {
         // 유저 번호 임의 지정
-        int userNumber = 4;
+        int userNumber = 2;
 
         partyReviewService.registerPartyReview(userNumber, partyBoardNumber, partyReviewDTO);
 

@@ -6,12 +6,13 @@ GET https://examples.http-client.intellij.net/get
 GET http://localhost:8080/partyboards/1/partyreviews
 
 ### 모임 후기 작성
-POST http://localhost:8080/partyboards/2/partyreviews
+POST http://localhost:8080/partyboards/1/partyreviews
 Content-Type: application/json;application/json;charset=UTF-8
 
 {
-  "partyReviewRate" : 3,
-  "partyReviewDetail" : "testPartyReviewDetail"
+  "partyBoardNumber": 1,
+  "partyReviewRate": 5,
+  "partyReviewDetail": "참 좋은 모임이었어요!"
 }
 
 ### 모임 후기 수정
