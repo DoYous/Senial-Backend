@@ -8,3 +8,7 @@ POST http://localhost:8080/meets/500/meetmembers
 
 ### 일정 참여 취소
 DELETE http://localhost:8080/meets/1/meetmembers
+
+
+###
+GET http://localhost:8080/meets/3/meetmembers

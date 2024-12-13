@@ -12,6 +12,9 @@ import com.senials.partymember.repository.PartyMemberRepository;
 import com.senials.user.dto.UserDTOForPublic;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,13 +46,28 @@ public class MeetMemberService {
     }
 
     /* 모임 일정 참여멤버 조회 */
-    public List<UserDTOForPublic> getMeetMembersByMeetNumber(int meetNumber) {
+    public List<UserDTOForPublic> getMeetMembersByMeetNumber(int userNumber, int meetNumber, int pageNumber, int pageSize) {
 
         Meet meet = meetRepository.findById(meetNumber)
                 .orElseThrow(IllegalArgumentException::new);
 
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        PartyBoard partyBoard = meet.getPartyBoard();
+
+        PartyMember foundPartyMember = partyMemberRepository.findByPartyBoardAndUser(partyBoard, user);
+        if(foundPartyMember == null) {
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        MeetMember foundMeetMember = meetMemberRepository.findByMeetAndPartyMember(meet, foundPartyMember);
+        if(foundMeetMember == null) {
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
         /* 일정 참여 멤버 리스트 도출 */
-        List<MeetMember> meetMemberList = meetMemberRepository.findAllByMeet(meet);
+        Page<MeetMember> meetMemberList = meetMemberRepository.findAllByMeet(meet, PageRequest.of(pageNumber, pageSize, Sort.by("meetMemberNumber").descending()));
 
         /* 멤버 리스트 -> 유저 정보 도출 */
         List<User> userList = meetMemberList.stream()

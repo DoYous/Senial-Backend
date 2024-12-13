@@ -3,6 +3,7 @@ package com.senials.meet.service;
 import com.senials.common.mapper.MeetMapper;
 import com.senials.common.mapper.MeetMapperImpl;
 import com.senials.meet.dto.MeetDTO;
+import com.senials.meet.dto.MeetDTOForMember;
 import com.senials.meet.entity.Meet;
 import com.senials.meet.repository.MeetRepository;
 import com.senials.meetmember.repository.MeetMemberRepository;
@@ -48,6 +49,13 @@ public class MeetService {
         this.partyMemberRepository = partyMemberRepository;
         this.userRepository = userRepository;
         this.meetMemberRepository = meetMemberRepository;
+    }
+
+    public MeetDTOForMember getMeetByNumber(int meetNumber) {
+        Meet meet = meetRepository.findById(meetNumber)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청"));
+
+        return meetMapper.toMeetDTOForMember(meet);
     }
 
     /* 모임 내 일정 개수 확인 */
