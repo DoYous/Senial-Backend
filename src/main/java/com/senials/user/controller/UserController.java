@@ -6,6 +6,10 @@ import com.senials.partyboardimage.dto.FileDTO;
 import com.senials.user.dto.UserCommonDTO;
 import com.senials.user.dto.UserDTO;
 import com.senials.user.service.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
@@ -48,7 +52,10 @@ public class UserController {
 
     // 특정 사용자 조회
     @GetMapping("users/{userNumber}")
-    public ResponseEntity<ResponseMessage> getUserByNumber(@PathVariable int userNumber) {
+    public ResponseEntity<ResponseMessage> getUserByNumber(/*@PathVariable int userNumber*/
+            @RequestHeader("Authorization") String token) {
+        int userNumber = extractUserNumberFromToken(token);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
@@ -72,7 +79,10 @@ public class UserController {
 
     //특정 사용자 탈퇴
     @DeleteMapping("users/{userNumber}")
-    public ResponseEntity<ResponseMessage> deleteUser(@PathVariable int userNumber) {
+    public ResponseEntity<ResponseMessage> deleteUser(/*@PathVariable int userNumber*/@RequestHeader("Authorization") String token) {
+
+        int userNumber = extractUserNumberFromToken(token);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
@@ -92,10 +102,13 @@ public class UserController {
     // 특정 사용자 수정 put
     @PutMapping("users/{userNumber}/modify")
     public ResponseEntity<ResponseMessage> updateUserProfile(
-            @PathVariable int userNumber,
+            /*@PathVariable int userNumber*/
+            @RequestHeader("Authorization") String token,
             @RequestBody Map<String, String> updatedFields) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        int userNumber = extractUserNumberFromToken(token);
 
         boolean isUpdated = userService.updateUserProfile(
                 userNumber,
@@ -117,13 +130,15 @@ public class UserController {
 
     // 사용자 프로필 출력
     @GetMapping("/img/userProfile/{userNumber}")
-    public ResponseEntity<Resource> getUserImage(@PathVariable String userNumber){
+    public ResponseEntity<Resource> getUserImage(/*@PathVariable String userNumber*/@RequestHeader("Authorization") String token){
+        int userNumber = extractUserNumberFromToken(token);
         try{
             //확장자 동적 확인
             String[] extensions = {".png", ".jpg", ".jpeg"};
             Resource resource = null;
             for (String ext : extensions){
                 resource = resourceLoader.getResource("classpath:static/img/user_profile/" + userNumber + ext);
+
                 if (resource.exists()){
                     break;
                 }
@@ -196,9 +211,12 @@ public class UserController {
     // 사용자별 참여 모임 목록 조회
     @GetMapping("users/{userNumber}/parties")
     public ResponseEntity<ResponseMessage> getUserJoinedPartyBoards(
-            @PathVariable int userNumber,
+            /*@PathVariable int userNumber*/
+            @RequestHeader("Authorization") String token,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "9") int size) {
+
+        int userNumber = extractUserNumberFromToken(token);
         // Service 호출
         List<PartyBoardDTOForCard> joinedParties = userService.getJoinedPartyBoardsByUserNumber(userNumber, page, size);
 
@@ -221,13 +239,31 @@ public class UserController {
                 .body(new ResponseMessage(200, "사용자가 참여한 모임 조회 성공", responseMap));
     }
 
+    @Value("${jwt.secret}")
+    private String secretKey;
+    // JWT에서 userNumber를 추출하는 메서드
+    private int extractUserNumberFromToken(String token) {
+        try{
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey) // 비밀 키 설정
+                    .parseClaimsJws(token.replace("Bearer ", ""))
+                    .getBody();
+            return claims.get("userNumber", Integer.class);
+        }catch (JwtException | IllegalArgumentException e) {
+            throw new RuntimeException("유효하지 않은 토큰입니다."); // 적절한 예외 처리
+        }
+
+    }
+
     //사용자 별 자신이 만든 모임 조회
     @GetMapping("users/{userNumber}/made")
     public ResponseEntity<ResponseMessage> getUserMadeParties(
-            @PathVariable int userNumber,
+            /*@PathVariable int userNumber,*/
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "9") int size) {
+            @RequestParam(defaultValue = "9") int size,
+            @RequestHeader("Authorization") String token) {
 
+        int userNumber = extractUserNumberFromToken(token);
         // Service 호출
         List<PartyBoardDTOForCard> madeParties = userService.getMadePartyBoardsByUserNumber(userNumber, page, size);
 
@@ -255,7 +291,8 @@ public class UserController {
 
     /*사용자 별 참여한 모임 개수*/
     @GetMapping("users/{userNumber}/parties/count")
-    public ResponseEntity<ResponseMessage> countUserJoinedParties(@PathVariable int userNumber) {
+    public ResponseEntity<ResponseMessage> countUserJoinedParties(/*@PathVariable int userNumber*/@RequestHeader("Authorization") String token) {
+        int userNumber = extractUserNumberFromToken(token);
         long count = userService.countPartiesPartyBoardsByUserNumber(userNumber);
 
         HttpHeaders headers = new HttpHeaders();
@@ -271,7 +308,8 @@ public class UserController {
   
     /*사용자 별 만든 모임 개수*/
     @GetMapping("users/{userNumber}/made/count")
-    public ResponseEntity<ResponseMessage> countUserMadeParties(@PathVariable int userNumber) {
+    public ResponseEntity<ResponseMessage> countUserMadeParties(/*@PathVariable int userNumber*/@RequestHeader("Authorization") String token) {
+        int userNumber = extractUserNumberFromToken(token);
         long count = userService.countMadePartyBoardsByUserNumber(userNumber);
 
         HttpHeaders headers = new HttpHeaders();

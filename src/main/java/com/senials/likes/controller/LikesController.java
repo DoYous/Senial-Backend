@@ -6,6 +6,9 @@ import com.senials.likes.service.LikesService;
 import com.senials.partyboard.dto.PartyBoardDTOForCard;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +31,26 @@ public class LikesController {
         this.httpHeadersFactory = httpHeadersFactory;
     }
 
+    @Value("${jwt.secret}")
+    private String secretKey;
+    // JWT에서 userNumber를 추출하는 메서드
+    private int extractUserNumberFromToken(String token) {
+        // JWT 디코딩 로직 (예: jjwt 라이브러리 사용)
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey) // 비밀 키 설정
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userNumber", Integer.class);
+    }
+
     // 사용자가 좋아한 모임 목록
     @GetMapping("/users/{userNumber}/likes")
-    public ResponseEntity<ResponseMessage> getLikedPartyBoards(@PathVariable int userNumber,
+    public ResponseEntity<ResponseMessage> getLikedPartyBoards(/*@PathVariable int userNumber,*/
                                                                           @RequestParam(defaultValue = "1") int page,
-                                                                          @RequestParam(defaultValue = "9") int size) {
+                                                                          @RequestParam(defaultValue = "9") int size,
+                                                                          @RequestHeader("Authorization") String token) {
+
+        int userNumber = extractUserNumberFromToken(token);
         List<PartyBoardDTOForCard> likedBoards = likesService.getLikedPartyBoardsByUserNumber(userNumber, page, size);
 
         HttpHeaders headers = new HttpHeaders();
