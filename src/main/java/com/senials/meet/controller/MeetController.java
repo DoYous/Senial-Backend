@@ -1,7 +1,9 @@
 package com.senials.meet.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.config.HttpHeadersFactory;
 import com.senials.meet.dto.MeetDTO;
+import com.senials.meet.dto.MeetDTOForMember;
 import com.senials.meet.repository.MeetRepository;
 import com.senials.meet.service.MeetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +20,30 @@ import java.util.Map;
 @RestController
 public class MeetController {
 
+    private final HttpHeadersFactory httpHeadersFactory;
     private Integer loggedInUserNumber = 3;
     private final MeetService meetService;
     private final MeetRepository meetRepository;
 
 
     @Autowired
-    public MeetController(MeetService meetService, MeetRepository meetRepository) {
+    public MeetController(MeetService meetService, MeetRepository meetRepository, HttpHeadersFactory httpHeadersFactory) {
         this.meetService = meetService;
         this.meetRepository = meetRepository;
+        this.httpHeadersFactory = httpHeadersFactory;
+    }
+
+    /* 모임 일정 조회 */
+    @GetMapping("/meets/{meetNumber}")
+    public ResponseEntity<ResponseMessage> getMeetByMeetNumber(
+            @PathVariable Integer meetNumber
+    ) {
+        MeetDTOForMember meetDTO = meetService.getMeetByNumber(meetNumber);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("meet" , meetDTO);
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 조회 성공", responseMap));
     }
 
 

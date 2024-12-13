@@ -42,11 +42,14 @@ public class MeetMemberController {
     }
 
     /* 모임 일정 참여멤버 조회 */
-    @GetMapping("/partyboards/{partyBoardNumber}/meets/{meetNumber}/meetmembers")
+    @GetMapping("/meets/{meetNumber}/meetmembers")
     public ResponseEntity<ResponseMessage> getMeetMembersByMeetNumber(
             @PathVariable Integer meetNumber
+            ,@RequestParam(required = false, defaultValue = "100") Integer pageSize
+            ,@RequestParam(required = false, defaultValue = "0") Integer pageNumber
     ) {
-        List<UserDTOForPublic> meetMemberList = meetMemberService.getMeetMembersByMeetNumber(meetNumber);
+
+        List<UserDTOForPublic> meetMemberList = meetMemberService.getMeetMembersByMeetNumber(loggedInUserNumber, meetNumber, pageNumber, pageSize);
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("meetMembers", meetMemberList);
