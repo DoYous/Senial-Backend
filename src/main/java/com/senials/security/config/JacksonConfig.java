@@ -1,3 +1,4 @@
+/*
 package com.senials.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,4 +15,4 @@ public class JacksonConfig {
         objectMapper.registerModule(new JavaTimeModule()); // JSR310 모듈 등록
         return objectMapper;
     }
-}
+}*/
