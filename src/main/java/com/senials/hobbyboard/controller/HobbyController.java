@@ -49,6 +49,7 @@ public class HobbyController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 
+    //평균 평점 기준, 리뷰 특정 개수 이상 Top3 출력
     @GetMapping("/hobby-board/top3")
     public ResponseEntity<ResponseMessage> hobbySortByRating(){
 
