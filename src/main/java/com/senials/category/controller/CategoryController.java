@@ -33,11 +33,19 @@ public class CategoryController {
 
 
     @GetMapping("/categories")
-    public ResponseEntity<ResponseMessage> getAllCategories(@RequestParam(required = false, defaultValue = "false") boolean includeHobby) {
+    public ResponseEntity<ResponseMessage> getAllCategories(
+            @RequestParam(required = false, defaultValue = "false") boolean includeHobby
+            , @RequestParam(required = false, defaultValue = "false") boolean asRandom
+    ) {
 
         Map<String, Object> responseMap = new HashMap<>();
         if(!includeHobby){
-            List<CategoryDTO> categoryDTOList = categoryService.getAllCategories();
+            List<CategoryDTO> categoryDTOList = null;
+            if(asRandom){
+                categoryDTOList = categoryService.getAllCategoriesRand();
+            } else {
+                categoryDTOList = categoryService.getAllCategories();
+            }
             responseMap.put("categories", categoryDTOList);
         } else {
             List<CategoryDTOWithHobbies> categoryDTOList = categoryService.getAllCategoriesWithHobbies();

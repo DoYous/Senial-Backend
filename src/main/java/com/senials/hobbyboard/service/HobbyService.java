@@ -69,6 +69,8 @@ public class HobbyService {
             HobbyDTO dto=hobbyMapper.toHobbyDTO(hobby);
             dto.setRating(hobbyReviewRepository.avgRatingByHobbyNumber(hobby.getHobbyNumber()));
             dto.setReviewCount(hobbyReviewRepository.reviewCountByHobbyNumber(hobby.getHobbyNumber()));
+            // 카테고리 네임도 추가
+            dto.setCategoryName(hobby.getCategory().getCategoryName());
             return dto;
         }).toList();
 
