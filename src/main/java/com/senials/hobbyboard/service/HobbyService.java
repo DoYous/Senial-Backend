@@ -5,6 +5,7 @@ import com.senials.common.mapper.PartyBoardMapper;
 import com.senials.favorites.entity.Favorites;
 import com.senials.favorites.repository.FavoritesRepository;
 import com.senials.hobbyboard.dto.HobbyDTO;
+import com.senials.hobbyboard.dto.HobbyDTOForCard;
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.hobbyboard.repository.HobbyRepository;
 import com.senials.hobbyreview.repository.HobbyReviewRepository;
@@ -13,6 +14,9 @@ import com.senials.partyboard.entity.PartyBoard;
 import com.senials.partyboard.repository.PartyBoardRepository;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -157,6 +161,18 @@ public class HobbyService {
         List<PartyBoardDTOForDetail> partyBoardDTOList=partyBoardList.stream().map(partyBoardMapper::toPartyBoardDTOForDetail).toList();
 
         return partyBoardDTOList;
+    }
+
+    //키워드를 통한 취미이름 필터링 후 페이지네이션으로 조회
+    public List<HobbyDTOForCard> searchHobbyByKeyword(String keyword, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Hobby> hobbyPage = hobbyRepository.findHobbyByKeyword(keyword, pageable);
+
+        List<HobbyDTOForCard> dtoList = hobbyPage.getContent().stream()
+                .map(hobbyMapper::toHobbyDTOForCard)
+                .toList();
+
+        return dtoList;
     }
 
 }

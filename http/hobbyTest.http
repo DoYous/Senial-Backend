@@ -53,3 +53,6 @@ POST  http://localhost:8081/suggest-hobby-result?hobbyNumber=3
 
 ###맞춤형 취미 추천 관련 모임 조회
 GET http://localhost:8081/partyboards/search/1
+
+###키워드 검색후 취미 결과 조회 + 페이지네이션
+GET http://localhost:8081//search-whole/hobby?keyword=&page=3&size=4
