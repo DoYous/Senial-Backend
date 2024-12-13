@@ -9,6 +9,9 @@ import com.senials.hobbyboard.service.HobbyService;
 import com.senials.hobbyreview.dto.HobbyReviewDTO;
 import com.senials.hobbyreview.service.HobbyReviewService;
 import com.senials.partyboard.dto.PartyBoardDTOForDetail;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +24,7 @@ import java.util.Map;
 @RequestMapping
 public class HobbyController {
 
-    int userNumber=1;
+//    int userNumber=1;
 
     private HobbyService hobbyService;
     private final HttpHeadersFactory httpHeadersFactory;
@@ -82,6 +85,18 @@ public class HobbyController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 
+    @Value("${jwt.secret}")
+    private String secretKey;
+    // JWT에서 userNumber를 추출하는 메서드
+    private int extractUserNumberFromToken(String token) {
+        // JWT 디코딩 로직 (예: jjwt 라이브러리 사용)
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey) // 비밀 키 설정
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userNumber", Integer.class);
+    }
+
     //취미 카테고리별 취미 목록 조회
     @GetMapping("/hobby-board/{categoryNumber}")
     public ResponseEntity<ResponseMessage> findHobbyByCategory(@PathVariable("categoryNumber")int categoryNumber){
@@ -115,8 +130,8 @@ public class HobbyController {
 
     //맞춤형 취미 추천 나의 취미 관심사 등록
     @PostMapping("/suggest-hobby-result")
-    public ResponseEntity<ResponseMessage> setSuggestHobby(@RequestParam int hobbyNumber){
-
+    public ResponseEntity<ResponseMessage> setSuggestHobby(@RequestParam int hobbyNumber, @RequestHeader("Authorization") String token){
+        int userNumber = extractUserNumberFromToken(token);
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
 
         Favorites favorites=hobbyService.setFavoritesByHobby(hobbyNumber,userNumber);

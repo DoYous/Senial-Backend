@@ -6,6 +6,9 @@ import com.senials.likes.service.LikesService;
 import com.senials.partyboard.dto.PartyBoardDTOForCard;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +31,29 @@ public class LikesController {
         this.httpHeadersFactory = httpHeadersFactory;
     }
 
+    @Value("${jwt.secret}")
+    private String secretKey;
+    // JWT에서 userNumber를 추출하는 메서드
+    private int extractUserNumberFromToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token.replace("Bearer ", ""))
+                    .getBody();
+            return claims.get("userNumber", Integer.class);
+        } catch (Exception e) {
+            throw new RuntimeException("토큰에서 사용자 번호를 추출하는 데 실패했습니다.");
+        }
+    }
+
     // 사용자가 좋아한 모임 목록
     @GetMapping("/users/{userNumber}/likes")
-    public ResponseEntity<ResponseMessage> getLikedPartyBoards(@PathVariable int userNumber,
+    public ResponseEntity<ResponseMessage> getLikedPartyBoards(/*@PathVariable int userNumber,*/
                                                                           @RequestParam(defaultValue = "1") int page,
-                                                                          @RequestParam(defaultValue = "9") int size) {
+                                                                          @RequestParam(defaultValue = "9") int size,
+                                                                          @RequestHeader("Authorization") String token) {
+
+        int userNumber = extractUserNumberFromToken(token);
         List<PartyBoardDTOForCard> likedBoards = likesService.getLikedPartyBoardsByUserNumber(userNumber, page, size);
 
         HttpHeaders headers = new HttpHeaders();
@@ -52,7 +73,8 @@ public class LikesController {
 
     /*사용자 별 좋아요 한 모임 개수*/
     @GetMapping("/users/{userNumber}/like/count")
-    public ResponseEntity<ResponseMessage> countUserLikeParties(@PathVariable int userNumber) {
+    public ResponseEntity<ResponseMessage> countUserLikeParties(@RequestHeader("Authorization") String token) {
+        int userNumber = extractUserNumberFromToken(token);
         long count = likesService.countLikesPartyBoardsByUserNumber(userNumber);
 
         HttpHeaders headers = new HttpHeaders();
@@ -75,12 +97,11 @@ public class LikesController {
 
     @PutMapping("/likes/partyBoards/{partyBoardNumber}")
     public ResponseEntity<ResponseMessage> toggleLike(
-            @PathVariable int partyBoardNumber
+            @PathVariable int partyBoardNumber,
+            @RequestHeader("Authorization") String token
     )
     {
-        /* 유저 임의 지정 */
-        Integer userNumber = 3;
-        // userNumber = null;
+        Integer userNumber = extractUserNumberFromToken(token);
         
         
         Integer code = 2;

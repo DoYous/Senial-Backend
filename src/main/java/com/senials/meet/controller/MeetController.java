@@ -6,7 +6,10 @@ import com.senials.meet.dto.MeetDTO;
 import com.senials.meet.dto.MeetDTOForMember;
 import com.senials.meet.repository.MeetRepository;
 import com.senials.meet.service.MeetService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +49,17 @@ public class MeetController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 조회 성공", responseMap));
     }
 
+    @Value("${jwt.secret}")
+    private String secretKey;
+    // JWT에서 userNumber를 추출하는 메서드
+    private int extractUserNumberFromToken(String token) {
+        // JWT 디코딩 로직 (예: jjwt 라이브러리 사용)
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey) // 비밀 키 설정
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userNumber", Integer.class);
+    }
 
     /* 모임 내 일정 전체 조회 (로그인 중일시 참여여부 까지) */
     @GetMapping("/partyboards/{partyBoardNumber}/meets")
@@ -53,9 +67,12 @@ public class MeetController {
             @PathVariable Integer partyBoardNumber
             , @RequestParam(required = false, defaultValue = "4") Integer pageSize
             , @RequestParam(required = false, defaultValue = "0") Integer pageNumber
-    ) {
+            ,@RequestHeader("Authorization") String token
 
-        List<MeetDTO> meetDTOList = meetService.getMeetsByPartyBoardNumber(loggedInUserNumber, partyBoardNumber, pageNumber, pageSize);
+    ) {
+        int userNumber = extractUserNumberFromToken(token);
+
+        List<MeetDTO> meetDTOList = meetService.getMeetsByPartyBoardNumber(userNumber, partyBoardNumber, pageNumber, pageSize);
         int totalCnt = meetService.countMeets(partyBoardNumber);
 
         Map<String, Object> responseMap = new HashMap<>();
