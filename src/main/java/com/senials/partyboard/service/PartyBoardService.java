@@ -509,10 +509,24 @@ public class PartyBoardService {
         Page<PartyBoard> partyBoardPage = partyBoardRepository.findPartyByKeyword(keyword,pageable);
 
         List<PartyBoardDTOForCard> dtoList = partyBoardPage.getContent().stream()
-                .map(partyBoardMapper::toPartyBoardDTOForCard)
+                .map(partyBoard -> {
+                    PartyBoardDTOForCard partyBoardCard = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
+
+                    String partyImageThumbnail = null;
+                    List<PartyBoardImage> partyBoardImageList = partyBoard.getImages();
+                    if (partyBoardImageList != null && !partyBoardImageList.isEmpty()) {
+                        partyImageThumbnail = partyBoardImageList.get(0).getPartyBoardImg();
+                    }
+
+                    partyBoardCard.setMemberCount(partyMemberRepository.countAllByPartyBoard(partyBoard));
+                    partyBoardCard.setReviewCount(partyReviewRepository.countAllByPartyBoard(partyBoard));
+                    partyBoardCard.setAverageRating(partyReviewRepository.findAvgRateByPartyBoard(partyBoard));
+                    partyBoardCard.setFirstImage(partyImageThumbnail);
+
+                    return partyBoardCard;
+                })
                 .toList();
 
         return dtoList;
     }
-
 }
