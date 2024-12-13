@@ -16,7 +16,7 @@ public class UserDTOForPublic {
 
     private LocalDate userBirth;
 
-    // private int userGender;
+    private int userGender;
 
     private int userStatus;
 
@@ -30,10 +30,11 @@ public class UserDTOForPublic {
 
     /* AllArgsConstructor */
     @Builder
-    public UserDTOForPublic(int userNumber, String userName, LocalDate userBirth, int userStatus, String userNickname, String userDetail, String userProfileImg, LocalDate userSignupDate) {
+    public UserDTOForPublic(int userNumber, String userName, LocalDate userBirth, int userGender, int userStatus, String userNickname, String userDetail, String userProfileImg, LocalDate userSignupDate) {
         this.userNumber = userNumber;
         this.userName = userName;
         this.userBirth = userBirth;
+        this.userGender = userGender;
         this.userStatus = userStatus;
         this.userNickname = userNickname;
         this.userDetail = userDetail;

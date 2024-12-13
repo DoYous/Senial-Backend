@@ -18,4 +18,7 @@ public interface MeetMemberRepository extends JpaRepository<MeetMember, Integer>
     /* 모임 일정 참가 여부 확인 */
     boolean existsByMeetAndPartyMember(Meet meet, PartyMember partyMember);
     boolean existsByMeet_MeetNumberAndPartyMember(int meetNumber, PartyMember partyMember);
+
+    /* 모임 일정 참여 횟수 */
+    int countAllByPartyMember(PartyMember partyMember);
 }
