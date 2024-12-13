@@ -2,6 +2,7 @@ package com.senials.partymember.controller;
 
 import com.senials.common.ResponseMessage;
 import com.senials.config.HttpHeadersFactory;
+import com.senials.partymember.PartyMemberDTO;
 import com.senials.partymember.service.PartyMemberService;
 import com.senials.user.dto.UserDTOForPublic;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,23 @@ public class PartyMemberController {
             HttpHeadersFactory httpHeadersFactory) {
         this.partyMemberService = partyMemberService;
         this.httpHeadersFactory = httpHeadersFactory;
+    }
+
+    /* 모임 멤버 페이지 조회 */
+    @GetMapping("/partyboards/{partyBoardNumber}/partymembers-page")
+    public ResponseEntity<ResponseMessage> getPartyMembersPage (
+            @PathVariable Integer partyBoardNumber
+            , @RequestParam(required = false, defaultValue = "4") Integer pageSize
+            , @RequestParam(required = false, defaultValue = "0") Integer pageNumber
+    ) {
+        List<PartyMemberDTO> partyMemberDTOList = partyMemberService.getPartyMembers(partyBoardNumber, pageNumber, pageSize);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("partyMembers", partyMemberDTOList);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 멤버 전체 조회 성공", responseMap));
     }
 
 
@@ -100,5 +118,19 @@ public class PartyMemberController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, message, responseMap));
+    }
+
+    /* 모임 추방 */
+    @PutMapping("/partyboards/{partyBoardNumber}/partymembers")
+    public ResponseEntity<ResponseMessage> kickPartyMember (
+            @PathVariable Integer partyBoardNumber
+            , @RequestBody List<Integer> kickList
+    ) {
+
+        partyMemberService.kickPartyMember(loggedInUserNumber, kickList, partyBoardNumber);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "추방 성공", null));
     }
 }
