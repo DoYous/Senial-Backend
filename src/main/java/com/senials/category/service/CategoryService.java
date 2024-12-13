@@ -50,4 +50,16 @@ public class CategoryService {
         return getCategoryDTOWithHobbies;
 
     }
+
+    public List<CategoryDTO> getAllCategoriesRand() {
+
+        List<Category> categoryList = categoryRepository.findAllByRandom();
+
+        List<CategoryDTO> categoryDTOList = categoryList.stream().map(category -> {
+            CategoryDTO categoryDTO = categoryMapper.toCategoryDTO(category);
+            return categoryDTO;
+        }).toList();
+
+        return categoryDTOList;
+    }
 }

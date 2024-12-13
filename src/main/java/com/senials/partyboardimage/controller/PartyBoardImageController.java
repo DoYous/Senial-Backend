@@ -121,6 +121,7 @@ public class PartyBoardImageController {
 
     }
 
+
     /* 카테고리 이미지 출력 */
     @GetMapping("/img/category/{categoryNumber}")
     public ResponseEntity<?> getCategoryImage(
@@ -143,7 +144,17 @@ public class PartyBoardImageController {
                     String foundPath = optionalPath.get().toString();
                     foundResource = resourceLoader.getResource("file:" + foundPath);
 
-                    return ResponseEntity.ok().body(foundResource);
+                    if(foundResource.exists()) {
+                        String contentType = "image/png"; // 기본 MIME 타입 설정
+                        if (foundResource.getFilename().endsWith(".jpg") || foundResource.getFilename().endsWith(".jpeg")) {
+                            contentType = "image/jpeg";
+                        }
+                        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(foundResource);
+
+                    } else {
+                        return ResponseEntity.notFound().build();
+                    }
+
                 } else {
                     return ResponseEntity.notFound().build();
                 }

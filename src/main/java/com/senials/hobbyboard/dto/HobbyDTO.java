@@ -13,6 +13,7 @@ public class HobbyDTO {
 
     private int hobbyNumber;       // 취미 번호
     private int categoryNumber;    // 카테고리 번호
+    private String categoryName;    // 카테고리 네임
     private String hobbyName;      // 취미 이름
     private String hobbyExplain;   // 취미 설명
     private String hobbyImg;       // 취미 이미지 경로

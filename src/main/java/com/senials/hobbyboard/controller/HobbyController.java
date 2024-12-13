@@ -49,11 +49,14 @@ public class HobbyController {
     }
 
     @GetMapping("/hobby-board/top3")
-    public ResponseEntity<ResponseMessage> hobbySortByRating(){
+    public ResponseEntity<ResponseMessage> hobbySortByRating(
+            @RequestParam(required = false, defaultValue = "3") Integer minReviewCnt
+            , @RequestParam(required = false, defaultValue = "3") Integer size
+    ){
 
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
 
-        List<HobbyDTO> hobbyDTOList = hobbyService.hobbySortByRating(3,3);
+        List<HobbyDTO> hobbyDTOList = hobbyService.hobbySortByRating(minReviewCnt,size);
 
         Map<String, Object> responseMap = new HashMap<String, Object>();
         responseMap.put("hobby", hobbyDTOList);
