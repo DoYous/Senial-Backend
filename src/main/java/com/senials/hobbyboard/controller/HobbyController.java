@@ -4,6 +4,7 @@ import com.senials.common.ResponseMessage;
 import com.senials.config.HttpHeadersFactory;
 import com.senials.favorites.entity.Favorites;
 import com.senials.hobbyboard.dto.HobbyDTO;
+import com.senials.hobbyboard.dto.HobbyDTOForCard;
 import com.senials.hobbyboard.service.HobbyService;
 import com.senials.hobbyreview.dto.HobbyReviewDTO;
 import com.senials.hobbyreview.service.HobbyReviewService;
@@ -48,6 +49,7 @@ public class HobbyController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 
+    //평균 평점 기준, 리뷰 특정 개수 이상 Top3 출력
     @GetMapping("/hobby-board/top3")
     public ResponseEntity<ResponseMessage> hobbySortByRating(
             @RequestParam(required = false, defaultValue = "3") Integer minReviewCnt
@@ -135,6 +137,22 @@ public class HobbyController {
 
         Map<String, Object> responseMap = new HashMap<String, Object>();
         responseMap.put("party", partyBoardDTOList);
-        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(201, "생성 성공", responseMap));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
+    }
+
+    //키워드 검색후 취미 결과 조회 + 페이지네이션
+    @GetMapping("/search-whole/hobby")
+    public ResponseEntity<ResponseMessage> getHobbyByKeyword(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size){
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+
+        List<HobbyDTOForCard> hobbyCardDTOList = hobbyService.searchHobbyByKeyword(keyword, page, size);
+
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("hobbyCardDTOList", hobbyCardDTOList);
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 }

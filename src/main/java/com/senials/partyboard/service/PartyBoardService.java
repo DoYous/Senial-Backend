@@ -4,6 +4,7 @@ import com.senials.common.mapper.PartyBoardMapper;
 import com.senials.common.mapper.PartyBoardMapperImpl;
 import com.senials.favorites.entity.Favorites;
 import com.senials.favorites.repository.FavoritesRepository;
+import com.senials.hobbyboard.dto.HobbyDTOForCard;
 import com.senials.hobbyboard.entity.Hobby;
 import com.senials.hobbyboard.repository.HobbyRepository;
 import com.senials.likes.repository.LikeRepository;
@@ -502,4 +503,30 @@ public class PartyBoardService {
 
     }
 
+    //키워드를 통한 모임 이름 필터링 후 페이지네이션으로 조회
+    public List<PartyBoardDTOForCard> searchPartyByKeyword(String keyword, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PartyBoard> partyBoardPage = partyBoardRepository.findPartyByKeyword(keyword,pageable);
+
+        List<PartyBoardDTOForCard> dtoList = partyBoardPage.getContent().stream()
+                .map(partyBoard -> {
+                    PartyBoardDTOForCard partyBoardCard = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
+
+                    String partyImageThumbnail = null;
+                    List<PartyBoardImage> partyBoardImageList = partyBoard.getImages();
+                    if (partyBoardImageList != null && !partyBoardImageList.isEmpty()) {
+                        partyImageThumbnail = partyBoardImageList.get(0).getPartyBoardImg();
+                    }
+
+                    partyBoardCard.setMemberCount(partyMemberRepository.countAllByPartyBoard(partyBoard));
+                    partyBoardCard.setReviewCount(partyReviewRepository.countAllByPartyBoard(partyBoard));
+                    partyBoardCard.setAverageRating(partyReviewRepository.findAvgRateByPartyBoard(partyBoard));
+                    partyBoardCard.setFirstImage(partyImageThumbnail);
+
+                    return partyBoardCard;
+                })
+                .toList();
+
+        return dtoList;
+    }
 }
