@@ -108,6 +108,7 @@ public class HobbyReviewService {
         hobbyReview.updateHobbyReviewHealthStatus(hobbyReviewDTO.getHobbyReviewHealthStatus());
         hobbyReview.updateHobbyReviewTendency(hobbyReviewDTO.getHobbyReviewTendency());
         hobbyReview.updateHobbyReviewLevel(hobbyReviewDTO.getHobbyReviewLevel());
+        hobbyReview.updateHobbyReviewBudget(hobbyReviewDTO.getHobbyReviewBudget());
 
         return hobbyReviewRepository.save(hobbyReview);
     }
