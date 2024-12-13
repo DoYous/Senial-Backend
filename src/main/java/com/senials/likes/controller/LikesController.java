@@ -35,12 +35,15 @@ public class LikesController {
     private String secretKey;
     // JWT에서 userNumber를 추출하는 메서드
     private int extractUserNumberFromToken(String token) {
-        // JWT 디코딩 로직 (예: jjwt 라이브러리 사용)
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey) // 비밀 키 설정
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.get("userNumber", Integer.class);
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token.replace("Bearer ", ""))
+                    .getBody();
+            return claims.get("userNumber", Integer.class);
+        } catch (Exception e) {
+            throw new RuntimeException("토큰에서 사용자 번호를 추출하는 데 실패했습니다.");
+        }
     }
 
     // 사용자가 좋아한 모임 목록
@@ -70,7 +73,8 @@ public class LikesController {
 
     /*사용자 별 좋아요 한 모임 개수*/
     @GetMapping("/users/{userNumber}/like/count")
-    public ResponseEntity<ResponseMessage> countUserLikeParties(@PathVariable int userNumber) {
+    public ResponseEntity<ResponseMessage> countUserLikeParties(@RequestHeader("Authorization") String token) {
+        int userNumber = extractUserNumberFromToken(token);
         long count = likesService.countLikesPartyBoardsByUserNumber(userNumber);
 
         HttpHeaders headers = new HttpHeaders();
@@ -93,12 +97,11 @@ public class LikesController {
 
     @PutMapping("/likes/partyBoards/{partyBoardNumber}")
     public ResponseEntity<ResponseMessage> toggleLike(
-            @PathVariable int partyBoardNumber
+            @PathVariable int partyBoardNumber,
+            @RequestHeader("Authorization") String token
     )
     {
-        /* 유저 임의 지정 */
-        Integer userNumber = 3;
-        // userNumber = null;
+        Integer userNumber = extractUserNumberFromToken(token);
         
         
         Integer code = 2;
