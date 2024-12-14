@@ -1,6 +1,7 @@
 package com.senials.meet.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.common.TokenParser;
 import com.senials.config.HttpHeadersFactory;
 import com.senials.meet.dto.MeetDTO;
 import com.senials.meet.dto.MeetDTOForMember;
@@ -23,6 +24,7 @@ import java.util.Map;
 @RestController
 public class MeetController {
 
+    private final TokenParser tokenParser;
     private final HttpHeadersFactory httpHeadersFactory;
     private Integer loggedInUserNumber = 3;
     private final MeetService meetService;
@@ -30,7 +32,13 @@ public class MeetController {
 
 
     @Autowired
-    public MeetController(MeetService meetService, MeetRepository meetRepository, HttpHeadersFactory httpHeadersFactory) {
+    public MeetController(
+            TokenParser tokenParser
+            , MeetService meetService
+            , MeetRepository meetRepository
+            , HttpHeadersFactory httpHeadersFactory
+    ) {
+        this.tokenParser = tokenParser;
         this.meetService = meetService;
         this.meetRepository = meetRepository;
         this.httpHeadersFactory = httpHeadersFactory;
@@ -67,15 +75,20 @@ public class MeetController {
             @PathVariable Integer partyBoardNumber
             , @RequestParam(required = false, defaultValue = "4") Integer pageSize
             , @RequestParam(required = false, defaultValue = "0") Integer pageNumber
-            ,@RequestHeader("Authorization") String token
+            ,@RequestHeader(required = false, value = "Authorization") String token
 
     ) {
-        int userNumber = extractUserNumberFromToken(token);
+        Integer userNumber = null;
+        if(token != null) {
+            userNumber  = tokenParser.extractUserNumberFromToken(token);
+        }
 
+        // 일정 정보 조회
         List<MeetDTO> meetDTOList = meetService.getMeetsByPartyBoardNumber(userNumber, partyBoardNumber, pageNumber, pageSize);
-        int totalCnt = meetService.countMeets(partyBoardNumber);
 
+        // 데이터 더 남아 있는지 여부 검사
         Map<String, Object> responseMap = new HashMap<>();
+        int totalCnt = meetService.countMeets(partyBoardNumber);
         boolean hasMore = (pageNumber + 1) * pageSize < totalCnt;
 
         responseMap.put("meets", meetDTOList);

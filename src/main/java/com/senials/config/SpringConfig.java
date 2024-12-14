@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
         "com.senials.*.controller"
         , "com.senials.*.service"
         , "com.senials.*.repository"
-        , "com.senials.common.mapper"
+        , "com.senials.common.**"
         , "com.senials.security.*"
 })
 public class SpringConfig {

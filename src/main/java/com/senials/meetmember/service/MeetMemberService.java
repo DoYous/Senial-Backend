@@ -56,15 +56,23 @@ public class MeetMemberService {
 
         PartyBoard partyBoard = meet.getPartyBoard();
 
-        PartyMember foundPartyMember = partyMemberRepository.findByPartyBoardAndUser(partyBoard, user);
-        if(foundPartyMember == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+        /* 모임장 확인 */
+        if(partyBoard.getUser().getUserNumber() != userNumber) {
+
+            /* 모임멤버 확인*/
+            PartyMember foundPartyMember = partyMemberRepository.findByPartyBoardAndUser(partyBoard, user);
+            if(foundPartyMember == null) {
+                throw new IllegalArgumentException("잘못된 요청입니다. (모임 멤버 아님)");
+            } else {
+                /* 일정멤버 확인*/
+                MeetMember foundMeetMember = meetMemberRepository.findByMeetAndPartyMember(meet, foundPartyMember);
+                if(foundMeetMember == null) {
+                    throw new IllegalArgumentException("잘못된 요청입니다. (일정 참여 중 아님)");
+                }
+            }
+
         }
 
-        MeetMember foundMeetMember = meetMemberRepository.findByMeetAndPartyMember(meet, foundPartyMember);
-        if(foundMeetMember == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
-        }
 
         /* 일정 참여 멤버 리스트 도출 */
         Page<MeetMember> meetMemberList = meetMemberRepository.findAllByMeet(meet, PageRequest.of(pageNumber, pageSize, Sort.by("meetMemberNumber").descending()));

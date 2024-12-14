@@ -100,8 +100,8 @@ public class PartyBoardService {
         List<PartyBoard> partyBoardList = partyBoardRepository.find4ByHobbyOrderByRand(partyBoardNumber);
 
         List<PartyBoardDTOForCard> partyBoardDTOList = partyBoardList.stream().map(partyBoard -> {
-            boolean isLiked = user != null && likeRepository.existsByUserAndPartyBoard(user, partyBoard);
             PartyBoardDTOForCard partyBoardDTO = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
+            boolean isLiked = user != null && likeRepository.existsByUserAndPartyBoard(user, partyBoard);
             partyBoardDTO.setLiked(isLiked);
             return partyBoardDTO;
         }).toList();
@@ -234,7 +234,7 @@ public class PartyBoardService {
                     int partyMemberCnt = partyMemberRepository.countAllByPartyBoard(partyBoard);
                     int partyReviewCnt = partyReviewRepository.countAllByPartyBoard(partyBoard);
                     double partyAvgRate = partyReviewRepository.findAvgRateByPartyBoard(partyBoard);
-                    boolean isLiked = user != null && likeRepository.existsByUserAndPartyBoard(user, partyBoard);
+                    boolean isLiked = user != null && likeRepository.existsByUserAndPartyBoard(user, partyBoard);   // user == null 비로그인 시 좋아요 표시 false
 
                     String partyImageThumbnail = null;
                     List<PartyBoardImage> partyBoardImageList = partyBoard.getImages();

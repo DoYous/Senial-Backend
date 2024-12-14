@@ -58,10 +58,16 @@ public class PartyMemberService {
     }
 
     /* 모임 멤버 페이지 조회 */
-    public List<PartyMemberDTO> getPartyMembers (int partyBoardNumber, int pageNumber, int pageSize) {
+    public List<PartyMemberDTO> getPartyMembers (int userNumber, int partyBoardNumber, int pageNumber, int pageSize) {
 
         PartyBoard partyBoard = partyBoardRepository.findById(partyBoardNumber)
                 .orElseThrow(IllegalArgumentException::new);
+
+        /* 모임장 확인 */
+        if(partyBoard.getUser().getUserNumber() != userNumber) {
+            PartyMember partyMember = partyMemberRepository.findById(userNumber)
+                    .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다. (모임 멤버 아님)"));
+        }
 
         /* 모임 번호에 해당하는 멤버 리스트 도출 */
         Page<PartyMember> partyMemberList = partyMemberRepository.findAllByPartyBoard(partyBoard, PageRequest.of(pageNumber, pageSize));
@@ -103,6 +109,10 @@ public class PartyMemberService {
 
         PartyBoard partyBoard = partyBoardRepository.findById(partyBoardNumber)
                 .orElseThrow(IllegalArgumentException::new);
+
+        if (partyBoard.getPartyBoardStatus() == 1) {
+            throw new IllegalArgumentException("잘못된 요청 (모집 완료 상태인 모임)");
+        }
 
         PartyMember newMember = new PartyMember(0, partyBoard, user);
 
@@ -146,7 +156,7 @@ public class PartyMemberService {
 
         /* 모임장 검사 */
         if(user.getUserNumber() != targetPartyBoard.getUser().getUserNumber()) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+            throw new IllegalArgumentException("잘못된 요청입니다. (모임장 아님)");
         }
 
 
