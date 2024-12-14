@@ -21,7 +21,6 @@ import java.util.Map;
 @RestController
 public class MeetMemberController {
 
-    private final Integer loggedInUserNumber = 3;
     private final TokenParser tokenParser;
     private final HttpHeadersFactory httpHeadersFactory;
     private final UserMapper userMapper;
@@ -71,10 +70,11 @@ public class MeetMemberController {
     @PostMapping("/meets/{meetNumber}/meetmembers")
     public ResponseEntity<ResponseMessage> joinMeetMembers(
             @PathVariable Integer meetNumber
+            , @RequestHeader(name = "Authorization") String token
     ) {
-        /* 유저 임의 정의 */
-        // 유저 로그인 확인 필요
-        meetMemberService.joinMeetMembers(loggedInUserNumber, meetNumber);
+        int userNumber = tokenParser.extractUserNumberFromToken(token);
+
+        meetMemberService.joinMeetMembers(userNumber, meetNumber);
 
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 참여 성공", null));
@@ -85,10 +85,11 @@ public class MeetMemberController {
     @DeleteMapping("/meets/{meetNumber}/meetmembers")
     public ResponseEntity<ResponseMessage> quitMeetMembers(
             @PathVariable Integer meetNumber
+            , @RequestHeader(name = "Authorization") String token
     ) {
-        /* 유저 임의 정의 */
-        // 유저 로그인 확인 필요
-        meetMemberService.quitMeetMembers(loggedInUserNumber, meetNumber);
+        int userNumber = tokenParser.extractUserNumberFromToken(token);
+
+        meetMemberService.quitMeetMembers(userNumber, meetNumber);
 
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "일정 탈퇴 성공", null));

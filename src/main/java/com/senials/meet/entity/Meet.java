@@ -25,7 +25,7 @@ public class Meet {
     @Column(name = "meet_number", nullable = false)
     private int meetNumber; // auto-increment
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "party_board_number", referencedColumnName = "party_board_number", nullable = false)
     private PartyBoard partyBoard; // 외래키 party_board_number -> PartyBoard 엔티티와의 관계
 

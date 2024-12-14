@@ -1,6 +1,7 @@
 package com.senials.partyreview.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.common.TokenParser;
 import com.senials.partyreview.dto.PartyReviewDTO;
 import com.senials.partyreview.dto.PartyReviewDTOForDetail;
 import com.senials.partyreview.service.PartyReviewService;
@@ -20,10 +21,14 @@ import java.util.Map;
 @RestController
 public class PartyReviewController {
 
-    private Integer loggedInUserNumber = 1;
+    private TokenParser tokenParser;
     private final PartyReviewService partyReviewService;
 
-    public PartyReviewController(PartyReviewService partyReviewService) {
+    public PartyReviewController(
+            TokenParser tokenParser
+            , PartyReviewService partyReviewService
+    ) {
+        this.tokenParser = tokenParser;
         this.partyReviewService = partyReviewService;
     }
 
@@ -31,8 +36,9 @@ public class PartyReviewController {
     @GetMapping("/partyboards/{partyBoardNumber}/partyreviews/{partyReviewNumber}")
     public ResponseEntity<ResponseMessage> getMyPartyReview(
             @PathVariable Integer partyBoardNumber
+            , @RequestHeader(name = "Authorization") String token
     ) {
-        int userNumber = loggedInUserNumber; // 로그인 유저 번호 (예시로 고정값 사용)
+        int userNumber = tokenParser.extractUserNumberFromToken(token);
 
         PartyReviewDTOForDetail partyReviewDTO = partyReviewService.getOnePartyReview(userNumber, partyBoardNumber);
 
@@ -87,10 +93,11 @@ public class PartyReviewController {
     @PostMapping("/partyboards/{partyBoardNumber}/partyreviews")
     public ResponseEntity<ResponseMessage> registerPartyReview (
             @PathVariable Integer partyBoardNumber
+            , @RequestHeader(name = "Authorization") String token
             , @RequestBody PartyReviewDTO partyReviewDTO
     ) {
-        // 유저 번호 임의 지정
-        int userNumber = 2;
+        int userNumber = tokenParser.extractUserNumberFromToken(token);
+        System.out.println("$$$$$$$$$$$$$$$$$$$" + partyReviewDTO);
 
         partyReviewService.registerPartyReview(userNumber, partyBoardNumber, partyReviewDTO);
 

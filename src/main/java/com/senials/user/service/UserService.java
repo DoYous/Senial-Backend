@@ -59,8 +59,8 @@ public class UserService {
                 .map(user -> new UserCommonDTO(
                         user.getUserName(),
                         user.getUserNickname(),
-                        user.getUserDetail()
-                        /*, user.getUserProfileImg()*/
+                        user.getUserDetail(),
+                        user.getUserProfileImg()
                 ))
                 .orElseThrow(IllegalArgumentException::new);
     }
@@ -104,12 +104,13 @@ public class UserService {
     }
 
     //사용자 프로필 수정
-    public boolean updateUserProfileImage(int userNumber, String userProfileImg) {
-        return userRepository.findById(userNumber).map(user -> {
-            user.updateUserProfileImg(userProfileImg);
-            userRepository.save(user);
-            return true;
-        }).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    public void updateUserProfileImage(int userNumber, String userProfileImg) {
+
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        user.updateUserProfileImg(userProfileImg);
+        userRepository.save(user);
     }
 
 

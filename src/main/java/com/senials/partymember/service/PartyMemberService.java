@@ -63,10 +63,15 @@ public class PartyMemberService {
         PartyBoard partyBoard = partyBoardRepository.findById(partyBoardNumber)
                 .orElseThrow(IllegalArgumentException::new);
 
+        User user = userRepository.findById(userNumber)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다. (로그인 필요)"));
+
         /* 모임장 확인 */
         if(partyBoard.getUser().getUserNumber() != userNumber) {
-            PartyMember partyMember = partyMemberRepository.findById(userNumber)
-                    .orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다. (모임 멤버 아님)"));
+            PartyMember partyMember = partyMemberRepository.findByPartyBoardAndUser(partyBoard, user);
+            if(partyMember == null) {
+                throw new IllegalArgumentException("잘못된 요청입니다. (모임 멤버 아님)");
+            }
         }
 
         /* 모임 번호에 해당하는 멤버 리스트 도출 */
@@ -129,17 +134,22 @@ public class PartyMemberService {
     /* 모임 탈퇴 */
     public void unregisterPartyMember (int userNumber, int partyBoardNumber) {
 
-        PartyBoard targetPartyBoard = partyBoardRepository.findById(partyBoardNumber)
-                .orElseThrow(IllegalArgumentException::new);
+        try {
+            PartyBoard targetPartyBoard = partyBoardRepository.findById(partyBoardNumber)
+                    .orElseThrow(IllegalArgumentException::new);
 
-        User targetUser = userRepository.findById(userNumber)
-                .orElseThrow(IllegalArgumentException::new);
-
-
-        PartyMember targetPartyMember = partyMemberRepository.findByPartyBoardAndUser(targetPartyBoard, targetUser);
+            User targetUser = userRepository.findById(userNumber)
+                    .orElseThrow(IllegalArgumentException::new);
 
 
-        partyMemberRepository.delete(targetPartyMember);
+            PartyMember targetPartyMember = partyMemberRepository.findByPartyBoardAndUser(targetPartyBoard, targetUser);
+
+
+            partyMemberRepository.delete(targetPartyMember);
+
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("모임 탈퇴에 실패하였습니다.");
+        }
 
     }
 

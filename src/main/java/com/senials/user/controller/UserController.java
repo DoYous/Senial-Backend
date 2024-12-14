@@ -1,10 +1,14 @@
 package com.senials.user.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.common.TokenParser;
+import com.senials.config.HttpHeadersFactory;
 import com.senials.partyboard.dto.PartyBoardDTOForCard;
 import com.senials.partyboardimage.dto.FileDTO;
 import com.senials.user.dto.UserCommonDTO;
 import com.senials.user.dto.UserDTO;
+import com.senials.user.entity.User;
+import com.senials.user.repository.UserRepository;
 import com.senials.user.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -15,6 +19,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,13 +31,24 @@ import java.util.*;
 @RestController
 @RequestMapping
 public class UserController {
+
+    private final TokenParser tokenParser;
+    private final HttpHeadersFactory httpHeadersFactory;
+    private final UserRepository userRepository;
     private UserService userService;
     private final ResourceLoader resourceLoader;
 
-    public UserController(UserService userService, ResourceLoader resourceLoader) {
-
+    public UserController(
+            TokenParser tokenParser
+            , UserService userService
+            , ResourceLoader resourceLoader
+            , HttpHeadersFactory httpHeadersFactory,
+            UserRepository userRepository) {
+        this.tokenParser = tokenParser;
         this.userService = userService;
         this.resourceLoader = resourceLoader;
+        this.httpHeadersFactory = httpHeadersFactory;
+        this.userRepository = userRepository;
     }
     // 모든 사용자 조회
     @GetMapping("/users")
@@ -52,9 +68,9 @@ public class UserController {
 
     // 특정 사용자 조회
     @GetMapping("users/{userNumber}")
-    public ResponseEntity<ResponseMessage> getUserByNumber(/*@PathVariable int userNumber*/
-            @RequestHeader("Authorization") String token) {
-        int userNumber = extractUserNumberFromToken(token);
+    public ResponseEntity<ResponseMessage> getUserByNumber(
+            @PathVariable int userNumber
+    ) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
@@ -128,66 +144,85 @@ public class UserController {
                 .body(new ResponseMessage(200, "사용자 프로필 수정 성공", null));
     }
 
+
     // 사용자 프로필 출력
     @GetMapping("/img/userProfile/{userNumber}")
-    public ResponseEntity<Resource> getUserImage(/*@PathVariable String userNumber*/@RequestHeader("Authorization") String token){
-        int userNumber = extractUserNumberFromToken(token);
+    public ResponseEntity<Resource> getUserImage(
+            @PathVariable int userNumber
+    ){
         try{
-            //확장자 동적 확인
-            String[] extensions = {".png", ".jpg", ".jpeg"};
-            Resource resource = null;
-            for (String ext : extensions){
-                resource = resourceLoader.getResource("classpath:static/img/user_profile/" + userNumber + ext);
+            UserCommonDTO foundUser = userService.getUserByNumber(userNumber);
 
-                if (resource.exists()){
-                    break;
-                }
-            }
+            Resource resource = resourceLoader.getResource("classpath:static/img/user_profile/" + foundUser.getUserProfileImg());
 
-            if (resource != null && resource.exists() && resource.isReadable()){
+            if (resource.exists()){
                 String contentType = "image/png";//기본 MIME 타입 설정
-                if(resource.getFilename().endsWith(".jpg") || resource.getFilename().endsWith("jpeg")){
+
+                if(resource.getFilename().endsWith("jpg") || resource.getFilename().endsWith("jpeg")){
                     contentType = "image/jpeg";
                 }
 
                 return ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType(contentType))
                         .body(resource);
+
             }else {
-                return ResponseEntity.notFound().build();
+                resource = resourceLoader.getResource("classpath:static/img/user_profile/defaultProfile.png");
+                return ResponseEntity.ok().contentType(MediaType.parseMediaType("image/png")).body(resource);
             }
         }catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(500).build();
+            Resource resource = resourceLoader.getResource("classpath:static/img/user_profile/defaultProfile.png");
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType("image/png")).body(resource);
         }
     }
+
+
     //사용자 프로필 원래꺼는 삭제, 새로 등록된거 DB 에 추가
     // 사용자 프로필 이미지 업로드
     @PostMapping("users/{userNumber}/profile/upload")
     public ResponseEntity<ResponseMessage> uploadProfileImage(
-            @PathVariable int userNumber,
-            @RequestParam("profileImage") MultipartFile profileImage) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+            @PathVariable int userNumber
+            , @RequestHeader(name = "Authorization") String token
+            , @RequestPart("profileImage") MultipartFile profileImage
+    ) {
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+
+        int tokenUserNumber = tokenParser.extractUserNumberFromToken(token);
+
+        if(userNumber != tokenUserNumber){
+            throw new IllegalArgumentException("잘못된 요청");
+        }
+
+        User user = userRepository.findById(tokenUserNumber)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 요청 (유저를 찾을 수 없음)"));
 
         try {
             // 기존 이미지 삭제
-            String[] extensions = {".png", ".jpg", ".jpeg"};
-            for (String ext : extensions) {
-                File existingFile = new File("src/main/resources/static/img/user_profile/" + userNumber + ext);
-                if (existingFile.exists()) {
-                    existingFile.delete();
-                    break;
+            Resource resource = resourceLoader.getResource("classpath:static/img/user_profile");
+            String filePath = null;
+            if(resource.exists()) {
+                filePath = resource.getFile().getAbsolutePath();
+            } else {
+                File newDir = new File("src/main/resources/static/img/user_profile");
+                if(!newDir.mkdir()) {
+                    throw new IOException("이미지 저장 실패");
+                } else {
+                    filePath = newDir.getAbsolutePath();
                 }
             }
 
-            // 새 이미지 저장
+            File prevFile = new File("src/main/resources/static/img/user_profile/" + user.getUserProfileImg());
+            if (prevFile.exists()) {
+                prevFile.delete();
+            }
+
+            // 새 이미지 저장 - 나중에 서비스 단으로 옮겨야함 여기서 저장 ㄴ
             String newFileName = userNumber + "." + getFileExtension(profileImage.getOriginalFilename());
-            File newFile = new File("src/main/resources/static/img/user_profile/" + newFileName);
+            File newFile = new File(filePath + "/" + newFileName);
             profileImage.transferTo(newFile);
 
             // 데이터베이스에 새로운 이미지 경로 저장
-            userService.updateUserProfileImage(userNumber, newFileName);
+            userService.updateUserProfileImage(tokenUserNumber, newFileName);
 
             return ResponseEntity.ok()
                     .headers(headers)
@@ -270,10 +305,10 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        if (madeParties.isEmpty()) {
-            return ResponseEntity.status(404)
-                    .body(new ResponseMessage(404, "사용자가 만든 모임이 없습니다.", null));
-        }
+        // if (madeParties.isEmpty()) {
+        //     return ResponseEntity.status(404)
+        //             .body(new ResponseMessage(404, "사용자가 만든 모임이 없습니다.", null));
+        // }
 
         // 응답 데이터 생성
         Map<String, Object> responseMap = new HashMap<>();
@@ -290,9 +325,10 @@ public class UserController {
     /*모임 개수 api*/
 
     /*사용자 별 참여한 모임 개수*/
-    @GetMapping("users/{userNumber}/parties/count")
-    public ResponseEntity<ResponseMessage> countUserJoinedParties(/*@PathVariable int userNumber*/@RequestHeader("Authorization") String token) {
-        int userNumber = extractUserNumberFromToken(token);
+    @GetMapping("/users/{userNumber}/parties/count")
+    public ResponseEntity<ResponseMessage> countUserJoinedParties(
+            @PathVariable int userNumber
+    ) {
         long count = userService.countPartiesPartyBoardsByUserNumber(userNumber);
 
         HttpHeaders headers = new HttpHeaders();
@@ -307,9 +343,10 @@ public class UserController {
     }
   
     /*사용자 별 만든 모임 개수*/
-    @GetMapping("users/{userNumber}/made/count")
-    public ResponseEntity<ResponseMessage> countUserMadeParties(/*@PathVariable int userNumber*/@RequestHeader("Authorization") String token) {
-        int userNumber = extractUserNumberFromToken(token);
+    @GetMapping("/users/{userNumber}/made/count")
+    public ResponseEntity<ResponseMessage> countUserMadeParties(
+            @PathVariable int userNumber
+    ) {
         long count = userService.countMadePartyBoardsByUserNumber(userNumber);
 
         HttpHeaders headers = new HttpHeaders();
