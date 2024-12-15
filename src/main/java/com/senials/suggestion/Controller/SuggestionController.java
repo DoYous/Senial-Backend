@@ -73,4 +73,17 @@ public class SuggestionController {
 
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "생성 성공", responseMap));
     }
+
+    //특정 건의 조회
+    @GetMapping("/suggestion/{suggestionNumber")
+    public ResponseEntity<ResponseMessage> getSuggestionById(@PathVariable("suggestionNumber") int suggestionNumber){
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+
+        SuggestionDTO suggestionDTO=suggestionService.getSuggestionById(suggestionNumber);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("suggestionDTO", suggestionDTO);
+
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "생성 성공", responseMap));
+    }
 }

@@ -44,4 +44,12 @@ public class SuggestionService {
                 .collect(Collectors.toList());
         return suggestionDTOList;
     }
+
+    //특정 건의 조회
+    public SuggestionDTO getSuggestionById(int suggestionNumber){
+        Suggestion suggestion=suggestionRepository.findById(suggestionNumber).orElseThrow(() -> new IllegalArgumentException("해당 건의는 존재하지 않습니다: " + suggestionNumber));
+        SuggestionDTO suggestionDTO=suggestionMapper.toSuggestionDTO(suggestion);
+
+        return suggestionDTO;
+    }
 }
