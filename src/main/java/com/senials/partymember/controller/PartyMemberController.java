@@ -1,6 +1,7 @@
 package com.senials.partymember.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.common.TokenParser;
 import com.senials.config.HttpHeadersFactory;
 import com.senials.partymember.PartyMemberDTO;
 import com.senials.partymember.service.PartyMemberService;
@@ -18,17 +19,22 @@ import java.util.Map;
 @RestController
 public class PartyMemberController {
 
-    private Integer loggedInUserNumber = 3;
+    private final TokenParser tokenParser;
     private final HttpHeadersFactory httpHeadersFactory;
     private final PartyMemberService partyMemberService;
+    private Integer loggedInUserNumber = 3;
 
 
     public PartyMemberController(
-            PartyMemberService partyMemberService,
-            HttpHeadersFactory httpHeadersFactory) {
+            TokenParser tokenParser
+            , PartyMemberService partyMemberService
+            , HttpHeadersFactory httpHeadersFactory
+    ) {
+        this.tokenParser = tokenParser;
         this.partyMemberService = partyMemberService;
         this.httpHeadersFactory = httpHeadersFactory;
     }
+
 
     /* 모임 멤버 페이지 조회 */
     @GetMapping("/partyboards/{partyBoardNumber}/partymembers-page")
@@ -36,8 +42,10 @@ public class PartyMemberController {
             @PathVariable Integer partyBoardNumber
             , @RequestParam(required = false, defaultValue = "4") Integer pageSize
             , @RequestParam(required = false, defaultValue = "0") Integer pageNumber
+            , @RequestHeader(name = "Authorization") String token
     ) {
-        List<PartyMemberDTO> partyMemberDTOList = partyMemberService.getPartyMembers(partyBoardNumber, pageNumber, pageSize);
+        int userNumber = tokenParser.extractUserNumberFromToken(token);
+        List<PartyMemberDTO> partyMemberDTOList = partyMemberService.getPartyMembers(userNumber, partyBoardNumber, pageNumber, pageSize);
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("partyMembers", partyMemberDTOList);
@@ -63,16 +71,18 @@ public class PartyMemberController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 멤버 전체 조회 성공", responseMap));
     }
 
+
     /* 모임 참가 */
     @PostMapping("/partyboards/{partyBoardNumber}/partymembers")
     public ResponseEntity<ResponseMessage> registerPartyMember (
             @PathVariable Integer partyBoardNumber
+            , @RequestHeader(required = false, value = "Authorization") String token
     ) {
-        // 유저 번호 임의 지정
 
         int code = 2;
-        if(loggedInUserNumber != null) {
-            code = partyMemberService.registerPartyMember(loggedInUserNumber, partyBoardNumber);
+        if(token != null) {
+            int userNumber = tokenParser.extractUserNumberFromToken(token);
+            code = partyMemberService.registerPartyMember(userNumber, partyBoardNumber);
         }
 
         String message = null;
@@ -125,9 +135,11 @@ public class PartyMemberController {
     public ResponseEntity<ResponseMessage> kickPartyMember (
             @PathVariable Integer partyBoardNumber
             , @RequestBody List<Integer> kickList
+            , @RequestHeader(value = "Authorization") String token
     ) {
+        int userNumber = tokenParser.extractUserNumberFromToken(token);
 
-        partyMemberService.kickPartyMember(loggedInUserNumber, kickList, partyBoardNumber);
+        partyMemberService.kickPartyMember(userNumber, kickList, partyBoardNumber);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));

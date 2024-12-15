@@ -1,6 +1,7 @@
 package com.senials.meetmember.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.common.TokenParser;
 import com.senials.common.mapper.UserMapper;
 import com.senials.config.HttpHeadersFactory;
 import com.senials.meet.repository.MeetRepository;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class MeetMemberController {
 
     private final Integer loggedInUserNumber = 3;
+    private final TokenParser tokenParser;
     private final HttpHeadersFactory httpHeadersFactory;
     private final UserMapper userMapper;
     private final MeetRepository meetRepository;
@@ -28,12 +30,14 @@ public class MeetMemberController {
     private final MeetMemberService meetMemberService;
 
     public MeetMemberController(
-            HttpHeadersFactory httpHeadersFactory
+            TokenParser tokenParser
+            , HttpHeadersFactory httpHeadersFactory
             , UserMapper userMapper
             , MeetRepository meetRepository
             , MeetMemberRepository meetMemberRepository
             , MeetMemberService meetMemberService
     ) {
+        this.tokenParser = tokenParser;
         this.httpHeadersFactory = httpHeadersFactory;
         this.userMapper = userMapper;
         this.meetRepository = meetRepository;
@@ -47,9 +51,12 @@ public class MeetMemberController {
             @PathVariable Integer meetNumber
             ,@RequestParam(required = false, defaultValue = "100") Integer pageSize
             ,@RequestParam(required = false, defaultValue = "0") Integer pageNumber
+            ,@RequestHeader(name = "Authorization") String token
     ) {
 
-        List<UserDTOForPublic> meetMemberList = meetMemberService.getMeetMembersByMeetNumber(loggedInUserNumber, meetNumber, pageNumber, pageSize);
+        int userNumber = tokenParser.extractUserNumberFromToken(token);
+
+        List<UserDTOForPublic> meetMemberList = meetMemberService.getMeetMembersByMeetNumber(userNumber, meetNumber, pageNumber, pageSize);
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("meetMembers", meetMemberList);

@@ -1,6 +1,7 @@
 package com.senials.likes.controller;
 
 import com.senials.common.ResponseMessage;
+import com.senials.common.TokenParser;
 import com.senials.config.HttpHeadersFactory;
 import com.senials.likes.service.LikesService;
 import com.senials.partyboard.dto.PartyBoardDTOForCard;
@@ -21,14 +22,19 @@ import java.util.Map;
 
 @RestController
 public class LikesController {
-    private final LikesService likesService;
-    private final UserRepository userRepository;
-    private final HttpHeadersFactory httpHeadersFactory;
 
-    public LikesController(LikesService likesService, UserRepository userRepository, HttpHeadersFactory httpHeadersFactory) {
-        this.likesService = likesService;
-        this.userRepository = userRepository;
+    private final HttpHeadersFactory httpHeadersFactory;
+    private final TokenParser tokenParser;
+    private final LikesService likesService;
+
+    public LikesController(
+        HttpHeadersFactory httpHeadersFactory
+        , TokenParser tokenParser
+        , LikesService likesService
+        ) {
         this.httpHeadersFactory = httpHeadersFactory;
+        this.tokenParser = tokenParser;
+        this.likesService = likesService;
     }
 
     @Value("${jwt.secret}")
@@ -98,17 +104,16 @@ public class LikesController {
     @PutMapping("/likes/partyBoards/{partyBoardNumber}")
     public ResponseEntity<ResponseMessage> toggleLike(
             @PathVariable int partyBoardNumber,
-            @RequestHeader("Authorization") String token
+            @RequestHeader(required = false, value = "Authorization") String token
     )
     {
-        Integer userNumber = extractUserNumberFromToken(token);
-        
-        
+
+        Integer userNumber = null;
         Integer code = 2;
-        if(userNumber != null) {
+        if(token != null) {
+            userNumber = tokenParser.extractUserNumberFromToken(token);
             code = likesService.toggleLike(userNumber, partyBoardNumber);
         }
-
         
         String message = null;
         if(code == 1) {
@@ -121,7 +126,6 @@ public class LikesController {
         
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("code", code);
-        
 
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, message, responseMap));

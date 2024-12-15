@@ -91,7 +91,6 @@ public class MeetService {
                 }
             }
         }
-
         return meetDTOList;
     }
 
