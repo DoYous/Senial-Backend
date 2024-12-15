@@ -42,7 +42,12 @@ public class SuggestionService {
     public List<SuggestionDTO> getSuggestionList() {
         List<Suggestion> suggestionList = suggestionRepository.findAll();
         List<SuggestionDTO> suggestionDTOList = suggestionList.stream()
-                .map(suggestion ->suggestionMapper.toSuggestionDTO(suggestion))
+                .map(suggestion ->{
+                   SuggestionDTO suggestionDTO= suggestionMapper.toSuggestionDTO(suggestion);
+                   suggestionDTO.setUserNumber(suggestion.getUser().getUserNumber());
+                    suggestionDTO.setUserName(suggestion.getUser().getUserName());
+                   return suggestionDTO;
+                })
                 .collect(Collectors.toList());
         return suggestionDTOList;
     }
@@ -53,5 +58,10 @@ public class SuggestionService {
         SuggestionDTO suggestionDTO=suggestionMapper.toSuggestionDTO(suggestion);
 
         return suggestionDTO;
+    }
+
+    //특정 건의 삭제
+    public void deleteSuggestionById(int suggestionNumber){
+        suggestionRepository.deleteById(suggestionNumber);
     }
 }

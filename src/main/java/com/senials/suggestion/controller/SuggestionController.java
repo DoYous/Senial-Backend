@@ -83,6 +83,15 @@ public class SuggestionController {
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("suggestionDTO", suggestionDTO);
 
-        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "생성 성공", responseMap));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
+    }
+
+    @DeleteMapping("/suggestion/{suggestionNumber}")
+    public ResponseEntity<ResponseMessage> deleteSuggestionById(@PathVariable("suggestionNumber") int suggestionNumber) {
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+
+        suggestionService.deleteSuggestionById(suggestionNumber);
+
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "삭제 성공",null));
     }
 }
