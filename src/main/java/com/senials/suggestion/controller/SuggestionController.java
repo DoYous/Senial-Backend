@@ -86,6 +86,7 @@ public class SuggestionController {
         return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "조회 성공", responseMap));
     }
 
+    //특정 건의 삭제
     @DeleteMapping("/suggestion/{suggestionNumber}")
     public ResponseEntity<ResponseMessage> deleteSuggestionById(@PathVariable("suggestionNumber") int suggestionNumber) {
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
