@@ -10,6 +10,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @RestController
 public class ReportController {
 
@@ -29,7 +33,24 @@ public class ReportController {
         this.reportService = reportService;
     }
 
+    /* 신고 전체 조회 (관리자만) */
+    @GetMapping("/reports")
+    public ResponseEntity<ResponseMessage> getReports (
+            @RequestHeader(name = "Authorization") String token
+            , @RequestParam int type
+    ) {
 
+        List<ReportDTO> reviewDTOList = reportService.getAllReportsByTargetType(type);
+
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("reports", reviewDTOList);
+
+        HttpHeaders headers = headersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "신고 목록 조회 성공", responseMap));
+    }
+
+
+    /* 신고하기 */
     @PostMapping("/reports")
     public ResponseEntity<ResponseMessage> postReport(
             @RequestHeader(name = "Authorization") String token
@@ -42,6 +63,6 @@ public class ReportController {
         reportService.registerReport(reportDTO);
 
         HttpHeaders headers = headersFactory.createJsonHeaders();
-        return ResponseEntity.ok().headers(headers).body(new ResponseMessage());
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "신고 성공", null));
     }
 }

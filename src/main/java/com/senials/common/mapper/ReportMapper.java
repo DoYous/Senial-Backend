@@ -10,4 +10,7 @@ public interface ReportMapper {
 
     /* ReportDTO -> Report */
     Report toReport(ReportDTO reportDTO);
+
+    /* Report -> ReportDTO */
+    ReportDTO toReportDTO(Report report);
 }

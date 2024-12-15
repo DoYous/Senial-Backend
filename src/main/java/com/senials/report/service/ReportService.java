@@ -13,9 +13,12 @@ import com.senials.report.entity.Report;
 import com.senials.report.repository.ReportRepository;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ReportService {
@@ -38,6 +41,41 @@ public class ReportService {
         this.partyBoardRepository = partyBoardRepository;
         this.partyReviewRepository = partyReviewRepository;
         this.hobbyReviewRepository = hobbyReviewRepository;
+    }
+
+    /* 신고 대상 별 전체 신고 조회 */
+    public List<ReportDTO> getAllReportsByTargetType(int type) {
+
+        List<Report> reportList = reportRepository.findAllByReportTargetType(type, Sort.by("reportDate").descending());
+
+        List<ReportDTO> reportDTOList = reportList.stream().map(report -> {
+            ReportDTO reportDTO = reportMapper.toReportDTO(report);
+            switch(type) {
+                case 0:
+                    reportDTO.setUserNumber(report.getUser().getUserNumber());
+                    break;
+                case 1:
+                    reportDTO.setPartyBoardNumber(report.getPartyBoard().getPartyBoardNumber());
+                    reportDTO.setPartyBoardName(report.getPartyBoard().getPartyBoardName());
+                    break;
+                case 2:
+                    reportDTO.setPartyReviewNumber(report.getPartyReview().getPartyReviewNumber());
+                    reportDTO.setPartyReviewDetail(report.getPartyReview().getPartyReviewDetail());
+                    reportDTO.setPartyBoardNumber(report.getPartyReview().getPartyBoard().getPartyBoardNumber());
+                    break;
+                case 3:
+                    reportDTO.setHobbyReviewNumber(report.getHobbyReview().getHobbyReviewNumber());
+                    reportDTO.setHobbyReviewDetail(report.getHobbyReview().getHobbyReviewDetail());
+                    reportDTO.setHobbyNumber(report.getHobbyReview().getHobby().getHobbyNumber());
+                    break;
+                default:
+                    throw new IllegalArgumentException("잘못된 요청입니다.");
+            }
+            return reportDTO;
+
+        }).toList();
+
+        return reportDTOList;
     }
 
 

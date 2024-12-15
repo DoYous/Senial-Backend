@@ -51,9 +51,7 @@ public class PartyReviewService {
         return partyReviewMapper.toPartyReviewDTO(partyReview);
     }
 
-
-    /* 개인 모임 후기 단일 조회 */
-    public PartyReviewDTOForDetail getOnePartyReview(int userNumber, int partyBoardNumber) {
+    public PartyReviewDTOForDetail getOwnPartyReview(int userNumber, int partyBoardNumber) {
 
         PartyReview partyReview = partyReviewRepository.findByUser_UserNumberAndPartyBoard_PartyBoardNumber(userNumber, partyBoardNumber);
 
@@ -62,6 +60,23 @@ public class PartyReviewService {
         } else {
             return null;
         }
+    }
+
+
+    /* 개인 모임 후기 단일 조회 */
+    public PartyReviewDTOForDetail getOnePartyReview(int userNumber, int partyBoardNumber, int partyReviewNumber) {
+
+        PartyReview targetPartyReview = partyReviewRepository.findById(partyReviewNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        if(userNumber != 1 ) {
+            PartyReview ownPartyReview = partyReviewRepository.findByUser_UserNumberAndPartyBoard_PartyBoardNumber(userNumber, partyBoardNumber);
+            if (ownPartyReview == null || ownPartyReview.getPartyReviewNumber() != partyReviewNumber) {
+                throw new IllegalArgumentException("잘못된 요청입니다. (본인이 작성한 후기 아님)");
+            }
+        }
+
+        return partyReviewMapper.toPartyReviewDTOForDetail(targetPartyReview);
     }
 
 
