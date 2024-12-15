@@ -40,6 +40,15 @@ public class HobbyReviewService {
         return hobbyReviewDTOList;
     }
 
+    // 취미리뷰 번호만으로 조회 (신고 시 조회용)
+    public HobbyReviewDTO getHobbyReviewForReport(int hobbyReviewNumber) {
+        HobbyReview hobbyReview = hobbyReviewRepository.findById(hobbyReviewNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        HobbyReviewDTO hobbyReviewDTO = hobbyReviewMapper.toHobbyReviewDTO(hobbyReview);
+        return hobbyReviewDTO;
+    }
+
     //취미번호, 유저번호, 리뷰번호를 통한 대조후 취미리뷰 조회
     public HobbyReviewDTO getHobbyReview(int hobbyNumber, int userNumber, int hobbyReviewNumber) {
         User user = (User) userRepository.findById(userNumber).orElseThrow(() -> new IllegalArgumentException("해당 유저 번호가 존재하지 않습니다: " + userNumber));

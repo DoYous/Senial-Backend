@@ -57,3 +57,7 @@ GET http://localhost:8081/partyboards/search/1
 
 ###키워드 검색후 취미 결과 조회 + 페이지네이션
 GET http://localhost:8081/search-whole/hobby?keyword=&page=0&size=4
+
+
+###
+GET http://localhost:8080/hobbyreviews/1

@@ -42,6 +42,15 @@ public class PartyReviewService {
         this.userRepository = userRepository;
     }
 
+    /* 모임 후기 단일 조회 */
+    public PartyReviewDTO getPartyReview(int partyReviewNumber) {
+
+        PartyReview partyReview =  partyReviewRepository.findById(partyReviewNumber)
+                .orElseThrow(IllegalArgumentException::new);
+
+        return partyReviewMapper.toPartyReviewDTO(partyReview);
+    }
+
 
     /* 개인 모임 후기 단일 조회 */
     public PartyReviewDTOForDetail getOnePartyReview(int userNumber, int partyBoardNumber) {

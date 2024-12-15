@@ -5,6 +5,7 @@ import com.senials.partyboard.entity.PartyBoard;
 import com.senials.partyreview.entity.PartyReview;
 import com.senials.user.entity.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -53,10 +54,51 @@ public class Report {
     @Column(name = "report_detail", nullable = false, length = 5000)
     private String reportDetail;
 
-    @Column(name = "report_ctgr", nullable = false)
-    private int reportCtgr;
+    @Column(name = "report_target_type", nullable = false)
+    private int reportTargetType;
 
     @Column(name = "report_date", nullable = false)
     private LocalDateTime reportDate;
 
+
+    /* AllArgsConstructor */
+    @Builder
+    public Report(int reportNumber, User reporter, User user, PartyBoard partyBoard, PartyReview partyReview, HobbyReview hobbyReview, int reportType, String reportDetail, int reportTargetType, LocalDateTime reportDate) {
+        this.reportNumber = reportNumber;
+        this.reporter = reporter;
+        this.user = user;
+        this.partyBoard = partyBoard;
+        this.partyReview = partyReview;
+        this.hobbyReview = hobbyReview;
+        this.reportType = reportType;
+        this.reportDetail = reportDetail;
+        this.reportTargetType = reportTargetType;
+        this.reportDate = reportDate;
+    }
+
+
+    /* 초기 설정용 */
+    public void initializeReporter(User user){
+        this.reporter = user;
+    }
+
+    public void initializeUser(User user) {
+        this.user = user;
+    }
+
+    public void initializePartyBoard(PartyBoard partyBoard) {
+        this.partyBoard = partyBoard;
+    }
+
+    public void initializePartyReview(PartyReview partyReview) {
+        this.partyReview = partyReview;
+    }
+
+    public void initializeHobbyReview(HobbyReview hobbyReview) {
+        this.hobbyReview = hobbyReview;
+    }
+
+    public void initializeReportDate(LocalDateTime reportDate) {
+        this.reportDate = reportDate;
+    }
 }
