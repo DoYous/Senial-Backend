@@ -1,13 +1,11 @@
 ###건의 생성
 POST http://localhost:8081/suggestion
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzaWdudXBEYXRlIjoiMjAyNC0xMi0xNSIsInN1YiI6Iuq5gOyDgeydtSIsInVzZXJTdGF0dXMiOjAsImdlbmRlciI6MCwidXNlckRldGFpbCI6bnVsbCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImJpcnRoIjoiMjAyNC0xMi0wNCIsIm5pY2tuYW1lIjoiR1RVIiwidXNlclV1aWQiOiI5MTY1NWVmYi01ZjU3LTQ2YmYtODkyNi0xMWY5MjdhM2U3NTAiLCJyZXBvcnRDb3VudCI6MCwicHJvZmlsZUltZyI6IjEucG5nIiwiZXhwIjoxNzM0MzU4OTYzLCJ1c2VyTnVtYmVyIjoxLCJpYXQiOjE3MzQyNzI1NjMsImVtYWlsIjoic2FuZ2lrOTk5OUBuYXZlci5jb20ifQ.v4CQ5qJOTNfgn0BnL49n0oWLYiql53TxOnQ-BdmwkNY
 
 {
   "suggestionTitle":"건의 작성 테스트 제목",
   "suggestionType":0,
-  "suggestionDetail":"건의 작성 테스트 내용" ,
-  "suggestionDate": "2024-12-13T18:45:06"
+  "suggestionDetail":"건의 작성 테스트 내용"
 }
 
 ###건의 리스트 전체 조회

@@ -8,6 +8,7 @@ import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,8 +28,9 @@ public class SuggestionService {
     }
 
     //건의사항을 생성
-    public Suggestion saveSuggestion(SuggestionDTO suggestionDTO){
-        User user=userRepository.findById(suggestionDTO.getUserNumber()).orElseThrow(()->new IllegalArgumentException("해당 유저 번호가 존재하지 않습니다: "));
+    public Suggestion saveSuggestion(SuggestionDTO suggestionDTO, int userNumber){
+        suggestionDTO.setSuggestionDate(LocalDateTime.now());
+        User user=userRepository.findById(userNumber).orElseThrow(()->new IllegalArgumentException("해당 유저 번호가 존재하지 않습니다: "));
         Suggestion suggestion=suggestionMapper.toSuggestionEntity(suggestionDTO);
         suggestion.initializeUser(user);
         Suggestion saveSuggestion=suggestionRepository.save(suggestion);

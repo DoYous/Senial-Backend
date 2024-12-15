@@ -1,6 +1,7 @@
 package com.senials.suggestion.entity;
 
 import com.senials.user.entity.User;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -36,6 +37,15 @@ public class Suggestion {
     @Column(name = "suggestion_date", nullable = false)
     private LocalDateTime suggestionDate;
 
+    @Builder
+    public Suggestion(int suggestionNumber, User user, String suggestionTitle, int suggestionType, String suggestionDetail, LocalDateTime suggestionDate) {
+        this.suggestionNumber = suggestionNumber;
+        this.user = user;
+        this.suggestionTitle = suggestionTitle;
+        this.suggestionType = suggestionType;
+        this.suggestionDetail = suggestionDetail;
+        this.suggestionDate = suggestionDate;
+    }
 
     public void initializeUser(User user){
         this.user=user;

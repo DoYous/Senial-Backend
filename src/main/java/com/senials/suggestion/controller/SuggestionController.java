@@ -52,9 +52,7 @@ public class SuggestionController {
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
 
         int userNumber = extractUserNumberFromToken(token); // 토큰에서 userNumber 추출
-        suggestionDTO.setUserNumber(userNumber);
-
-        Suggestion suggestion=suggestionService.saveSuggestion(suggestionDTO);
+        Suggestion suggestion=suggestionService.saveSuggestion(suggestionDTO, userNumber);
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("suggestion", suggestion);
