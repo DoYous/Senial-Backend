@@ -22,7 +22,6 @@ public class PartyMemberController {
     private final TokenParser tokenParser;
     private final HttpHeadersFactory httpHeadersFactory;
     private final PartyMemberService partyMemberService;
-    private Integer loggedInUserNumber = 3;
 
 
     public PartyMemberController(
@@ -76,7 +75,7 @@ public class PartyMemberController {
     @PostMapping("/partyboards/{partyBoardNumber}/partymembers")
     public ResponseEntity<ResponseMessage> registerPartyMember (
             @PathVariable Integer partyBoardNumber
-            , @RequestHeader(required = false, value = "Authorization") String token
+            , @RequestHeader(value = "Authorization") String token
     ) {
 
         int code = 2;
@@ -106,28 +105,17 @@ public class PartyMemberController {
     @DeleteMapping("/partyboards/{partyBoardNumber}/partymembers")
     public ResponseEntity<ResponseMessage> unregisterPartyMember (
             @PathVariable Integer partyBoardNumber
+            , @RequestHeader(name = "Authorization") String token
     ) {
+        int userNumber = tokenParser.extractUserNumberFromToken(token);
 
-
-        int code = 0;
-        if(loggedInUserNumber != null) {
-            partyMemberService.unregisterPartyMember(loggedInUserNumber, partyBoardNumber);
-            code = 1;
-        }
-
-        String message = null;
-        if(code == 1) {
-            message = "나가기 성공";
-        } else {
-            message = "요청 실패 (관리자에게 문의)";
-        }
+        partyMemberService.unregisterPartyMember(userNumber, partyBoardNumber);
 
         Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("code", code);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, message, responseMap));
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 탈퇴 성공", responseMap));
     }
 
     /* 모임 추방 */

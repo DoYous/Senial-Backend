@@ -79,7 +79,10 @@ public class LikesController {
 
     /*사용자 별 좋아요 한 모임 개수*/
     @GetMapping("/users/{userNumber}/like/count")
-    public ResponseEntity<ResponseMessage> countUserLikeParties(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<ResponseMessage> countUserLikeParties(
+            @RequestHeader("Authorization") String token
+    ) {
+        System.out.println("token : " + token);
         int userNumber = extractUserNumberFromToken(token);
         long count = likesService.countLikesPartyBoardsByUserNumber(userNumber);
 
