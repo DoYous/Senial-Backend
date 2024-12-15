@@ -1,4 +1,4 @@
-package com.senials.suggestion.Controller;
+package com.senials.suggestion.controller;
 
 
 import com.senials.common.ResponseMessage;
@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping
 public class SuggestionController {
 
     private final SuggestionService suggestionService;
@@ -75,7 +76,7 @@ public class SuggestionController {
     }
 
     //특정 건의 조회
-    @GetMapping("/suggestion/{suggestionNumber")
+    @GetMapping("/suggestion/{suggestionNumber}")
     public ResponseEntity<ResponseMessage> getSuggestionById(@PathVariable("suggestionNumber") int suggestionNumber){
         HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
 
