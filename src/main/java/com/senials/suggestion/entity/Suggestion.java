@@ -37,4 +37,7 @@ public class Suggestion {
     private LocalDateTime suggestionDate;
 
 
+    public void initializeUser(User user){
+        this.user=user;
+    }
 }

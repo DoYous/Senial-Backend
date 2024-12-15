@@ -53,8 +53,8 @@ public class Report {
     @Column(name = "report_detail", nullable = false, length = 5000)
     private String reportDetail;
 
-    @Column(name = "report_ctgr", nullable = false)
-    private int reportCtgr;
+    @Column(name = "report_target_type", nullable = false)
+    private int reportTargetType;
 
     @Column(name = "report_date", nullable = false)
     private LocalDateTime reportDate;
