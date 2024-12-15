@@ -258,10 +258,6 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        if (joinedParties.isEmpty()) {
-            return ResponseEntity.status(404)
-                    .body(new ResponseMessage(404, "사용자가 참여한 모임이 없습니다.", null));
-        }
 
         // 응답 데이터 생성
         Map<String, Object> responseMap = new HashMap<>();
