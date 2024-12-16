@@ -97,7 +97,9 @@ public class PartyBoardService {
             user = null;
         }
 
-        List<PartyBoard> partyBoardList = partyBoardRepository.find4ByHobbyOrderByRand(partyBoardNumber);
+        PartyBoard foundPartyBoard = partyBoardRepository.findById(partyBoardNumber)
+                .orElseThrow(IllegalArgumentException::new);
+        List<PartyBoard> partyBoardList = partyBoardRepository.find4ByHobbyOrderByRand(partyBoardNumber, foundPartyBoard.getHobby().getHobbyNumber());
 
         List<PartyBoardDTOForCard> partyBoardDTOList = partyBoardList.stream().map(partyBoard -> {
             PartyBoardDTOForCard partyBoardDTO = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
