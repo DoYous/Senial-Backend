@@ -97,10 +97,18 @@ public class PartyBoardService {
             user = null;
         }
 
-        List<PartyBoard> partyBoardList = partyBoardRepository.find4ByHobbyOrderByRand(partyBoardNumber);
+        PartyBoard foundPartyBoard = partyBoardRepository.findById(partyBoardNumber)
+                .orElseThrow(IllegalArgumentException::new);
+        List<PartyBoard> partyBoardList = partyBoardRepository.find4ByHobbyOrderByRand(partyBoardNumber, foundPartyBoard.getHobby().getHobbyNumber());
 
         List<PartyBoardDTOForCard> partyBoardDTOList = partyBoardList.stream().map(partyBoard -> {
             PartyBoardDTOForCard partyBoardDTO = partyBoardMapper.toPartyBoardDTOForCard(partyBoard);
+            String firstImageStr = null;
+            PartyBoardImage firstImage = partyBoard.getImages().get(0);
+            if(firstImage != null) {
+                firstImageStr = firstImage.getPartyBoardImg();
+            }
+            partyBoardDTO.setFirstImage(firstImageStr);
             boolean isLiked = user != null && likeRepository.existsByUserAndPartyBoard(user, partyBoard);
             partyBoardDTO.setLiked(isLiked);
             return partyBoardDTO;
