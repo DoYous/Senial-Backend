@@ -7,6 +7,7 @@ import com.senials.partyboard.dto.PartyBoardDTOForCard;
 import com.senials.partyboardimage.dto.FileDTO;
 import com.senials.user.dto.UserCommonDTO;
 import com.senials.user.dto.UserDTO;
+import com.senials.user.dto.UserDTOForManage;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
 import com.senials.user.service.UserService;
@@ -50,6 +51,37 @@ public class UserController {
         this.httpHeadersFactory = httpHeadersFactory;
         this.userRepository = userRepository;
     }
+
+    @PutMapping("/users")
+    public ResponseEntity<ResponseMessage> changeUsersStatus (
+            @RequestBody UserStatusChangeRequest request
+    ) {
+
+        userService.changeUsersStatus(request.getCheckedUsers(), request.getStatus());
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "유저 상태 변경 성공", null));
+    }
+
+    /* 관리자 페이지용 모든 사용자 조회 */
+    @GetMapping("/users-manage")
+    public ResponseEntity<ResponseMessage> getAllUsersForManage(
+            @RequestParam(required = false) String keyword
+    ) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        List<UserDTOForManage> users = userService.getAllUsersForManage(keyword);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("users", users);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new ResponseMessage(200, "전체 사용자 조회 성공", responseMap));
+    }
+
+    /* !! 비밀번호까지 가져가는데 이거 모임???? */
     // 모든 사용자 조회
     @GetMapping("/users")
     public ResponseEntity<ResponseMessage> getAllUsers() {
@@ -65,6 +97,7 @@ public class UserController {
                 .headers(headers)
                 .body(new ResponseMessage(200, "전체 사용자 조회 성공", responseMap));
     }
+
 
     // 특정 사용자 조회
     @GetMapping("users/{userNumber}")

@@ -110,6 +110,16 @@ public class User {
         this.userDetail = userDetail;
     }
 
+    /* 신고 카운트 증가 */
+    public void increaseReportCnt() {
+        this.userReportCnt += 1;
+    }
+
+    /* 유저 상태 변경 */
+    public void changeStatus(int status) {
+        this.userStatus = status;
+    }
+
     /* 프로필 이미지 수정용 */
     public void updateUserProfileImg(String userProfileImg){
         this.userProfileImg = userProfileImg;
