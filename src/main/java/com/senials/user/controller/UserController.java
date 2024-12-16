@@ -71,7 +71,7 @@ public class UserController {
     public ResponseEntity<ResponseMessage> getUserByNumber(
             @PathVariable int userNumber
     ) {
-
+        System.out.println("test");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 

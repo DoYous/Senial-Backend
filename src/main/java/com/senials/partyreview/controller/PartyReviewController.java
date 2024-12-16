@@ -2,8 +2,10 @@ package com.senials.partyreview.controller;
 
 import com.senials.common.ResponseMessage;
 import com.senials.common.TokenParser;
+import com.senials.config.HttpHeadersFactory;
 import com.senials.partyreview.dto.PartyReviewDTO;
 import com.senials.partyreview.dto.PartyReviewDTOForDetail;
+import com.senials.partyreview.entity.PartyReview;
 import com.senials.partyreview.service.PartyReviewService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,16 +23,38 @@ import java.util.Map;
 @RestController
 public class PartyReviewController {
 
-    private TokenParser tokenParser;
+    private final HttpHeadersFactory httpHeadersFactory;
+    private final TokenParser tokenParser;
     private final PartyReviewService partyReviewService;
 
     public PartyReviewController(
-            TokenParser tokenParser
+            HttpHeadersFactory httpHeadersFactory
+            , TokenParser tokenParser
             , PartyReviewService partyReviewService
-    ) {
+    )
+    {
+        this.httpHeadersFactory = httpHeadersFactory;
         this.tokenParser = tokenParser;
         this.partyReviewService = partyReviewService;
     }
+
+
+    /* 모임 후기 단일 조회 */
+    @GetMapping("/partyreviews/{partyReviewNumber}")
+    public ResponseEntity<ResponseMessage> getPartyReview(
+            @PathVariable int partyReviewNumber
+    ) {
+        System.out.println(partyReviewNumber);
+        PartyReviewDTO partyReview = partyReviewService.getPartyReview(partyReviewNumber);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("partyReview", partyReview);
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "모임 후기 조회 성공", responseMap));
+    }
+
+
 
     /* 특정 모임 후기 단일 조회 */
     @GetMapping("/partyboards/{partyBoardNumber}/partyreviews/{partyReviewNumber}")

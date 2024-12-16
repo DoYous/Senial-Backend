@@ -41,6 +41,21 @@ public class HobbyReviewController {
         return claims.get("userNumber", Integer.class);
     }
 
+    /* 취미 후기 단일 조회 */
+    @GetMapping("/hobbyreviews/{hobbyReviewNumber}")
+    public ResponseEntity<ResponseMessage> getHobbyReviewForReport(
+            @PathVariable int hobbyReviewNumber
+    ) {
+        HobbyReviewDTO hobbyReviewDTO= hobbyReviewService.getHobbyReviewForReport(hobbyReviewNumber);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("hobbyReview", hobbyReviewDTO);
+
+        HttpHeaders headers = httpHeadersFactory.createJsonHeaders();
+        return ResponseEntity.ok().headers(headers).body(new ResponseMessage(200, "취미 후기 조회 성공", responseMap));
+
+    }
+
     //취미 후기 조회
     @GetMapping("{hobbyNumber}/hobby-review/{hobbyReviewNumber}")
     public ResponseEntity<ResponseMessage> getHobbyReview(
