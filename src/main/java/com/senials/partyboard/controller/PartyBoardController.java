@@ -187,7 +187,7 @@ public class PartyBoardController {
             isMember = partyMemberService.checkIsMember(userNumber, partyBoardNumber);
             isMaster = masterUserDTO.getUserNumber() == loggedInUserDTO.getUserNumber();
             // 내가 작성한 후기 불러오기
-            myReview = partyReviewService.getOnePartyReview(userNumber, partyBoardNumber);
+            myReview = partyReviewService.getOwnPartyReview(userNumber, partyBoardNumber);
         }
 
 

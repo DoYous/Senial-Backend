@@ -60,16 +60,20 @@ public class PartyReviewController {
     @GetMapping("/partyboards/{partyBoardNumber}/partyreviews/{partyReviewNumber}")
     public ResponseEntity<ResponseMessage> getMyPartyReview(
             @PathVariable Integer partyBoardNumber
+            , @PathVariable Integer partyReviewNumber
             , @RequestHeader(name = "Authorization") String token
     ) {
         int userNumber = tokenParser.extractUserNumberFromToken(token);
 
-        PartyReviewDTOForDetail partyReviewDTO = partyReviewService.getOnePartyReview(userNumber, partyBoardNumber);
+
+        PartyReviewDTOForDetail partyReviewDTO = partyReviewService.getOnePartyReview(userNumber, partyBoardNumber, partyReviewNumber);
+
 
         if (partyReviewDTO == null) {
             return ResponseEntity.status(404)
                     .body(new ResponseMessage(404, "작성한 모임 후기를 찾을 수 없습니다.", null));
         }
+
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("startDate", partyReviewDTO.getPartyReviewWriteDate().toLocalDate()); // 시작 날짜
