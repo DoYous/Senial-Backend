@@ -52,6 +52,7 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+    /* 유저 상태 변경 */
     @PutMapping("/users")
     public ResponseEntity<ResponseMessage> changeUsersStatus (
             @RequestBody UserStatusChangeRequest request
