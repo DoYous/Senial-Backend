@@ -16,6 +16,7 @@ import com.senials.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -79,6 +80,7 @@ public class ReportService {
     }
 
 
+    @Transactional
     public void registerReport(ReportDTO reportDTO) {
 
         User reporter = userRepository.findById(reportDTO.getReporterNumber())
@@ -94,6 +96,7 @@ public class ReportService {
             case 0:
                 User user = userRepository.findById(targetNumber)
                         .orElseThrow(IllegalArgumentException::new);
+                user.increaseReportCnt();
                 newReport.initializeUser(user);
                 break;
             case 1:

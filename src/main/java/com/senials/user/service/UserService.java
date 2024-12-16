@@ -9,15 +9,15 @@ import com.senials.partymember.repository.PartyMemberRepository;
 import com.senials.partyreview.entity.PartyReview;
 import com.senials.user.dto.UserCommonDTO;
 import com.senials.user.dto.UserDTO;
+import com.senials.user.dto.UserDTOForManage;
 import com.senials.user.dto.UserDTOForPublic;
 import com.senials.user.entity.User;
 import com.senials.user.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -44,6 +44,32 @@ public class UserService {
         this.partyBoardRepository = partyBoardRepository;
     }
 
+    /* 선택한 사용자 상태 변경 */
+    @Transactional
+    public void changeUsersStatus(List<Integer> userNumberList, int status) {
+
+        for(int userNumber : userNumberList) {
+            User user = userRepository.findById(userNumber).orElseThrow(IllegalArgumentException::new);
+
+            user.changeStatus(status);
+        }
+    }
+
+
+    //모든 사용자 조회
+    public List<UserDTOForManage> getAllUsersForManage(String keyword) {
+        List<User> users = null;
+        if(keyword == null || keyword.isBlank()) {
+            users = userRepository.findAll(Sort.by("userSignupDate").descending());
+        } else {
+            users = userRepository.findAll("%" + keyword + "%", Sort.by("userSignupDate").descending());
+        }
+        return users.stream()
+                .map(userMapper::toUserDTOForManage)
+                .toList();
+    }
+
+
     //모든 사용자 조회
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
@@ -52,6 +78,7 @@ public class UserService {
                 .toList();
 
     }
+
 
     // 특정 사용자 조회
     public UserCommonDTO getUserByNumber(int userNumber) {

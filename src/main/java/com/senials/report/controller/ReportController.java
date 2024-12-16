@@ -33,6 +33,7 @@ public class ReportController {
         this.reportService = reportService;
     }
 
+
     /* 신고 전체 조회 (관리자만) */
     @GetMapping("/reports")
     public ResponseEntity<ResponseMessage> getReports (
