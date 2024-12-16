@@ -87,7 +87,8 @@ public class UserService {
                         user.getUserName(),
                         user.getUserNickname(),
                         user.getUserDetail(),
-                        user.getUserProfileImg()
+                        user.getUserProfileImg(),
+                        user.getUserStatus()
                 ))
                 .orElseThrow(IllegalArgumentException::new);
     }
