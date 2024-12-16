@@ -20,7 +20,7 @@ public interface PartyReviewRepository extends JpaRepository<PartyReview, Intege
     /* 모임 후기 평점 */
     @Query(value = "SELECT IFNULL(ROUND(AVG(partyReviewRate), 1), 0) from PartyReview WHERE partyBoard = :partyBoard")
     double findAvgRateByPartyBoard(PartyBoard partyBoard);
-    @Query(value = "SELECT IFNULL(ROUND(AVG(party_review_rate), 1), 0) from PARTY_REVIEW WHERE party_board_number = :partyBoardNumber", nativeQuery = true)
+    @Query(value = "SELECT IFNULL(ROUND(AVG(party_review_rate), 1), 0) from party_review WHERE party_board_number = :partyBoardNumber", nativeQuery = true)
     double findAvgRateByPartyBoard_PartyBoardNumber(int partyBoardNumber);
 
     /* 모임 후기 개수 */

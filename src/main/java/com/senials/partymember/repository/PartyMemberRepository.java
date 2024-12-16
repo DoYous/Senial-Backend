@@ -31,6 +31,6 @@ public interface PartyMemberRepository extends JpaRepository<PartyMember, Intege
     boolean existsByUser_UserNumberAndPartyBoard_PartyBoardNumber(int userNumber, int partyBoardNumber);
 
     /* 모임 멤버 랜덤 4명 조회 (상세 페이지 초기 로딩) */
-    @Query(value = "SELECT * FROM PARTY_MEMBER WHERE party_board_number = :partyBoardNumber ORDER BY RAND() LIMIT 4", nativeQuery = true)
+    @Query(value = "SELECT * FROM party_member WHERE party_board_number = :partyBoardNumber ORDER BY RAND() LIMIT 4", nativeQuery = true)
     List<PartyMember> find4ByPartyBoardNumber(int partyBoardNumber);
 }
