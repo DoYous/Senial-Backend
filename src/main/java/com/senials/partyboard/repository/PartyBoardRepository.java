@@ -39,8 +39,8 @@ public interface PartyBoardRepository extends JpaRepository<PartyBoard, Integer>
     /* 평점 높은 순, 리뷰 개수 N개 이상, 모집중 >> M개 */
     @Query(value = """
             SELECT pb.* 
-            FROM PARTY_BOARD pb 
-            JOIN PARTY_REVIEW pr 
+            FROM party_board pb 
+            JOIN party_review pr 
                 ON pb.party_board_status = 0 
                        AND 
                    pb.party_board_number = pr.party_board_number 
@@ -50,8 +50,8 @@ public interface PartyBoardRepository extends JpaRepository<PartyBoard, Integer>
             """
             , countQuery = """
                 SELECT COUNT(*) 
-                FROM PARTY_BOARD pb 
-                    JOIN PARTY_REVIEW pr 
+                FROM party_board pb 
+                    JOIN party_review pr 
                         ON pb.party_board_status = 0 
                                AND 
                            pb.party_board_number = pr.party_board_number 
