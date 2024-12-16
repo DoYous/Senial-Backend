@@ -60,6 +60,7 @@ public class HobbyReview {
                        String hobbyReviewDetail,
                        int hobbyReviewHealthStatus,
                        int hobbyReviewTendency, int hobbyReviewLevel,
+                       int hobbyReviewBudget,
                        LocalDateTime hobbyReviewWriteDate) {
         this.hobbyReviewNumber = hobbyReviewNumber;
         this.user = user;
@@ -69,6 +70,7 @@ public class HobbyReview {
         this.hobbyReviewHealthStatus = hobbyReviewHealthStatus;
         this.hobbyReviewTendency = hobbyReviewTendency;
         this.hobbyReviewLevel = hobbyReviewLevel;
+        this.hobbyReviewBudget=hobbyReviewBudget;
         this.hobbyReviewWriteDate = hobbyReviewWriteDate;
     }
 
